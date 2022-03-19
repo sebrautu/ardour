@@ -24,6 +24,7 @@
 #include <vector>
 
 #include <boost/optional.hpp>
+#include <glibmm/threads.h>
 
 #include "pbd/search_path.h"
 #include "pbd/signals.h"
@@ -145,10 +146,12 @@ public:
 
 	/* API for Ardour -- Parameters */
 	bool         try_set_parameter_by_id (Vst::ParamID id, float value);
-	void         set_parameter (uint32_t p, float value, int32 sample_off);
+	void         set_parameter (uint32_t p, float value, int32 sample_off, bool to_list = true);
 	float        get_parameter (uint32_t p) const;
 	std::string  format_parameter (uint32_t p) const;
 	Vst::ParamID index_to_id (uint32_t) const;
+
+	Glib::Threads::Mutex& process_lock () { return _process_lock; }
 
 	enum ParameterChange { BeginGesture,
 	                       EndGesture,
@@ -291,6 +294,8 @@ private:
 	std::vector<Vst::AudioBusBuffers> _busbuf_in;
 	std::vector<Vst::AudioBusBuffers> _busbuf_out;
 
+	Glib::Threads::Mutex _process_lock;
+
 	int _n_inputs;
 	int _n_outputs;
 	int _n_aux_inputs;
@@ -398,6 +403,15 @@ private:
 
 	std::vector<bool> _connected_inputs;
 	std::vector<bool> _connected_outputs;
+
+	struct PV {
+		PV () : port (0), val (0) {}
+		PV (uint32_t p, float v) : port (p), val (v) {}
+		uint32_t port;
+		float    val;
+	};
+
+	PBD::RingBufferNPT<PV> _parameter_queue;
 };
 
 /* ****************************************************************************/
