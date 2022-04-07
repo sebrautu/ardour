@@ -33,7 +33,7 @@ namespace ARDOUR {
 class LXVSTPluginUI : public VSTPluginUI
 {
 public:
-	LXVSTPluginUI (boost::shared_ptr<ARDOUR::PluginInsert>, boost::shared_ptr<ARDOUR::VSTPlugin>);
+	LXVSTPluginUI (std::shared_ptr<ARDOUR::PluginInsert>, std::shared_ptr<ARDOUR::VSTPlugin>);
 	~LXVSTPluginUI ();
 
 	int get_preferred_height ();

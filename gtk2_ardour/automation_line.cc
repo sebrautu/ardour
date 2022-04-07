@@ -38,7 +38,7 @@
 #include <climits>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
+#include "memory"
 
 #include "pbd/floating.h"
 #include "pbd/memento_command.h"
@@ -87,7 +87,7 @@ using namespace Temporal;
 AutomationLine::AutomationLine (const string&                              name,
                                 TimeAxisView&                              tv,
                                 ArdourCanvas::Item&                        parent,
-                                boost::shared_ptr<AutomationList>          al,
+                                std::shared_ptr<AutomationList>          al,
                                 const ParameterDescriptor&                 desc)
 	: trackview (tv)
 	, _name (name)
@@ -1133,7 +1133,7 @@ AutomationLine::clear ()
 }
 
 void
-AutomationLine::set_list (boost::shared_ptr<ARDOUR::AutomationList> list)
+AutomationLine::set_list (std::shared_ptr<ARDOUR::AutomationList> list)
 {
 	alist = list;
 	queue_reset ();

@@ -36,16 +36,16 @@ class IOSelector;
 class SendUI : public Gtk::HBox
 {
   public:
-	SendUI (Gtk::Window *, boost::shared_ptr<ARDOUR::Send>, ARDOUR::Session*);
+	SendUI (Gtk::Window *, std::shared_ptr<ARDOUR::Send>, ARDOUR::Session*);
 	~SendUI();
 
 	void update ();
 	void fast_update ();
 
-	boost::shared_ptr<ARDOUR::Send>& send() { return _send; }
+	std::shared_ptr<ARDOUR::Send>& send() { return _send; }
 
   private:
-	boost::shared_ptr<ARDOUR::Send> _send;
+	std::shared_ptr<ARDOUR::Send> _send;
 	GainMeter                       _gpm;
 	PannerUI                        _panners;
 	Gtk::VBox                       _vbox;
@@ -62,7 +62,7 @@ class SendUI : public Gtk::HBox
 class SendUIWindow : public ArdourWindow
 {
   public:
-	SendUIWindow(boost::shared_ptr<ARDOUR::Send>, ARDOUR::Session*);
+	SendUIWindow(std::shared_ptr<ARDOUR::Send>, ARDOUR::Session*);
 	~SendUIWindow();
 
 	SendUI* ui;

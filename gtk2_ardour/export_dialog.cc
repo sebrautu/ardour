@@ -264,7 +264,7 @@ ExportDialog::update_warnings_and_example_filename ()
 
 	/* Add new warnings */
 
-	boost::shared_ptr<ExportProfileManager::Warnings> warnings = profile_manager->get_warnings();
+	std::shared_ptr<ExportProfileManager::Warnings> warnings = profile_manager->get_warnings();
 
 	for (std::list<string>::iterator it = warnings->errors.begin(); it != warnings->errors.end(); ++it) {
 		add_error (*it);

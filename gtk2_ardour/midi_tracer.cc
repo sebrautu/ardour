@@ -169,7 +169,7 @@ MidiTracer::port_changed ()
 		return;
 	}
 
-	boost::shared_ptr<ARDOUR::Port> p = AudioEngine::instance()->get_port_by_name (_port_combo.get_active_text());
+	std::shared_ptr<ARDOUR::Port> p = AudioEngine::instance()->get_port_by_name (_port_combo.get_active_text());
 
 	if (!p) {
 		std::cerr << "port not found: " << _port_combo.get_active_text() << "\n";
@@ -187,15 +187,15 @@ MidiTracer::port_changed ()
 	 * If not use our local parser and tell the port that we need it to be called.
 	 */
 
-	boost::shared_ptr<AsyncMIDIPort> async = boost::dynamic_pointer_cast<AsyncMIDIPort> (p);
+	std::shared_ptr<AsyncMIDIPort> async = std::dynamic_pointer_cast<AsyncMIDIPort> (p);
 
 	if (!async) {
 
-		boost::shared_ptr<ARDOUR::MidiPort> mp = boost::dynamic_pointer_cast<ARDOUR::MidiPort> (p);
+		std::shared_ptr<ARDOUR::MidiPort> mp = std::dynamic_pointer_cast<ARDOUR::MidiPort> (p);
 		if (mp) {
 			if (mp->flags() & TransportMasterPort) {
-				boost::shared_ptr<TransportMaster> tm = TransportMasterManager::instance().master_by_port(boost::dynamic_pointer_cast<ARDOUR::Port> (p));
-				boost::shared_ptr<TransportMasterViaMIDI> tm_midi = boost::dynamic_pointer_cast<TransportMasterViaMIDI> (tm);
+				std::shared_ptr<TransportMaster> tm = TransportMasterManager::instance().master_by_port(std::dynamic_pointer_cast<ARDOUR::Port> (p));
+				std::shared_ptr<TransportMasterViaMIDI> tm_midi = std::dynamic_pointer_cast<TransportMasterViaMIDI> (tm);
 				if (tm_midi) {
 					tm_midi->transport_parser().any.connect_same_thread(_parser_connection, boost::bind (&MidiTracer::tracer, this, _1, _2, _3, _4));
 				}

@@ -578,7 +578,7 @@ RecorderUI::start_updating ()
 
 	/* Audio */
 	for (PortManager::AudioInputPorts::const_iterator i = aip.begin (); i != aip.end (); ++i) {
-		_input_ports[i->first] = boost::shared_ptr<RecorderUI::InputPort> (new InputPort (i->first, DataType::AUDIO, this, _vertical));
+		_input_ports[i->first] = std::shared_ptr<RecorderUI::InputPort> (new InputPort (i->first, DataType::AUDIO, this, _vertical));
 		set_connections (i->first);
 	}
 
@@ -588,7 +588,7 @@ RecorderUI::start_updating ()
 		if (PortManager::port_is_control_only (pn)) {
 			continue;
 		}
-		_input_ports[i->first] = boost::shared_ptr<RecorderUI::InputPort> (new InputPort (i->first, DataType::MIDI, this, _vertical));
+		_input_ports[i->first] = std::shared_ptr<RecorderUI::InputPort> (new InputPort (i->first, DataType::MIDI, this, _vertical));
 		set_connections (i->first);
 	}
 
@@ -640,7 +640,7 @@ RecorderUI::add_or_remove_io (DataType dt, vector<string> ports, bool add)
 			if (dt==DataType::MIDI && PortManager::port_is_control_only (pn)) {
 				continue;
 			}
-			_input_ports[*i] = boost::shared_ptr<RecorderUI::InputPort> (new InputPort (*i, dt, this, _vertical));
+			_input_ports[*i] = std::shared_ptr<RecorderUI::InputPort> (new InputPort (*i, dt, this, _vertical));
 			set_connections (*i);
 		}
 	} else {
@@ -675,7 +675,7 @@ RecorderUI::update_io_widget_labels ()
 		ips.insert (i->second);
 	}
 	for (InputPortSet::const_iterator i = ips.begin (); i != ips.end (); ++i) {
-		boost::shared_ptr<InputPort> const& ip = *i;
+		std::shared_ptr<InputPort> const& ip = *i;
 		switch (ip->data_type ()) {
 			case DataType::AUDIO:
 				ip->set_frame_label (string_compose (_("Audio Input %1"), ++n_audio));
@@ -757,13 +757,13 @@ RecorderUI::meter_area_layout ()
 
 	InputPortSet ips;
 	for (InputPortMap::const_iterator i = _input_ports.begin (); i != _input_ports.end (); ++i) {
-		boost::shared_ptr<InputPort> const& ip = i->second;
+		std::shared_ptr<InputPort> const& ip = i->second;
 		ip->show ();
 		ips.insert (ip);
 	}
 
 	for (InputPortSet::const_iterator i = ips.begin (); i != ips.end (); ++i) {
-		boost::shared_ptr<InputPort> const& ip = *i;
+		std::shared_ptr<InputPort> const& ip = *i;
 		_meter_table.attach (*ip, col, col + 1, row, row + 1, SHRINK|FILL, SHRINK, spc, spc);
 
 		if (++col >= _meter_area_cols) {
@@ -800,7 +800,7 @@ RecorderUI::meter_area_size_request (GtkRequisition* requisition)
 	int spc    = 2;
 
 	for (InputPortMap::const_iterator i = _input_ports.begin (); i != _input_ports.end (); ++i) {
-		boost::shared_ptr<InputPort> const& ip = i->second;
+		std::shared_ptr<InputPort> const& ip = i->second;
 		Requisition r = ip->size_request ();
 		width  = std::max (width, r.width + spc * 2);
 		height = std::max (height, r.height + spc * 2);
@@ -837,7 +837,7 @@ RecorderUI::port_pretty_name_changed (string pn)
 }
 
 void
-RecorderUI::regions_changed (boost::shared_ptr<ARDOUR::RegionList>, PBD::PropertyChange const& what_changed)
+RecorderUI::regions_changed (std::shared_ptr<ARDOUR::RegionList>, PBD::PropertyChange const& what_changed)
 {
 	PBD::PropertyChange interests;
 
@@ -885,7 +885,7 @@ RecorderUI::set_connections (string const& p)
 
 	WeakRouteList wrl;
 
-	boost::shared_ptr<RouteList> rl = _session->get_tracks ();
+	std::shared_ptr<RouteList> rl = _session->get_tracks ();
 	for (RouteList::const_iterator r = rl->begin(); r != rl->end(); ++r) {
 		if ((*r)->input()->connected_to (p)) {
 			wrl.push_back (*r);
@@ -938,7 +938,7 @@ RecorderUI::spill_port (string const& p)
 void
 RecorderUI::initial_track_display ()
 {
-	boost::shared_ptr<RouteList> r = _session->get_tracks ();
+	std::shared_ptr<RouteList> r = _session->get_tracks ();
 	RouteList                    rl (*r);
 	_recorders.clear ();
 	add_routes (rl);
@@ -950,7 +950,7 @@ RecorderUI::add_routes (RouteList& rl)
 	rl.sort (Stripable::Sorter ());
 	for (RouteList::iterator r = rl.begin (); r != rl.end (); ++r) {
 		/* we're only interested in Tracks */
-		if (!boost::dynamic_pointer_cast<Track> (*r)) {
+		if (!std::dynamic_pointer_cast<Track> (*r)) {
 			continue;
 		}
 
@@ -993,8 +993,8 @@ RecorderUI::tra_name_edit (TrackRecordAxis* tra, bool next)
 struct TrackRecordAxisSorter {
 	bool operator() (const TrackRecordAxis* ca, const TrackRecordAxis* cb)
 	{
-		boost::shared_ptr<Stripable> const& a = ca->stripable ();
-		boost::shared_ptr<Stripable> const& b = cb->stripable ();
+		std::shared_ptr<Stripable> const& a = ca->stripable ();
+		std::shared_ptr<Stripable> const& b = cb->stripable ();
 		return Stripable::Sorter(true)(a, b);
 	}
 };
@@ -1165,9 +1165,9 @@ RecorderUI::new_track_for_port (DataType dt, string const& port_name)
 	}
 
 	if (dt == DataType::AUDIO) {
-		boost::shared_ptr<Route> r;
+		std::shared_ptr<Route> r;
 		try {
-			list<boost::shared_ptr<AudioTrack> > tl = _session->new_audio_track (1, outputs, NULL, 1, track_name, PresentationInfo::max_order, Normal, false);
+			list<std::shared_ptr<AudioTrack> > tl = _session->new_audio_track (1, outputs, NULL, 1, track_name, PresentationInfo::max_order, Normal, false);
 			r = tl.front ();
 		} catch (...) {
 			return;
@@ -1177,9 +1177,9 @@ RecorderUI::new_track_for_port (DataType dt, string const& port_name)
 			r->input ()->audio (0)->connect (port_name);
 		}
 	} else if (dt == DataType::MIDI) {
-		boost::shared_ptr<Route> r;
+		std::shared_ptr<Route> r;
 		try {
-			list<boost::shared_ptr<MidiTrack> > tl = _session->new_midi_track (
+			list<std::shared_ptr<MidiTrack> > tl = _session->new_midi_track (
 					ChanCount (DataType::MIDI, 1), ChanCount (DataType::MIDI, 1),
 					strict_io,
 					instrument_combo.selected_instrument (), (Plugin::PresetRecord*) 0,
@@ -1386,7 +1386,7 @@ RecorderUI::InputPort::update_rec_stat ()
 {
 	bool armed = false;
 	for (WeakRouteList::const_iterator r = _connected_routes.begin(); r != _connected_routes.end(); ++r) {
-		boost::shared_ptr<Route> rt = r->lock ();
+		std::shared_ptr<Route> rt = r->lock ();
 		if (!rt || !rt->rec_enable_control ()) {
 			continue;
 		}

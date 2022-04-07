@@ -39,7 +39,7 @@ using namespace Gtk;
 using namespace ARDOUR;
 using namespace PBD;
 
-WindowsVSTPluginUI::WindowsVSTPluginUI (boost::shared_ptr<PluginInsert> pi, boost::shared_ptr<VSTPlugin> vp, GtkWidget *parent)
+WindowsVSTPluginUI::WindowsVSTPluginUI (std::shared_ptr<PluginInsert> pi, std::shared_ptr<VSTPlugin> vp, GtkWidget *parent)
 	: VSTPluginUI (pi, vp)
 {
 

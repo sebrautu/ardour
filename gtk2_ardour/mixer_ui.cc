@@ -397,8 +397,8 @@ Mixer_UI::~Mixer_UI ()
 struct MixerStripSorter {
 	bool operator() (const MixerStrip* ms_a, const MixerStrip* ms_b)
 	{
-		boost::shared_ptr<ARDOUR::Stripable> const& a = ms_a->stripable ();
-		boost::shared_ptr<ARDOUR::Stripable> const& b = ms_b->stripable ();
+		std::shared_ptr<ARDOUR::Stripable> const& a = ms_a->stripable ();
+		std::shared_ptr<ARDOUR::Stripable> const& b = ms_b->stripable ();
 		return ARDOUR::Stripable::Sorter(true)(a, b);
 	}
 };
@@ -505,7 +505,7 @@ Mixer_UI::add_masters (VCAList& vlist)
 	StripableList sl;
 
 	for (VCAList::iterator v = vlist.begin(); v != vlist.end(); ++v) {
-		sl.push_back (boost::dynamic_pointer_cast<Stripable> (*v));
+		sl.push_back (std::dynamic_pointer_cast<Stripable> (*v));
 	}
 
 	add_stripables (sl);
@@ -533,7 +533,7 @@ Mixer_UI::add_stripables (StripableList& slist)
 	slist.sort (Stripable::Sorter());
 
 	for (Gtk::TreeModel::Children::iterator it = track_model->children().begin(); it != track_model->children().end(); ++it) {
-		boost::shared_ptr<Stripable> s = (*it)[stripable_columns.stripable];
+		std::shared_ptr<Stripable> s = (*it)[stripable_columns.stripable];
 
 		if (!s) {
 			continue;
@@ -557,10 +557,10 @@ Mixer_UI::add_stripables (StripableList& slist)
 
 		for (StripableList::iterator s = slist.begin(); s != slist.end(); ++s) {
 
-			boost::shared_ptr<Route> route;
-			boost::shared_ptr<VCA> vca;
+			std::shared_ptr<Route> route;
+			std::shared_ptr<VCA> vca;
 
-			if ((vca  = boost::dynamic_pointer_cast<VCA> (*s))) {
+			if ((vca  = std::dynamic_pointer_cast<VCA> (*s))) {
 
 				VCAMasterStrip* vms = new VCAMasterStrip (_session, vca);
 
@@ -573,7 +573,7 @@ Mixer_UI::add_stripables (StripableList& slist)
 
 				vms->signal_button_release_event().connect (sigc::bind (sigc::mem_fun(*this, &Mixer_UI::vca_button_release_event), vms));
 
-			} else if ((route = boost::dynamic_pointer_cast<Route> (*s))) {
+			} else if ((route = std::dynamic_pointer_cast<Route> (*s))) {
 
 				if (route->is_auditioner()) {
 					continue;
@@ -651,8 +651,8 @@ Mixer_UI::add_stripables (StripableList& slist)
 				strip->signal_button_release_event().connect (sigc::bind (sigc::mem_fun(*this, &Mixer_UI::strip_button_release_event), strip));
 			}
 
-			(*s)->presentation_info().PropertyChanged.connect (*this, invalidator(*this), boost::bind (&Mixer_UI::stripable_property_changed, this, _1, boost::weak_ptr<Stripable>(*s)), gui_context());
-			(*s)->PropertyChanged.connect (*this, invalidator(*this), boost::bind (&Mixer_UI::stripable_property_changed, this, _1, boost::weak_ptr<Stripable>(*s)), gui_context());
+			(*s)->presentation_info().PropertyChanged.connect (*this, invalidator(*this), boost::bind (&Mixer_UI::stripable_property_changed, this, _1, std::weak_ptr<Stripable>(*s)), gui_context());
+			(*s)->PropertyChanged.connect (*this, invalidator(*this), boost::bind (&Mixer_UI::stripable_property_changed, this, _1, std::weak_ptr<Stripable>(*s)), gui_context());
 		}
 
 	} catch (const std::exception& e) {
@@ -793,7 +793,7 @@ Mixer_UI::sync_presentation_info_from_treeview ()
 
 	for (ri = rows.begin(); ri != rows.end(); ++ri) {
 		bool visible = (*ri)[stripable_columns.visible];
-		boost::shared_ptr<Stripable> stripable = (*ri)[stripable_columns.stripable];
+		std::shared_ptr<Stripable> stripable = (*ri)[stripable_columns.stripable];
 
 #ifndef NDEBUG // these should not exist in the mixer's treeview
 		if (!stripable) {
@@ -847,7 +847,7 @@ Mixer_UI::sync_treeview_from_presentation_info (PropertyChange const & what_chan
 
 	TreeOrderKeys sorted;
 	for (TreeModel::Children::iterator ri = rows.begin(); ri != rows.end(); ++ri, ++old_order) {
-		boost::shared_ptr<Stripable> stripable = (*ri)[stripable_columns.stripable];
+		std::shared_ptr<Stripable> stripable = (*ri)[stripable_columns.stripable];
 		sorted.push_back (TreeOrderKey (old_order, stripable));
 	}
 
@@ -877,7 +877,7 @@ Mixer_UI::sync_treeview_from_presentation_info (PropertyChange const & what_chan
 		PresentationInfo::ChangeSuspender cs;
 
 		for (list<MixerStrip *>::const_iterator i = strips.begin(); i != strips.end(); ++i) {
-			boost::shared_ptr<Stripable> stripable = (*i)->stripable();
+			std::shared_ptr<Stripable> stripable = (*i)->stripable();
 			if (stripable && stripable->is_selected()) {
 				_selection.add (*i);
 			} else {
@@ -908,16 +908,16 @@ Mixer_UI::sync_treeview_from_presentation_info (PropertyChange const & what_chan
 }
 
 void
-Mixer_UI::fan_out (boost::weak_ptr<Route> wr, bool to_busses, bool group)
+Mixer_UI::fan_out (std::weak_ptr<Route> wr, bool to_busses, bool group)
 {
-	boost::shared_ptr<ARDOUR::Route> route = wr.lock ();
+	std::shared_ptr<ARDOUR::Route> route = wr.lock ();
 
 	if (!ARDOUR_UI_UTILS::engine_is_running () || ! route) {
 		return;
 	}
 
 	DisplaySuspender ds;
-	boost::shared_ptr<PluginInsert> pi = boost::dynamic_pointer_cast<PluginInsert> (route->the_instrument ());
+	std::shared_ptr<PluginInsert> pi = std::dynamic_pointer_cast<PluginInsert> (route->the_instrument ());
 	assert (pi);
 
 	const uint32_t n_outputs = pi->output_streams ().n_audio ();
@@ -932,7 +932,7 @@ Mixer_UI::fan_out (boost::weak_ptr<Route> wr, bool to_busses, bool group)
 #define BUSNAME  pd.group_name + "(" + route->name () + ")"
 
 	/* count busses and channels/bus */
-	boost::shared_ptr<Plugin> plugin = pi->plugin ();
+	std::shared_ptr<Plugin> plugin = pi->plugin ();
 	std::map<std::string, uint32_t> busnames;
 	for (uint32_t p = 0; p < n_outputs; ++p) {
 		const Plugin::IOPortDescription& pd (plugin->describe_io_port (DataType::AUDIO, false, p));
@@ -954,7 +954,7 @@ Mixer_UI::fan_out (boost::weak_ptr<Route> wr, bool to_busses, bool group)
 	route->output ()->disconnect (this);
 	route->panner_shell ()->set_bypassed (true);
 
-	boost::shared_ptr<AutomationControl> msac = route->master_send_enable_controllable ();
+	std::shared_ptr<AutomationControl> msac = route->master_send_enable_controllable ();
 	if (msac) {
 		msac->start_touch (timepos_t (msac->session().transport_sample()));
 		msac->set_value (0, PBD::Controllable::NoGroup);
@@ -964,7 +964,7 @@ Mixer_UI::fan_out (boost::weak_ptr<Route> wr, bool to_busses, bool group)
 	for (uint32_t p = 0; p < n_outputs; ++p) {
 		const Plugin::IOPortDescription& pd (plugin->describe_io_port (DataType::AUDIO, false, p));
 		std::string bn = BUSNAME;
-		boost::shared_ptr<Route> r = _session->route_by_name (bn);
+		std::shared_ptr<Route> r = _session->route_by_name (bn);
 		if (!r) {
 			try {
 				if (to_busses) {
@@ -972,17 +972,17 @@ Mixer_UI::fan_out (boost::weak_ptr<Route> wr, bool to_busses, bool group)
 					r = rl.front ();
 					assert (r);
 				} else {
-					list<boost::shared_ptr<AudioTrack> > tl = _session->new_audio_track (busnames[bn], outputs, NULL, 1, bn, PresentationInfo::max_order, Normal, false);
+					list<std::shared_ptr<AudioTrack> > tl = _session->new_audio_track (busnames[bn], outputs, NULL, 1, bn, PresentationInfo::max_order, Normal, false);
 					r = tl.front ();
 					assert (r);
 
-					boost::shared_ptr<ControlList> cl (new ControlList);
+					std::shared_ptr<ControlList> cl (new ControlList);
 					cl->push_back (r->monitoring_control ());
 					_session->set_controls (cl, (double) MonitorInput, Controllable::NoGroup);
 				}
 			} catch (...) {
 				if (!to_group.empty()) {
-					boost::shared_ptr<RouteList> rl (&to_group);
+					std::shared_ptr<RouteList> rl (&to_group);
 					_session->remove_routes (rl);
 				}
 				return;
@@ -1016,7 +1016,7 @@ Mixer_UI::fan_out (boost::weak_ptr<Route> wr, bool to_busses, bool group)
 }
 
 MixerStrip*
-Mixer_UI::strip_by_route (boost::shared_ptr<Route> r) const
+Mixer_UI::strip_by_route (std::shared_ptr<Route> r) const
 {
 	for (list<MixerStrip *>::const_iterator i = strips.begin(); i != strips.end(); ++i) {
 		if ((*i)->route() == r) {
@@ -1028,7 +1028,7 @@ Mixer_UI::strip_by_route (boost::shared_ptr<Route> r) const
 }
 
 MixerStrip*
-Mixer_UI::strip_by_stripable (boost::shared_ptr<Stripable> s) const
+Mixer_UI::strip_by_stripable (std::shared_ptr<Stripable> s) const
 {
 	for (list<MixerStrip *>::const_iterator i = strips.begin(); i != strips.end(); ++i) {
 		if ((*i)->stripable() == s) {
@@ -1040,7 +1040,7 @@ Mixer_UI::strip_by_stripable (boost::shared_ptr<Stripable> s) const
 }
 
 AxisView*
-Mixer_UI::axis_view_by_stripable (boost::shared_ptr<Stripable> s) const
+Mixer_UI::axis_view_by_stripable (std::shared_ptr<Stripable> s) const
 {
 	for (list<MixerStrip *>::const_iterator i = strips.begin(); i != strips.end(); ++i) {
 		if ((*i)->stripable() == s) {
@@ -1061,7 +1061,7 @@ Mixer_UI::axis_view_by_stripable (boost::shared_ptr<Stripable> s) const
 }
 
 AxisView*
-Mixer_UI::axis_view_by_control (boost::shared_ptr<AutomationControl> c) const
+Mixer_UI::axis_view_by_control (std::shared_ptr<AutomationControl> c) const
 {
 	for (list<MixerStrip *>::const_iterator i = strips.begin(); i != strips.end(); ++i) {
 		if ((*i)->control() == c) {
@@ -1432,8 +1432,8 @@ Mixer_UI::set_all_audio_midi_visibility (int tracks, bool yn)
 				continue;
 			}
 
-			boost::shared_ptr<AudioTrack> at = strip->audio_track();
-			boost::shared_ptr<MidiTrack> mt = strip->midi_track();
+			std::shared_ptr<AudioTrack> at = strip->audio_track();
+			std::shared_ptr<MidiTrack> mt = strip->midi_track();
 
 			switch (tracks) {
 			case 0:
@@ -1540,14 +1540,14 @@ Mixer_UI::track_list_delete (const Gtk::TreeModel::Path&)
 }
 
 void
-Mixer_UI::spill_redisplay (boost::shared_ptr<Stripable> s)
+Mixer_UI::spill_redisplay (std::shared_ptr<Stripable> s)
 {
 
-	boost::shared_ptr<VCA> vca = boost::dynamic_pointer_cast<VCA> (s);
-	boost::shared_ptr<Route> r = boost::dynamic_pointer_cast<Route> (s);
+	std::shared_ptr<VCA> vca = std::dynamic_pointer_cast<VCA> (s);
+	std::shared_ptr<Route> r = std::dynamic_pointer_cast<Route> (s);
 
 	TreeModel::Children rows = track_model->children();
-	std::list<boost::shared_ptr<VCA> > vcas;
+	std::list<std::shared_ptr<VCA> > vcas;
 
 	if (vca) {
 		vcas.push_back (vca);
@@ -1584,7 +1584,7 @@ Mixer_UI::spill_redisplay (boost::shared_ptr<Stripable> s)
 		}
 
 		if (vca) {
-			for (std::list<boost::shared_ptr<VCA> >::const_iterator m = vcas.begin(); m != vcas.end(); ++m) {
+			for (std::list<std::shared_ptr<VCA> >::const_iterator m = vcas.begin(); m != vcas.end(); ++m) {
 				if (strip->route()->slaved_to (*m)) {
 					slaved = true;
 					break;
@@ -1630,9 +1630,9 @@ Mixer_UI::redisplay_track_list ()
 		return;
 	}
 
-	boost::shared_ptr<Stripable> ss = spilled_strip.lock ();
+	std::shared_ptr<Stripable> ss = spilled_strip.lock ();
 	if (ss) {
-		boost::shared_ptr<VCA> sv = boost::dynamic_pointer_cast<VCA> (ss);
+		std::shared_ptr<VCA> sv = std::dynamic_pointer_cast<VCA> (ss);
 		if (sv) {
 			if (_spill_scroll_position <= 0 && scroller.get_hscrollbar()) {
 				_spill_scroll_position = scroller.get_hscrollbar()->get_adjustment()->get_value();
@@ -1664,7 +1664,7 @@ Mixer_UI::redisplay_track_list ()
 
 		AxisView* s = (*i)[stripable_columns.strip];
 		bool const visible = (*i)[stripable_columns.visible];
-		boost::shared_ptr<Stripable> stripable = (*i)[stripable_columns.stripable];
+		std::shared_ptr<Stripable> stripable = (*i)[stripable_columns.stripable];
 
 		if (!s) {
 			/* we're in the middle of changing a row, don't worry */
@@ -1774,7 +1774,7 @@ Mixer_UI::strip_width_changed ()
 
 struct PresentationInfoMixerSorter
 {
-	bool operator() (boost::shared_ptr<Stripable> a, boost::shared_ptr<Stripable> b) {
+	bool operator() (std::shared_ptr<Stripable> a, std::shared_ptr<Stripable> b) {
 		if (a->is_master()) {
 			/* master after everything else */
 			return false;
@@ -1794,7 +1794,7 @@ Mixer_UI::initial_track_display ()
 	_session->get_stripables (sl);
 	_session->get_stripables (fb, PresentationInfo::FoldbackBus);
 	if (fb.size()) {
-		boost::shared_ptr<ARDOUR::Stripable> _current_foldback = *(fb.begin());
+		std::shared_ptr<ARDOUR::Stripable> _current_foldback = *(fb.begin());
 		sl.push_back (_current_foldback);
 	}
 
@@ -1831,7 +1831,7 @@ Mixer_UI::track_display_button_press (GdkEventButton* ev)
 		if (track_display.get_path_at_pos ((int)ev->x, (int)ev->y, path, column, cellx, celly)) {
 			TreeIter iter = track_model->get_iter (path);
 			if ((*iter)[stripable_columns.visible]) {
-				boost::shared_ptr<ARDOUR::Stripable> s = (*iter)[stripable_columns.stripable];
+				std::shared_ptr<ARDOUR::Stripable> s = (*iter)[stripable_columns.stripable];
 				move_stripable_into_view (s);
 			}
 		}
@@ -1841,7 +1841,7 @@ Mixer_UI::track_display_button_press (GdkEventButton* ev)
 }
 
 void
-Mixer_UI::move_vca_into_view (boost::shared_ptr<ARDOUR::Stripable> s)
+Mixer_UI::move_vca_into_view (std::shared_ptr<ARDOUR::Stripable> s)
 {
 	if (!vca_scroller.get_hscrollbar()) {
 		return;
@@ -1879,7 +1879,7 @@ Mixer_UI::move_vca_into_view (boost::shared_ptr<ARDOUR::Stripable> s)
 }
 
 void
-Mixer_UI::move_stripable_into_view (boost::shared_ptr<ARDOUR::Stripable> s)
+Mixer_UI::move_stripable_into_view (std::shared_ptr<ARDOUR::Stripable> s)
 {
 	if (!scroller.get_hscrollbar()) {
 		return;
@@ -1943,13 +1943,13 @@ Mixer_UI::build_track_menu ()
 }
 
 void
-Mixer_UI::stripable_property_changed (const PropertyChange& what_changed, boost::weak_ptr<Stripable> ws)
+Mixer_UI::stripable_property_changed (const PropertyChange& what_changed, std::weak_ptr<Stripable> ws)
 {
 	if (!what_changed.contains (ARDOUR::Properties::hidden) && !what_changed.contains (ARDOUR::Properties::name)) {
 		return;
 	}
 
-	boost::shared_ptr<Stripable> s = ws.lock ();
+	std::shared_ptr<Stripable> s = ws.lock ();
 
 	if (!s) {
 		return;
@@ -1959,7 +1959,7 @@ Mixer_UI::stripable_property_changed (const PropertyChange& what_changed, boost:
 	TreeModel::Children::iterator i;
 
 	for (i = rows.begin(); i != rows.end(); ++i) {
-		boost::shared_ptr<Stripable> ss = (*i)[stripable_columns.stripable];
+		std::shared_ptr<Stripable> ss = (*i)[stripable_columns.stripable];
 
 		if (s == ss) {
 
@@ -2947,13 +2947,13 @@ Mixer_UI::monitor_section_going_away ()
 void
 Mixer_UI::toggle_midi_input_active (bool flip_others)
 {
-	boost::shared_ptr<RouteList> rl (new RouteList);
+	std::shared_ptr<RouteList> rl (new RouteList);
 	bool onoff = false;
 
 	set_axis_targets_for_operation ();
 
 	for (AxisViewSelection::iterator r = _axis_targets.begin(); r != _axis_targets.end(); ++r) {
-		boost::shared_ptr<MidiTrack> mt = boost::dynamic_pointer_cast<MidiTrack> ((*r)->stripable());
+		std::shared_ptr<MidiTrack> mt = std::dynamic_pointer_cast<MidiTrack> ((*r)->stripable());
 
 		if (mt) {
 			rl->push_back (mt);
@@ -3392,7 +3392,7 @@ Mixer_UI::add_favorite_processor (ARDOUR::PluginPresetPtr ppp, ProcessorPosition
 
 	PluginInfoPtr pip = ppp->_pip;
 	for (AxisViewSelection::iterator i = _selection.axes.begin(); i != _selection.axes.end(); ++i) {
-		boost::shared_ptr<ARDOUR::Route> rt = boost::dynamic_pointer_cast<ARDOUR::Route> ((*i)->stripable());
+		std::shared_ptr<ARDOUR::Route> rt = std::dynamic_pointer_cast<ARDOUR::Route> ((*i)->stripable());
 
 		if (!rt) {
 			continue;
@@ -3409,7 +3409,7 @@ Mixer_UI::add_favorite_processor (ARDOUR::PluginPresetPtr ppp, ProcessorPosition
 		}
 
 		Route::ProcessorStreams err;
-		boost::shared_ptr<Processor> processor (new PluginInsert (*_session, rt->time_domain(), p));
+		std::shared_ptr<Processor> processor (new PluginInsert (*_session, rt->time_domain(), p));
 
 		switch (pos) {
 			case AddTop:
@@ -3423,15 +3423,15 @@ Mixer_UI::add_favorite_processor (ARDOUR::PluginPresetPtr ppp, ProcessorPosition
 					int idx = 0;
 					int pos = 0;
 					for (;;++idx) {
-						boost::shared_ptr<Processor> np = rt->nth_processor (idx);
+						std::shared_ptr<Processor> np = rt->nth_processor (idx);
 						if (!np) {
 							break;
 						}
 						if (!np->display_to_user()) {
 							continue;
 						}
-						if (boost::dynamic_pointer_cast<Amp> (np) && // Fader, not Trim
-								boost::dynamic_pointer_cast<Amp> (np)->gain_control()->parameter().type() == GainAutomation) {
+						if (std::dynamic_pointer_cast<Amp> (np) && // Fader, not Trim
+								std::dynamic_pointer_cast<Amp> (np)->gain_control()->parameter().type() == GainAutomation) {
 							break;
 						}
 						++pos;
@@ -3517,23 +3517,23 @@ Mixer_UI::plugin_drop (const Glib::RefPtr<Gdk::DragContext>&, const Gtk::Selecti
 }
 
 void
-Mixer_UI::do_vca_assign (boost::shared_ptr<VCA> vca)
+Mixer_UI::do_vca_assign (std::shared_ptr<VCA> vca)
 {
 	/* call protected MixerActor:: method */
 	vca_assign (vca);
 }
 
 void
-Mixer_UI::do_vca_unassign (boost::shared_ptr<VCA> vca)
+Mixer_UI::do_vca_unassign (std::shared_ptr<VCA> vca)
 {
 	/* call protected MixerActor:: method */
 	vca_unassign (vca);
 }
 
 void
-Mixer_UI::show_spill (boost::shared_ptr<Stripable> s)
+Mixer_UI::show_spill (std::shared_ptr<Stripable> s)
 {
-	boost::shared_ptr<Stripable> ss = spilled_strip.lock();
+	std::shared_ptr<Stripable> ss = spilled_strip.lock();
 	if (ss == s) {
 		return;
 	}
@@ -3554,11 +3554,11 @@ Mixer_UI::show_spill (boost::shared_ptr<Stripable> s)
 void
 Mixer_UI::spill_nothing ()
 {
-	show_spill (boost::shared_ptr<Stripable> ());
+	show_spill (std::shared_ptr<Stripable> ());
 }
 
 bool
-Mixer_UI::showing_spill_for (boost::shared_ptr<Stripable> s) const
+Mixer_UI::showing_spill_for (std::shared_ptr<Stripable> s) const
 {
 	return s == spilled_strip.lock();
 }
@@ -3617,17 +3617,17 @@ Mixer_UI::load_bindings ()
 }
 
 template<class T> void
-Mixer_UI::control_action (boost::shared_ptr<T> (Stripable::*get_control)() const)
+Mixer_UI::control_action (std::shared_ptr<T> (Stripable::*get_control)() const)
 {
-	boost::shared_ptr<ControlList> cl (new ControlList);
-	boost::shared_ptr<AutomationControl> ac;
+	std::shared_ptr<ControlList> cl (new ControlList);
+	std::shared_ptr<AutomationControl> ac;
 	bool val = false;
 	bool have_val = false;
 
 	set_axis_targets_for_operation ();
 
 	BOOST_FOREACH(AxisView* r, _axis_targets) {
-		boost::shared_ptr<Stripable> s = r->stripable();
+		std::shared_ptr<Stripable> s = r->stripable();
 		if (s) {
 			ac = (s.get()->*get_control)();
 			if (ac) {
@@ -3670,7 +3670,7 @@ Mixer_UI::selected_gaincontrols ()
 	BOOST_FOREACH(AxisView* r, _axis_targets) {
 		MixerStrip* ms = dynamic_cast<MixerStrip*> (r);
 		if (ms) {
-			boost::shared_ptr<GainControl> ac (ms->route()->gain_control());
+			std::shared_ptr<GainControl> ac (ms->route()->gain_control());
 			ControlList cl (ac->grouped_controls());
 			for (ControlList::const_iterator c = cl.begin(); c != cl.end (); ++c) {
 				rv.insert (*c);
@@ -3686,7 +3686,7 @@ Mixer_UI::step_gain_up_action ()
 {
 	AutomationControlSet acs = selected_gaincontrols ();
 	for (AutomationControlSet::const_iterator i = acs.begin(); i != acs.end (); ++i) {
-		boost::shared_ptr<GainControl> ac = boost::dynamic_pointer_cast<GainControl> (*i);
+		std::shared_ptr<GainControl> ac = std::dynamic_pointer_cast<GainControl> (*i);
 		assert (ac);
 		ac->set_value (dB_to_coefficient (accurate_coefficient_to_dB (ac->get_value()) + 0.1), Controllable::NoGroup);
 	}
@@ -3697,7 +3697,7 @@ Mixer_UI::step_gain_down_action ()
 {
 	AutomationControlSet acs = selected_gaincontrols ();
 	for (AutomationControlSet::const_iterator i = acs.begin(); i != acs.end (); ++i) {
-		boost::shared_ptr<GainControl> ac = boost::dynamic_pointer_cast<GainControl> (*i);
+		std::shared_ptr<GainControl> ac = std::dynamic_pointer_cast<GainControl> (*i);
 		assert (ac);
 		ac->set_value (dB_to_coefficient (accurate_coefficient_to_dB (ac->get_value()) - 0.1), Controllable::NoGroup);
 	}
@@ -3709,9 +3709,9 @@ Mixer_UI::unity_gain_action ()
 	set_axis_targets_for_operation ();
 
 	BOOST_FOREACH(AxisView* r, _axis_targets) {
-		boost::shared_ptr<Stripable> s = r->stripable();
+		std::shared_ptr<Stripable> s = r->stripable();
 		if (s) {
-			boost::shared_ptr<AutomationControl> ac = s->gain_control();
+			std::shared_ptr<AutomationControl> ac = s->gain_control();
 			if (ac) {
 				ac->set_value (1.0, Controllable::UseGroup);
 			}
@@ -3793,7 +3793,7 @@ Mixer_UI::ab_plugins ()
 }
 
 void
-Mixer_UI::vca_assign (boost::shared_ptr<VCA> vca)
+Mixer_UI::vca_assign (std::shared_ptr<VCA> vca)
 {
 	set_axis_targets_for_operation ();
 	BOOST_FOREACH(AxisView* r, _axis_targets) {
@@ -3805,7 +3805,7 @@ Mixer_UI::vca_assign (boost::shared_ptr<VCA> vca)
 }
 
 void
-Mixer_UI::vca_unassign (boost::shared_ptr<VCA> vca)
+Mixer_UI::vca_unassign (std::shared_ptr<VCA> vca)
 {
 	set_axis_targets_for_operation ();
 	BOOST_FOREACH(AxisView* r, _axis_targets) {
@@ -3896,10 +3896,10 @@ void
 Mixer_UI::toggle_monitor_action (MonitorChoice monitor_choice, bool group_override, bool all)
 {
 	MonitorChoice mc;
-	boost::shared_ptr<RouteList> rl;
+	std::shared_ptr<RouteList> rl;
 
 	for (AxisViewSelection::iterator i = _selection.axes.begin(); i != _selection.axes.end(); ++i) {
-		boost::shared_ptr<ARDOUR::Route> rt = boost::dynamic_pointer_cast<ARDOUR::Route> ((*i)->stripable());
+		std::shared_ptr<ARDOUR::Route> rt = std::dynamic_pointer_cast<ARDOUR::Route> ((*i)->stripable());
 
 		if (!rt->monitoring_control ()) {
 			/* skip busses */

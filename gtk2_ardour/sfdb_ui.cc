@@ -334,9 +334,9 @@ SoundFileBox::setup_labels (const string& filename)
 
 	if (SMFSource::valid_midi_file (path)) {
 
-		boost::shared_ptr<SMFSource> ms;
+		std::shared_ptr<SMFSource> ms;
 		try {
-			ms = boost::dynamic_pointer_cast<SMFSource> (
+			ms = std::dynamic_pointer_cast<SMFSource> (
 				SourceFactory::createExternal (DataType::MIDI, *_session,
 				                               path, 0, Source::Flag (0), false));
 		} catch (const std::exception& e) {
@@ -500,12 +500,12 @@ SoundFileBox::audition ()
 		return;
 	}
 
-	boost::shared_ptr<Region> r;
+	std::shared_ptr<Region> r;
 
 	if (SMFSource::valid_midi_file (path)) {
 
-		boost::shared_ptr<SMFSource> ms =
-			boost::dynamic_pointer_cast<SMFSource> (
+		std::shared_ptr<SMFSource> ms =
+			std::dynamic_pointer_cast<SMFSource> (
 					SourceFactory::createExternal (DataType::MIDI, *_session,
 											 path, 0, Source::Flag (0), false));
 
@@ -518,13 +518,13 @@ SoundFileBox::audition ()
 		plist.add (ARDOUR::Properties::name, rname);
 		plist.add (ARDOUR::Properties::layer, 0);
 
-		r = boost::dynamic_pointer_cast<MidiRegion> (RegionFactory::create (boost::dynamic_pointer_cast<Source>(ms), plist, false));
+		r = std::dynamic_pointer_cast<MidiRegion> (RegionFactory::create (std::dynamic_pointer_cast<Source>(ms), plist, false));
 		assert(r);
 
 	} else {
 
 		SourceList srclist;
-		boost::shared_ptr<AudioFileSource> afs;
+		std::shared_ptr<AudioFileSource> afs;
 		bool old_sbp = AudioSource::get_build_peakfiles ();
 
 		/* don't even think of building peakfiles for these files */
@@ -533,12 +533,12 @@ SoundFileBox::audition ()
 
 		for (int n = 0; n < sf_info.channels; ++n) {
 			try {
-				afs = boost::dynamic_pointer_cast<AudioFileSource> (
+				afs = std::dynamic_pointer_cast<AudioFileSource> (
 					SourceFactory::createExternal (DataType::AUDIO, *_session,
 											 path, n,
 											 Source::Flag (ARDOUR::AudioFileSource::NoPeakFile), false));
 				if (afs->sample_rate() != _session->nominal_sample_rate()) {
-					boost::shared_ptr<SrcFileSource> sfs (new SrcFileSource(*_session, afs, _src_quality));
+					std::shared_ptr<SrcFileSource> sfs (new SrcFileSource(*_session, afs, _src_quality));
 					srclist.push_back(sfs);
 				} else {
 					srclist.push_back(afs);
@@ -557,7 +557,7 @@ SoundFileBox::audition ()
 			return;
 		}
 
-		afs = boost::dynamic_pointer_cast<AudioFileSource> (srclist[0]);
+		afs = std::dynamic_pointer_cast<AudioFileSource> (srclist[0]);
 		string rname = region_name_from_path (afs->path(), false);
 
 		PropertyList plist;
@@ -567,7 +567,7 @@ SoundFileBox::audition ()
 		plist.add (ARDOUR::Properties::name, rname);
 		plist.add (ARDOUR::Properties::layer, 0);
 
-		r = boost::dynamic_pointer_cast<AudioRegion> (RegionFactory::create (srclist, plist, false));
+		r = std::dynamic_pointer_cast<AudioRegion> (RegionFactory::create (srclist, plist, false));
 	}
 
 	timepos_t audition_position;
@@ -942,7 +942,7 @@ SoundFileBrowser::add_gain_meter ()
 
 	gm = new GainMeter (_session, 250);
 
-	boost::shared_ptr<Route> r = _session->the_auditioner ();
+	std::shared_ptr<Route> r = _session->the_auditioner ();
 
 	gm->set_controls (r, r->shared_peak_meter(), r->amp(), r->gain_control());
 	gm->set_fader_name (X_("GainFader"));

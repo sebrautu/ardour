@@ -22,7 +22,7 @@
 
 #include <list>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <gtkmm/menu.h>
 
 #include "widgets/ardour_button.h"
@@ -44,7 +44,7 @@ public:
 	IOButton (bool input);
 	~IOButton ();
 
-	void set_route (boost::shared_ptr<ARDOUR::Route>, RouteUI*);
+	void set_route (std::shared_ptr<ARDOUR::Route>, RouteUI*);
 
 private:
 	void update ();
@@ -52,21 +52,21 @@ private:
 	bool button_release (GdkEventButton*);
 	void button_resized (Gtk::Allocation&);
 	void port_pretty_name_changed (std::string);
-	void port_connected_or_disconnected (boost::weak_ptr<ARDOUR::Port>, boost::weak_ptr<ARDOUR::Port>);
-	void maybe_add_bundle_to_menu (boost::shared_ptr<ARDOUR::Bundle>, ARDOUR::BundleList const&, ARDOUR::DataType = ARDOUR::DataType::NIL);
+	void port_connected_or_disconnected (std::weak_ptr<ARDOUR::Port>, std::weak_ptr<ARDOUR::Port>);
+	void maybe_add_bundle_to_menu (std::shared_ptr<ARDOUR::Bundle>, ARDOUR::BundleList const&, ARDOUR::DataType = ARDOUR::DataType::NIL);
 	void disconnect ();
 	void add_port (ARDOUR::DataType);
-	void bundle_chosen (boost::shared_ptr<ARDOUR::Bundle>);
+	void bundle_chosen (std::shared_ptr<ARDOUR::Bundle>);
 
-	boost::shared_ptr<ARDOUR::IO>    io () const;
-	boost::shared_ptr<ARDOUR::Track> track () const;
+	std::shared_ptr<ARDOUR::IO>    io () const;
+	std::shared_ptr<ARDOUR::Track> track () const;
 	ARDOUR::DataType                 guess_main_type (bool favor_connected = true) const;
 
 	bool                                          _input;
-	boost::shared_ptr<ARDOUR::Route>              _route;
+	std::shared_ptr<ARDOUR::Route>              _route;
 	RouteUI*                                      _route_ui;
 	Gtk::Menu                                     _menu;
-	std::list<boost::shared_ptr<ARDOUR::Bundle> > _menu_bundles;
+	std::list<std::shared_ptr<ARDOUR::Bundle> > _menu_bundles;
 	PBD::ScopedConnectionList                     _connections;
 	PBD::ScopedConnectionList                     _bundle_connections;
 };

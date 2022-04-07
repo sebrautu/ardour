@@ -90,7 +90,7 @@ class VSTPluginUI;
 class PlugUIBase : public virtual sigc::trackable, public PBD::ScopedConnectionList
 {
 public:
-	PlugUIBase (boost::shared_ptr<ARDOUR::PluginInsert>);
+	PlugUIBase (std::shared_ptr<ARDOUR::PluginInsert>);
 	virtual ~PlugUIBase();
 
 	virtual gint get_preferred_height () = 0;
@@ -117,8 +117,8 @@ public:
 	sigc::signal<void,bool> KeyboardFocused;
 
 protected:
-	boost::shared_ptr<ARDOUR::PluginInsert> insert;
-	boost::shared_ptr<ARDOUR::Plugin> plugin;
+	std::shared_ptr<ARDOUR::PluginInsert> insert;
+	std::shared_ptr<ARDOUR::Plugin> plugin;
 
 	void add_common_widgets (Gtk::HBox*, bool with_focus = true);
 
@@ -186,7 +186,7 @@ protected:
 	void toggle_description ();
 	void toggle_plugin_analysis ();
 	void toggle_cpuload_display ();
-	void processor_active_changed (boost::weak_ptr<ARDOUR::Processor> p);
+	void processor_active_changed (std::weak_ptr<ARDOUR::Processor> p);
 	void plugin_going_away ();
 	void automation_state_changed ();
 	void preset_added_or_removed ();
@@ -208,7 +208,7 @@ private:
 class GenericPluginUI : public PlugUIBase, public Gtk::VBox
 {
 public:
-	GenericPluginUI (boost::shared_ptr<ARDOUR::PluginInsert> plug, bool scrollable=false);
+	GenericPluginUI (std::shared_ptr<ARDOUR::PluginInsert> plug, bool scrollable=false);
 	~GenericPluginUI ();
 
 	gint get_preferred_height () { return prefheight; }
@@ -242,12 +242,12 @@ private:
 		const Evoral::Parameter parameter() const { return param; }
 
 		Evoral::Parameter                            param;
-		boost::shared_ptr<ARDOUR::AutomationControl> control;
+		std::shared_ptr<ARDOUR::AutomationControl> control;
 
 		/* input */
 
-		boost::shared_ptr<ARDOUR::ScalePoints>  scale_points;
-		boost::shared_ptr<AutomationController> controller;
+		std::shared_ptr<ARDOUR::ScalePoints>  scale_points;
+		std::shared_ptr<AutomationController> controller;
 
 		ArdourWidgets::ArdourButton             automate_button;
 		Gtk::Label                              label;
@@ -294,7 +294,7 @@ private:
 
 	ControlUI* build_control_ui (const Evoral::Parameter&                     param,
 	                             const ARDOUR::ParameterDescriptor&           desc,
-	                             boost::shared_ptr<ARDOUR::AutomationControl> mcontrol,
+	                             std::shared_ptr<ARDOUR::AutomationControl> mcontrol,
 	                             float                                        value,
 	                             bool                                         is_input,
 	                             bool                                         use_knob = false);
@@ -342,7 +342,7 @@ private:
 class PluginUIWindow : public ArdourWindow
 {
 public:
-	PluginUIWindow (boost::shared_ptr<ARDOUR::PluginInsert> insert,
+	PluginUIWindow (std::shared_ptr<ARDOUR::PluginInsert> insert,
 	                bool scrollable=false,
 	                bool editor=true);
 	~PluginUIWindow ();
@@ -377,12 +377,12 @@ private:
 	void app_activated (bool);
 	void plugin_going_away ();
 
-	bool create_windows_vst_editor (boost::shared_ptr<ARDOUR::PluginInsert>);
-	bool create_lxvst_editor(boost::shared_ptr<ARDOUR::PluginInsert>);
-	bool create_mac_vst_editor(boost::shared_ptr<ARDOUR::PluginInsert>);
-	bool create_audiounit_editor (boost::shared_ptr<ARDOUR::PluginInsert>);
-	bool create_lv2_editor (boost::shared_ptr<ARDOUR::PluginInsert>);
-	bool create_vst3_editor (boost::shared_ptr<ARDOUR::PluginInsert>);
+	bool create_windows_vst_editor (std::shared_ptr<ARDOUR::PluginInsert>);
+	bool create_lxvst_editor(std::shared_ptr<ARDOUR::PluginInsert>);
+	bool create_mac_vst_editor(std::shared_ptr<ARDOUR::PluginInsert>);
+	bool create_audiounit_editor (std::shared_ptr<ARDOUR::PluginInsert>);
+	bool create_lv2_editor (std::shared_ptr<ARDOUR::PluginInsert>);
+	bool create_vst3_editor (std::shared_ptr<ARDOUR::PluginInsert>);
 
 	static PluginUIWindow* the_plugin_window;
 };
@@ -391,12 +391,12 @@ private:
 /* this function has to be in a .mm file
  * because MacVSTPluginUI has Cocoa members
  */
-extern VSTPluginUI* create_mac_vst_gui (boost::shared_ptr<ARDOUR::PluginInsert>);
+extern VSTPluginUI* create_mac_vst_gui (std::shared_ptr<ARDOUR::PluginInsert>);
 #endif
 
 #ifdef AUDIOUNIT_SUPPORT
 /* this function has to be in a .mm file */
-extern PlugUIBase* create_au_gui (boost::shared_ptr<ARDOUR::PluginInsert>, Gtk::VBox**);
+extern PlugUIBase* create_au_gui (std::shared_ptr<ARDOUR::PluginInsert>, Gtk::VBox**);
 #endif
 
 #endif /* __ardour_plugin_ui_h__ */

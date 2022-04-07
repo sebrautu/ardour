@@ -492,7 +492,7 @@ void
 Editor::mapover_tracks_with_unique_playlists (sigc::slot<void, RouteTimeAxisView&, uint32_t> sl, TimeAxisView* basis, PBD::PropertyID prop) const
 {
 	RouteTimeAxisView* route_basis = dynamic_cast<RouteTimeAxisView*> (basis);
-	set<boost::shared_ptr<Playlist> > playlists;
+	set<std::shared_ptr<Playlist> > playlists;
 
 	if (route_basis == 0) {
 		return;
@@ -513,7 +513,7 @@ Editor::mapover_tracks_with_unique_playlists (sigc::slot<void, RouteTimeAxisView
 
 			if (v && v->route()->route_group() == group) {
 
-				boost::shared_ptr<Track> t = v->track();
+				std::shared_ptr<Track> t = v->track();
 				if (t) {
 					if (playlists.insert (t->playlist()).second) {
 						/* haven't seen this playlist yet */
@@ -540,14 +540,14 @@ Editor::mapover_tracks_with_unique_playlists (sigc::slot<void, RouteTimeAxisView
 void
 Editor::mapover_all_tracks_with_unique_playlists (sigc::slot<void, RouteTimeAxisView&, uint32_t> sl) const
 {
-	set<boost::shared_ptr<Playlist> > playlists;
+	set<std::shared_ptr<Playlist> > playlists;
 
 	set<RouteTimeAxisView*> tracks;
 
 	for (TrackViewList::const_iterator i = track_views.begin(); i != track_views.end(); ++i) {
 		RouteTimeAxisView* v = dynamic_cast<RouteTimeAxisView*> (*i);
 
-		boost::shared_ptr<Track> t = v->track();
+		std::shared_ptr<Track> t = v->track();
 		if (t) {
 			if (playlists.insert (t->playlist()).second) {
 				/* haven't seen this playlist yet */
@@ -572,10 +572,10 @@ Editor::mapover_all_tracks_with_unique_playlists (sigc::slot<void, RouteTimeAxis
 void
 Editor::mapped_get_equivalent_regions (RouteTimeAxisView& tv, uint32_t, RegionView * basis, vector<RegionView*>* all_equivs) const
 {
-	boost::shared_ptr<Playlist> pl;
-	vector<boost::shared_ptr<Region> > results;
+	std::shared_ptr<Playlist> pl;
+	vector<std::shared_ptr<Region> > results;
 	RegionView* marv;
-	boost::shared_ptr<Track> tr;
+	std::shared_ptr<Track> tr;
 
 	if ((tr = tv.track()) == 0) {
 		/* bus */
@@ -591,7 +591,7 @@ Editor::mapped_get_equivalent_regions (RouteTimeAxisView& tv, uint32_t, RegionVi
 		pl->get_equivalent_regions (basis->region(), results);
 	}
 
-	for (vector<boost::shared_ptr<Region> >::iterator ir = results.begin(); ir != results.end(); ++ir) {
+	for (vector<std::shared_ptr<Region> >::iterator ir = results.begin(); ir != results.end(); ++ir) {
 		if ((marv = tv.view()->find_view (*ir)) != 0) {
 			all_equivs->push_back (marv);
 		}
@@ -1030,7 +1030,7 @@ Editor::set_selection (std::list<Selectable*> s, Selection::Operation op)
 }
 
 void
-Editor::set_selected_regionview_from_region_list (boost::shared_ptr<Region> region, Selection::Operation op)
+Editor::set_selected_regionview_from_region_list (std::shared_ptr<Region> region, Selection::Operation op)
 {
 	vector<RegionView*> regionviews;
 
@@ -1062,10 +1062,10 @@ Editor::set_selected_regionview_from_region_list (boost::shared_ptr<Region> regi
 }
 
 bool
-Editor::set_selected_regionview_from_map_event (GdkEventAny* /*ev*/, StreamView* sv, boost::weak_ptr<Region> weak_r)
+Editor::set_selected_regionview_from_map_event (GdkEventAny* /*ev*/, StreamView* sv, std::weak_ptr<Region> weak_r)
 {
 	RegionView* rv;
-	boost::shared_ptr<Region> r (weak_r.lock());
+	std::shared_ptr<Region> r (weak_r.lock());
 
 	if (!r) {
 		return true;
@@ -1150,13 +1150,13 @@ Editor::presentation_info_changed (PropertyChange const & what_changed)
 
 			n_stripables++;
 
-			if (boost::dynamic_pointer_cast<Track> ((*i).stripable)) {
+			if (std::dynamic_pointer_cast<Track> ((*i).stripable)) {
 				n_tracks++;
 				n_routes++;
-			} else if (boost::dynamic_pointer_cast<Route> ((*i).stripable)) {
+			} else if (std::dynamic_pointer_cast<Route> ((*i).stripable)) {
 				n_busses++;
 				n_routes++;
-			} else if (boost::dynamic_pointer_cast<VCA> ((*i).stripable)) {
+			} else if (std::dynamic_pointer_cast<VCA> ((*i).stripable)) {
 				n_vcas++;
 			}
 
@@ -1181,7 +1181,7 @@ Editor::presentation_info_changed (PropertyChange const & what_changed)
 
 				for (TimeAxisView::Children::iterator j = c.begin(); j != c.end(); ++j) {
 
-					boost::shared_ptr<AutomationControl> control = (*j)->control ();
+					std::shared_ptr<AutomationControl> control = (*j)->control ();
 
 					if (control != (*i).controllable) {
 						continue;
@@ -1426,8 +1426,8 @@ Editor::sensitize_the_right_region_actions (bool because_canvas_crossing)
 
 	for (list<RegionView*>::const_iterator i = rs.begin(); i != rs.end(); ++i) {
 
-		boost::shared_ptr<Region> r = (*i)->region ();
-		boost::shared_ptr<AudioRegion> ar = boost::dynamic_pointer_cast<AudioRegion> (r);
+		std::shared_ptr<Region> r = (*i)->region ();
+		std::shared_ptr<AudioRegion> ar = std::dynamic_pointer_cast<AudioRegion> (r);
 
 		if (ar) {
 			have_audio = true;
@@ -1436,7 +1436,7 @@ Editor::sensitize_the_right_region_actions (bool because_canvas_crossing)
 			}
 		}
 
-		if (boost::dynamic_pointer_cast<MidiRegion> (r)) {
+		if (std::dynamic_pointer_cast<MidiRegion> (r)) {
 			have_midi = true;
 		}
 
@@ -2351,9 +2351,9 @@ Editor::catch_up_on_midi_selection ()
 
 struct ViewStripable {
 	TimeAxisView* tav;
-	boost::shared_ptr<Stripable> stripable;
+	std::shared_ptr<Stripable> stripable;
 
-	ViewStripable (TimeAxisView* t, boost::shared_ptr<Stripable> s)
+	ViewStripable (TimeAxisView* t, std::shared_ptr<Stripable> s)
 		: tav (t), stripable (s) {}
 };
 

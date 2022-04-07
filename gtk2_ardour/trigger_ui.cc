@@ -633,7 +633,7 @@ TriggerUI::toggle_trigger_isolated ()
 void
 TriggerUI::clear_trigger ()
 {
-	trigger()->set_region (boost::shared_ptr<Region>());
+	trigger()->set_region (std::shared_ptr<Region>());
 }
 
 void

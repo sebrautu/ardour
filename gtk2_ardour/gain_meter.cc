@@ -121,10 +121,10 @@ GainMeterBase::GainMeterBase (Session* s, bool horizontal, int fader_length, int
 	fader_girth = rint (fader_girth * UIConfiguration::instance().get_ui_scale());
 
 	if (horizontal) {
-		gain_slider = manage (new HSliderController (&gain_adjustment, boost::shared_ptr<PBD::Controllable>(), fader_length, fader_girth));
+		gain_slider = manage (new HSliderController (&gain_adjustment, std::shared_ptr<PBD::Controllable>(), fader_length, fader_girth));
 		gain_slider->set_tweaks (ArdourFader::Tweaks(ArdourFader::NoButtonForward | ArdourFader::NoVerticalScroll));
 	} else {
-		gain_slider = manage (new VSliderController (&gain_adjustment, boost::shared_ptr<PBD::Controllable>(), fader_length, fader_girth));
+		gain_slider = manage (new VSliderController (&gain_adjustment, std::shared_ptr<PBD::Controllable>(), fader_length, fader_girth));
 		gain_slider->set_tweaks (ArdourFader::NoButtonForward);
 	}
 
@@ -224,10 +224,10 @@ GainMeterBase::~GainMeterBase ()
 }
 
 void
-GainMeterBase::set_controls (boost::shared_ptr<Route> r,
-			     boost::shared_ptr<PeakMeter> pm,
-                             boost::shared_ptr<Amp> amp,
-                             boost::shared_ptr<GainControl> control)
+GainMeterBase::set_controls (std::shared_ptr<Route> r,
+			     std::shared_ptr<PeakMeter> pm,
+                             std::shared_ptr<Amp> amp,
+                             std::shared_ptr<GainControl> control)
 {
 	connections.clear ();
 	model_connections.drop_connections ();
@@ -236,7 +236,7 @@ GainMeterBase::set_controls (boost::shared_ptr<Route> r,
 
 	if (!pm && !control) {
 		level_meter->set_meter (0);
-		gain_slider->set_controllable (boost::shared_ptr<PBD::Controllable>());
+		gain_slider->set_controllable (std::shared_ptr<PBD::Controllable>());
 		_meter.reset ();
 		_amp.reset ();
 		_route.reset ();
@@ -967,10 +967,10 @@ GainMeter::GainMeter (Session* s, int fader_length)
 GainMeter::~GainMeter () { }
 
 void
-GainMeter::set_controls (boost::shared_ptr<Route> r,
-			 boost::shared_ptr<PeakMeter> meter,
-                         boost::shared_ptr<Amp> amp,
-			 boost::shared_ptr<GainControl> control)
+GainMeter::set_controls (std::shared_ptr<Route> r,
+			 std::shared_ptr<PeakMeter> meter,
+                         std::shared_ptr<Amp> amp,
+			 std::shared_ptr<GainControl> control)
 {
 	if (meter_hbox.get_parent()) {
 		hbox.remove (meter_hbox);
@@ -1069,13 +1069,13 @@ GainMeter::on_style_changed (const Glib::RefPtr<Gtk::Style>&)
 	peak_display.queue_draw();
 }
 
-boost::shared_ptr<PBD::Controllable>
+std::shared_ptr<PBD::Controllable>
 GainMeterBase::get_controllable()
 {
 	if (_amp) {
 		return _control;
 	} else {
-		return boost::shared_ptr<PBD::Controllable>();
+		return std::shared_ptr<PBD::Controllable>();
 	}
 }
 
@@ -1099,8 +1099,8 @@ GainMeter::meter_configuration_changed (ChanCount c)
 	}
 
 	if (_route
-			&& boost::dynamic_pointer_cast<AudioTrack>(_route) == 0
-			&& boost::dynamic_pointer_cast<MidiTrack>(_route) == 0
+			&& std::dynamic_pointer_cast<AudioTrack>(_route) == 0
+			&& std::dynamic_pointer_cast<MidiTrack>(_route) == 0
 			) {
 		if (_route->active()) {
 			set_meter_strip_name ("AudioBusMetrics");
@@ -1110,7 +1110,7 @@ GainMeter::meter_configuration_changed (ChanCount c)
 	}
 	else if (
 			   (type == (1 << DataType::MIDI))
-			|| (_route && boost::dynamic_pointer_cast<MidiTrack>(_route))
+			|| (_route && std::dynamic_pointer_cast<MidiTrack>(_route))
 			) {
 		if (!_route || _route->active()) {
 			set_meter_strip_name ("MidiTrackMetrics");

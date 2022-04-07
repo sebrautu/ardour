@@ -21,7 +21,7 @@
 
 #include <set>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/weak_ptr.hpp>
 #include <stdint.h>
 
@@ -68,7 +68,7 @@ public:
 	typedef Gtk::TreeModelColumn<bool>        BoolColumn;
 	typedef Gtk::TreeModelColumn<uint32_t>    UnsignedColumn;
 	typedef Gtk::TreeModelColumn<AxisView*> AVColumn;
-	typedef Gtk::TreeModelColumn<boost::shared_ptr<ARDOUR::Stripable> > StripableColumn;
+	typedef Gtk::TreeModelColumn<std::shared_ptr<ARDOUR::Stripable> > StripableColumn;
 
 	struct Columns : public Gtk::TreeModel::ColumnRecord
 	{
@@ -118,13 +118,13 @@ private:
 
 	int n_columns;
 
-	void text_value (boost::shared_ptr<ARDOUR::Stripable> stripable, Glib::ValueBase& value) const;
+	void text_value (std::shared_ptr<ARDOUR::Stripable> stripable, Glib::ValueBase& value) const;
 
 	struct Glue
 	{
-		Glue (boost::shared_ptr<ARDOUR::Stripable>);
+		Glue (std::shared_ptr<ARDOUR::Stripable>);
 
-		boost::weak_ptr<ARDOUR::Stripable> stripable;
+		std::weak_ptr<ARDOUR::Stripable> stripable;
 	};
 
 	typedef std::set<Glue*> GlueList;

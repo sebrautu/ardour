@@ -38,13 +38,13 @@ public:
 
 	ExportPresetSelector ();
 
-	void set_manager (boost::shared_ptr<ARDOUR::ExportProfileManager> manager);
+	void set_manager (std::shared_ptr<ARDOUR::ExportProfileManager> manager);
 
 	sigc::signal<void> CriticalSelectionChanged;
 
 private:
 
-	typedef boost::shared_ptr<ARDOUR::ExportProfileManager> ManagerPtr;
+	typedef std::shared_ptr<ARDOUR::ExportProfileManager> ManagerPtr;
 	typedef ARDOUR::ExportPresetPtr PresetPtr;
 	typedef ARDOUR::ExportProfileManager::PresetList PresetList;
 

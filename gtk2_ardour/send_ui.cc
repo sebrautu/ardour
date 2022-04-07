@@ -38,7 +38,7 @@ using namespace std;
 using namespace ARDOUR;
 using namespace PBD;
 
-SendUI::SendUI (Gtk::Window* parent, boost::shared_ptr<Send> s, Session* session)
+SendUI::SendUI (Gtk::Window* parent, std::shared_ptr<Send> s, Session* session)
 	: _send (s)
 	, _gpm (session, 250)
 	, _panners (session)
@@ -56,7 +56,7 @@ SendUI::SendUI (Gtk::Window* parent, boost::shared_ptr<Send> s, Session* session
 
 	_gpm.setup_meters ();
 	_gpm.set_fader_name (X_("SendUIFader"));
-	_gpm.set_controls (boost::shared_ptr<Route> (), s->meter (), s->amp (), s->gain_control ());
+	_gpm.set_controls (std::shared_ptr<Route> (), s->meter (), s->amp (), s->gain_control ());
 
 	_io = Gtk::manage (new IOSelector (parent, session, s->output ()));
 
@@ -124,7 +124,7 @@ SendUI::fast_update ()
 	}
 }
 
-SendUIWindow::SendUIWindow (boost::shared_ptr<Send> s, Session* session)
+SendUIWindow::SendUIWindow (std::shared_ptr<Send> s, Session* session)
 	: ArdourWindow (string (_("Send ")) + s->name ())
 {
 	ui = new SendUI (this, s, session);

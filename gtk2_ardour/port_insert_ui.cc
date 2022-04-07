@@ -38,7 +38,7 @@
 using namespace ARDOUR;
 using namespace Gtk;
 
-PortInsertUI::PortInsertUI (Gtk::Window* parent, ARDOUR::Session* sess, boost::shared_ptr<ARDOUR::PortInsert> pi)
+PortInsertUI::PortInsertUI (Gtk::Window* parent, ARDOUR::Session* sess, std::shared_ptr<ARDOUR::PortInsert> pi)
 	: _pi (pi)
 	, latency_button (_("Measure Latency"))
 	, input_selector (parent, sess, pi->input())
@@ -160,7 +160,7 @@ PortInsertUI::finished (IOSelector::Result r)
 }
 
 
-PortInsertWindow::PortInsertWindow (ARDOUR::Session* sess, boost::shared_ptr<ARDOUR::PortInsert> pi)
+PortInsertWindow::PortInsertWindow (ARDOUR::Session* sess, std::shared_ptr<ARDOUR::PortInsert> pi)
 	: ArdourDialog ("port insert dialog"),
 	  _portinsertui (this, sess, pi)
 {

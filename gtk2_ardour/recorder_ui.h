@@ -19,7 +19,7 @@
 #ifndef __gtk_ardour_recorder_ui_h__
 #define __gtk_ardour_recorder_ui_h__
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <list>
 #include <vector>
 
@@ -81,7 +81,7 @@ private:
 	void parameter_changed (std::string const&);
 	void presentation_info_changed (PBD::PropertyChange const&);
 	void gui_extents_changed ();
-	void regions_changed (boost::shared_ptr<ARDOUR::RegionList>, PBD::PropertyChange const&);
+	void regions_changed (std::shared_ptr<ARDOUR::RegionList>, PBD::PropertyChange const&);
 
 	void start_updating ();
 	void stop_updating ();
@@ -241,13 +241,13 @@ private:
 	};
 
 	struct InputPortPtrSort {
-		bool operator() (boost::shared_ptr<InputPort> const& a, boost::shared_ptr<InputPort> const& b) const {
+		bool operator() (std::shared_ptr<InputPort> const& a, std::shared_ptr<InputPort> const& b) const {
 			return *a < *b;
 		}
 	};
 
-	typedef std::map<std::string, boost::shared_ptr<InputPort> >     InputPortMap;
-	typedef std::set<boost::shared_ptr<InputPort>, InputPortPtrSort> InputPortSet;
+	typedef std::map<std::string, std::shared_ptr<InputPort> >     InputPortMap;
+	typedef std::set<std::shared_ptr<InputPort>, InputPortPtrSort> InputPortSet;
 
 	RecRuler                     _ruler;
 	Gtk::EventBox                _space;

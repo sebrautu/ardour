@@ -193,10 +193,10 @@ PluginDSPLoadWindow::refill_processors ()
 }
 
 void
-PluginDSPLoadWindow::add_processor_to_display (boost::weak_ptr<Processor> w, std::string const& route_name)
+PluginDSPLoadWindow::add_processor_to_display (std::weak_ptr<Processor> w, std::string const& route_name)
 {
-	boost::shared_ptr<Processor> p = w.lock ();
-	boost::shared_ptr<PluginInsert> pi = boost::dynamic_pointer_cast<PluginInsert> (p);
+	std::shared_ptr<Processor> p = w.lock ();
+	std::shared_ptr<PluginInsert> pi = std::dynamic_pointer_cast<PluginInsert> (p);
 	if (!pi || !pi->provides_stats ()) {
 		return;
 	}
@@ -213,10 +213,10 @@ PluginDSPLoadWindow::add_processor_to_display (boost::weak_ptr<Processor> w, std
 }
 
 void
-PluginDSPLoadWindow::clear_processor_stats (boost::weak_ptr<Processor> w)
+PluginDSPLoadWindow::clear_processor_stats (std::weak_ptr<Processor> w)
 {
-	boost::shared_ptr<Processor> p = w.lock ();
-	boost::shared_ptr<PluginInsert> pi = boost::dynamic_pointer_cast<PluginInsert> (p);
+	std::shared_ptr<Processor> p = w.lock ();
+	std::shared_ptr<PluginInsert> pi = std::dynamic_pointer_cast<PluginInsert> (p);
 	if (pi) {
 		pi->clear_stats ();
 	}

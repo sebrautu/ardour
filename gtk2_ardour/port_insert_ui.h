@@ -30,13 +30,13 @@ namespace ARDOUR {
 class PortInsertUI : public Gtk::VBox
 {
 public:
-	PortInsertUI (Gtk::Window*, ARDOUR::Session *, boost::shared_ptr<ARDOUR::PortInsert>);
+	PortInsertUI (Gtk::Window*, ARDOUR::Session *, std::shared_ptr<ARDOUR::PortInsert>);
 
 	void redisplay ();
 	void finished (IOSelector::Result);
 
 private:
-	boost::shared_ptr<ARDOUR::PortInsert> _pi;
+	std::shared_ptr<ARDOUR::PortInsert> _pi;
 
 	Gtk::Notebook notebook;
 	ArdourWidgets::StatefulToggleButton latency_button;
@@ -54,7 +54,7 @@ private:
 class PortInsertWindow : public ArdourDialog
 {
   public:
-	PortInsertWindow (ARDOUR::Session *, boost::shared_ptr<ARDOUR::PortInsert>);
+	PortInsertWindow (ARDOUR::Session *, std::shared_ptr<ARDOUR::PortInsert>);
 
   protected:
 	void on_map ();

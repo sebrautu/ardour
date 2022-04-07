@@ -21,7 +21,7 @@
 
 #include <string>
 #include <vector>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include "ardour/types.h"
 #include "port_matrix_component.h"
 #include "port_matrix_types.h"
@@ -55,7 +55,7 @@ private:
 
 	void compute_dimensions ();
 	void render (cairo_t *);
-	void render_group_pair (cairo_t *, boost::shared_ptr<const PortGroup>, boost::shared_ptr<const PortGroup>, uint32_t, uint32_t);
+	void render_group_pair (cairo_t *, std::shared_ptr<const PortGroup>, std::shared_ptr<const PortGroup>, uint32_t, uint32_t);
 
 	PortMatrixNode position_to_node (double, double) const;
 	void queue_draw_for (std::list<PortMatrixNode> const &);

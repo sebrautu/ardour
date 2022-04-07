@@ -77,7 +77,7 @@ class AUPluginUI;
 class AUPluginUI : public PlugUIBase, public Gtk::VBox
 {
 public:
-	AUPluginUI (boost::shared_ptr<ARDOUR::PluginInsert>);
+	AUPluginUI (std::shared_ptr<ARDOUR::PluginInsert>);
 	~AUPluginUI ();
 
 	gint get_preferred_width () { return req_width; }
@@ -113,7 +113,7 @@ public:
 
 private:
 	WindowRef wr;
-	boost::shared_ptr<ARDOUR::AUPlugin> au;
+	std::shared_ptr<ARDOUR::AUPlugin> au;
 	int prefheight;
 	int prefwidth;
 

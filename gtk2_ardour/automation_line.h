@@ -68,7 +68,7 @@ public:
 	AutomationLine (const std::string&                                 name,
 	                TimeAxisView&                                      tv,
 	                ArdourCanvas::Item&                                parent,
-	                boost::shared_ptr<ARDOUR::AutomationList>          al,
+	                std::shared_ptr<ARDOUR::AutomationList>          al,
 	                const ARDOUR::ParameterDescriptor&                 desc);
 
 
@@ -133,8 +133,8 @@ public:
 	double compute_delta (double from, double to) const;
 	void   apply_delta (double& val, double delta) const;
 
-	void set_list(boost::shared_ptr<ARDOUR::AutomationList> list);
-	boost::shared_ptr<ARDOUR::AutomationList> the_list() const { return alist; }
+	void set_list(std::shared_ptr<ARDOUR::AutomationList> list);
+	std::shared_ptr<ARDOUR::AutomationList> the_list() const { return alist; }
 
 	void track_entered();
 	void track_exited();
@@ -170,7 +170,7 @@ protected:
 	guint32        _height;
 	uint32_t       _line_color;
 
-	boost::shared_ptr<ARDOUR::AutomationList> alist;
+	std::shared_ptr<ARDOUR::AutomationList> alist;
 
 	VisibleAspects _visible;
 
@@ -202,7 +202,7 @@ private:
 
 	friend class ContiguousControlPoints;
 
-	typedef boost::shared_ptr<ContiguousControlPoints> CCP;
+	typedef std::shared_ptr<ContiguousControlPoints> CCP;
 	std::vector<CCP> contiguous_points;
 
 	bool sync_model_with_view_point (ControlPoint&);

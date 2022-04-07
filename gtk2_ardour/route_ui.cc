@@ -101,15 +101,15 @@ using namespace PBD;
 using namespace std;
 
 uint32_t RouteUI::_max_invert_buttons = 3;
-PBD::Signal1<void, boost::shared_ptr<Route> > RouteUI::BusSendDisplayChanged;
-boost::weak_ptr<Route> RouteUI::_showing_sends_to;
+PBD::Signal1<void, std::shared_ptr<Route> > RouteUI::BusSendDisplayChanged;
+std::weak_ptr<Route> RouteUI::_showing_sends_to;
 std::string RouteUI::program_port_prefix;
 
 RouteUI::IOSelectorMap RouteUI::input_selectors;
 RouteUI::IOSelectorMap RouteUI::output_selectors;
 
 void
-RouteUI::delete_ioselector (IOSelectorMap& m, boost::shared_ptr<ARDOUR::Route> r)
+RouteUI::delete_ioselector (IOSelectorMap& m, std::shared_ptr<ARDOUR::Route> r)
 {
 	if (!r) {
 		return;
@@ -316,7 +316,7 @@ RouteUI::set_session (ARDOUR::Session*s)
 }
 
 void
-RouteUI::set_route (boost::shared_ptr<Route> rp)
+RouteUI::set_route (std::shared_ptr<Route> rp)
 {
 	reset ();
 
@@ -390,7 +390,7 @@ RouteUI::set_route (boost::shared_ptr<Route> rp)
 	_route->polarity()->ConfigurationChanged.connect (route_connections, invalidator (*this), boost::bind (&RouteUI::setup_invert_buttons, this), gui_context());
 
 	if (_session->writable() && is_track()) {
-		boost::shared_ptr<Track> t = boost::dynamic_pointer_cast<Track>(_route);
+		std::shared_ptr<Track> t = std::dynamic_pointer_cast<Track>(_route);
 
 		t->rec_enable_control()->Changed.connect (route_connections, invalidator (*this), boost::bind (&RouteUI::route_rec_enable_changed, this), gui_context());
 		t->rec_safe_control()->Changed.connect (route_connections, invalidator (*this), boost::bind (&RouteUI::route_rec_enable_changed, this), gui_context());
@@ -410,7 +410,7 @@ RouteUI::set_route (boost::shared_ptr<Route> rp)
 	*/
 
 	if (is_track()) {
-		boost::shared_ptr<Track> t = boost::dynamic_pointer_cast<Track>(_route);
+		std::shared_ptr<Track> t = std::dynamic_pointer_cast<Track>(_route);
 		t->monitoring_control()->Changed.connect (route_connections, invalidator (*this), boost::bind (&RouteUI::update_monitoring_display, this), gui_context());
 
 		update_monitoring_display ();
@@ -435,7 +435,7 @@ RouteUI::set_route (boost::shared_ptr<Route> rp)
 
 	setup_invert_buttons ();
 
-	boost::shared_ptr<Route> s = _showing_sends_to.lock ();
+	std::shared_ptr<Route> s = _showing_sends_to.lock ();
 	bus_send_display_changed (s);
 
 	update_mute_display ();
@@ -493,7 +493,7 @@ RouteUI::mute_press (GdkEventButton* ev)
 				 * on a copy.
 				 */
 
-				boost::shared_ptr<RouteList> copy (new RouteList);
+				std::shared_ptr<RouteList> copy (new RouteList);
 
 				*copy = *_session->get_routes ();
 
@@ -526,7 +526,7 @@ RouteUI::mute_press (GdkEventButton* ev)
 				   NOTE: Primary-button2 is MIDI learn.
 				*/
 
-				boost::shared_ptr<RouteList> rl;
+				std::shared_ptr<RouteList> rl;
 
 				if (ev->button == 1) {
 
@@ -537,7 +537,7 @@ RouteUI::mute_press (GdkEventButton* ev)
 						_mute_release->set (rl);
 					}
 
-					boost::shared_ptr<MuteControl> mc = _route->mute_control();
+					std::shared_ptr<MuteControl> mc = _route->mute_control();
 					mc->start_touch (timepos_t (_session->audible_sample ()));
 					_session->set_controls (route_list_to_control_list (rl, &Stripable::mute_control), _route->muted_by_self() ? 0.0 : 1.0, Controllable::InverseGroup);
 				}
@@ -546,14 +546,14 @@ RouteUI::mute_press (GdkEventButton* ev)
 
 				/* plain click applies change to this route */
 
-				boost::shared_ptr<RouteList> rl (new RouteList);
+				std::shared_ptr<RouteList> rl (new RouteList);
 				rl->push_back (_route);
 
 				if (_mute_release) {
 					_mute_release->set (rl);
 				}
 
-				boost::shared_ptr<MuteControl> mc = _route->mute_control();
+				std::shared_ptr<MuteControl> mc = _route->mute_control();
 				mc->start_touch (timepos_t (_session->audible_sample ()));
 				mc->set_value (!_route->muted_by_self(), Controllable::UseGroup);
 			}
@@ -580,8 +580,8 @@ RouteUI::mute_release (GdkEventButton* /*ev*/)
 void
 RouteUI::edit_output_configuration ()
 {
-	boost::shared_ptr<Send> send = boost::dynamic_pointer_cast<Send>(_current_delivery);
-	if (send && !boost::dynamic_pointer_cast<InternalSend>(send)) {
+	std::shared_ptr<Send> send = std::dynamic_pointer_cast<Send>(_current_delivery);
+	if (send && !std::dynamic_pointer_cast<InternalSend>(send)) {
 		send.reset ();
 	}
 
@@ -697,7 +697,7 @@ RouteUI::solo_press(GdkEventButton* ev)
 				   NOTE: Primary-button2 is MIDI learn.
 				*/
 
-				boost::shared_ptr<RouteList> rl;
+				std::shared_ptr<RouteList> rl;
 
 				if (ev->button == 1) {
 
@@ -733,7 +733,7 @@ RouteUI::solo_press(GdkEventButton* ev)
 
 				/* click: solo this route */
 
-				boost::shared_ptr<RouteList> rl (new RouteList);
+				std::shared_ptr<RouteList> rl (new RouteList);
 				rl->push_back (route());
 
 				if (_solo_release) {
@@ -804,7 +804,7 @@ RouteUI::rec_enable_press(GdkEventButton* ev)
 
 			if (ev->button == 1) {
 
-				boost::shared_ptr<RouteList> rl;
+				std::shared_ptr<RouteList> rl;
 
 				rl.reset (new RouteList);
 				rl->push_back (_route);
@@ -818,7 +818,7 @@ RouteUI::rec_enable_press(GdkEventButton* ev)
 
 		} else {
 
-			boost::shared_ptr<Track> trk = track();
+			std::shared_ptr<Track> trk = track();
 			trk->rec_enable_control()->set_value (!trk->rec_enable_control()->get_value(), Controllable::UseGroup);
 		}
 	}
@@ -833,7 +833,7 @@ RouteUI::update_monitoring_display ()
 		return;
 	}
 
-	boost::shared_ptr<Track> t = boost::dynamic_pointer_cast<Track>(_route);
+	std::shared_ptr<Track> t = std::dynamic_pointer_cast<Track>(_route);
 
 	if (!t) {
 		return;
@@ -893,14 +893,14 @@ RouteUI::monitor_release (GdkEventButton* ev, MonitorChoice monitor_choice)
 		return false;
 	}
 
-	boost::shared_ptr<Track> t = boost::dynamic_pointer_cast<Track>(_route);
+	std::shared_ptr<Track> t = std::dynamic_pointer_cast<Track>(_route);
 
 	if (!t) {
 		return true;
 	}
 
 	MonitorChoice mc;
-	boost::shared_ptr<RouteList> rl;
+	std::shared_ptr<RouteList> rl;
 
 	if (t->monitoring_control()->monitoring_choice() & monitor_choice) {
 		mc = MonitorChoice (t->monitoring_control()->monitoring_choice() & ~monitor_choice);
@@ -970,7 +970,7 @@ RouteUI::toggle_step_edit ()
 void
 RouteUI::toggle_rec_safe ()
 {
-	boost::shared_ptr<AutomationControl> rs = _route->rec_safe_control();
+	std::shared_ptr<AutomationControl> rs = _route->rec_safe_control();
 
 	if (!rs) {
 		return;
@@ -1092,7 +1092,7 @@ RouteUI::create_sends (Placement p, bool include_buses)
 void
 RouteUI::create_selected_sends (Placement p, bool include_buses)
 {
-	boost::shared_ptr<RouteList> rlist (new RouteList);
+	std::shared_ptr<RouteList> rlist (new RouteList);
 	TrackSelection& selected_tracks (ARDOUR_UI::instance()->the_editor().get_selection().tracks);
 
 	for (TrackSelection::iterator i = selected_tracks.begin(); i != selected_tracks.end(); ++i) {
@@ -1100,7 +1100,7 @@ RouteUI::create_selected_sends (Placement p, bool include_buses)
 		RouteUI* rui;
 		if ((rtv = dynamic_cast<RouteTimeAxisView*>(*i)) != 0) {
 			if ((rui = dynamic_cast<RouteUI*>(rtv)) != 0) {
-				if (include_buses || boost::dynamic_pointer_cast<AudioTrack>(rui->route())) {
+				if (include_buses || std::dynamic_pointer_cast<AudioTrack>(rui->route())) {
 					rlist->push_back (rui->route());
 				}
 			}
@@ -1152,11 +1152,11 @@ RouteUI::show_sends_press(GdkEventButton* ev)
 
 		} else if (ev->button == 1) {
 
-			boost::shared_ptr<Route> s = _showing_sends_to.lock ();
+			std::shared_ptr<Route> s = _showing_sends_to.lock ();
 
 			if (s == _route) {
-				set_showing_sends_to (boost::shared_ptr<Route> ());
-				Mixer_UI::instance()->show_spill (boost::shared_ptr<ARDOUR::Stripable>());
+				set_showing_sends_to (std::shared_ptr<Route> ());
+				Mixer_UI::instance()->show_spill (std::shared_ptr<ARDOUR::Stripable>());
 			} else {
 				set_showing_sends_to (_route);
 				Mixer_UI::instance()->show_spill (_route);
@@ -1189,9 +1189,9 @@ RouteUI::send_blink (bool onoff)
 }
 
 Gtkmm2ext::ActiveState
-RouteUI::solo_active_state (boost::shared_ptr<Stripable> s)
+RouteUI::solo_active_state (std::shared_ptr<Stripable> s)
 {
-	boost::shared_ptr<SoloControl> sc = s->solo_control();
+	std::shared_ptr<SoloControl> sc = s->solo_control();
 
 	if (!sc) {
 		return Gtkmm2ext::Off;
@@ -1212,9 +1212,9 @@ RouteUI::solo_active_state (boost::shared_ptr<Stripable> s)
 }
 
 Gtkmm2ext::ActiveState
-RouteUI::solo_isolate_active_state (boost::shared_ptr<Stripable> s)
+RouteUI::solo_isolate_active_state (std::shared_ptr<Stripable> s)
 {
-	boost::shared_ptr<SoloIsolateControl> sc = s->solo_isolate_control();
+	std::shared_ptr<SoloIsolateControl> sc = s->solo_isolate_control();
 
 	if (!sc) {
 		return Gtkmm2ext::Off;
@@ -1232,9 +1232,9 @@ RouteUI::solo_isolate_active_state (boost::shared_ptr<Stripable> s)
 }
 
 Gtkmm2ext::ActiveState
-RouteUI::solo_safe_active_state (boost::shared_ptr<Stripable> s)
+RouteUI::solo_safe_active_state (std::shared_ptr<Stripable> s)
 {
-	boost::shared_ptr<SoloSafeControl> sc = s->solo_safe_control();
+	std::shared_ptr<SoloSafeControl> sc = s->solo_safe_control();
 
 	if (!sc) {
 		return Gtkmm2ext::Off;
@@ -1299,9 +1299,9 @@ RouteUI::solo_changed_so_update_mute ()
 }
 
 ActiveState
-RouteUI::mute_active_state (Session*, boost::shared_ptr<Stripable> s)
+RouteUI::mute_active_state (Session*, std::shared_ptr<Stripable> s)
 {
-	boost::shared_ptr<MuteControl> mc = s->mute_control();
+	std::shared_ptr<MuteControl> mc = s->mute_control();
 
 	if (s->is_monitor()) {
 		return Gtkmm2ext::Off;
@@ -1371,7 +1371,7 @@ RouteUI::blink_rec_display (bool blinkOn)
 		return;
 	}
 
-	if (boost::dynamic_pointer_cast<Send>(_current_delivery)) {
+	if (std::dynamic_pointer_cast<Send>(_current_delivery)) {
 		return;
 	}
 
@@ -1550,7 +1550,7 @@ RouteUI::solo_isolate_button_release (GdkEventButton* ev)
 
 				/* flip just this route */
 
-				boost::shared_ptr<RouteList> rl (new RouteList);
+				std::shared_ptr<RouteList> rl (new RouteList);
 				rl->push_back (_route);
 				_session->set_controls (route_list_to_control_list (rl, &Stripable::solo_isolate_control), view ? 0.0 : 1.0, Controllable::NoGroup);
 			}
@@ -1572,7 +1572,7 @@ RouteUI::solo_safe_button_release (GdkEventButton* ev)
 
 	if (ev->button == 1) {
 		if (Keyboard::modifier_state_equals (ev->state, Keyboard::ModifierMask (Keyboard::PrimaryModifier|Keyboard::TertiaryModifier))) {
-			boost::shared_ptr<RouteList> rl (_session->get_routes());
+			std::shared_ptr<RouteList> rl (_session->get_routes());
 			if (model) {
 				/* disable solo safe for all routes */
 				DisplaySuspender ds;
@@ -1873,7 +1873,7 @@ RouteUI::disconnect_output ()
 bool
 RouteUI::is_track () const
 {
-	return boost::dynamic_pointer_cast<Track>(_route) != 0;
+	return std::dynamic_pointer_cast<Track>(_route) != 0;
 }
 
 bool
@@ -1888,34 +1888,34 @@ RouteUI::is_foldbackbus () const
 	return _route && _route->is_foldbackbus ();
 }
 
-boost::shared_ptr<Track>
+std::shared_ptr<Track>
 RouteUI::track() const
 {
-	return boost::dynamic_pointer_cast<Track>(_route);
+	return std::dynamic_pointer_cast<Track>(_route);
 }
 
 bool
 RouteUI::is_audio_track () const
 {
-	return boost::dynamic_pointer_cast<AudioTrack>(_route) != 0;
+	return std::dynamic_pointer_cast<AudioTrack>(_route) != 0;
 }
 
-boost::shared_ptr<AudioTrack>
+std::shared_ptr<AudioTrack>
 RouteUI::audio_track() const
 {
-	return boost::dynamic_pointer_cast<AudioTrack>(_route);
+	return std::dynamic_pointer_cast<AudioTrack>(_route);
 }
 
 bool
 RouteUI::is_midi_track () const
 {
-	return boost::dynamic_pointer_cast<MidiTrack>(_route) != 0;
+	return std::dynamic_pointer_cast<MidiTrack>(_route) != 0;
 }
 
-boost::shared_ptr<MidiTrack>
+std::shared_ptr<MidiTrack>
 RouteUI::midi_track() const
 {
-	return boost::dynamic_pointer_cast<MidiTrack>(_route);
+	return std::dynamic_pointer_cast<MidiTrack>(_route);
 }
 
 bool
@@ -2240,14 +2240,14 @@ RouteUI::route_color () const
 }
 
 void
-RouteUI::set_showing_sends_to (boost::shared_ptr<Route> send_to)
+RouteUI::set_showing_sends_to (std::shared_ptr<Route> send_to)
 {
 	_showing_sends_to = send_to;
 	BusSendDisplayChanged (send_to); /* EMIT SIGNAL */
 }
 
 void
-RouteUI::bus_send_display_changed (boost::shared_ptr<Route> send_to)
+RouteUI::bus_send_display_changed (std::shared_ptr<Route> send_to)
 {
 	if (_route == send_to) {
 		show_sends_button->set_active (true);
@@ -2265,13 +2265,13 @@ RouteUI::route_group() const
 }
 
 void
-RouteUI::help_count_plugins (boost::weak_ptr<Processor> p, uint32_t* plugin_insert_cnt)
+RouteUI::help_count_plugins (std::weak_ptr<Processor> p, uint32_t* plugin_insert_cnt)
 {
-	boost::shared_ptr<Processor> processor (p.lock ());
+	std::shared_ptr<Processor> processor (p.lock ());
 	if (!processor || !processor->display_to_user()) {
 		return;
 	}
-	boost::shared_ptr<PluginInsert> pi = boost::dynamic_pointer_cast<PluginInsert> (processor);
+	std::shared_ptr<PluginInsert> pi = std::dynamic_pointer_cast<PluginInsert> (processor);
 #ifdef MIXBUS
 	if (pi && pi->is_channelstrip ()) {
 		return;
@@ -2282,9 +2282,9 @@ RouteUI::help_count_plugins (boost::weak_ptr<Processor> p, uint32_t* plugin_inse
 	}
 }
 
-RoutePinWindowProxy::RoutePinWindowProxy(std::string const &name, boost::shared_ptr<ARDOUR::Route> route)
+RoutePinWindowProxy::RoutePinWindowProxy(std::string const &name, std::shared_ptr<ARDOUR::Route> route)
 	: WM::ProxyBase (name, string())
-	, _route (boost::weak_ptr<Route> (route))
+	, _route (std::weak_ptr<Route> (route))
 {
 	route->DropReferences.connect (going_away_connection, MISSING_INVALIDATOR, boost::bind (&RoutePinWindowProxy::route_going_away, this), gui_context());
 }
@@ -2305,7 +2305,7 @@ RoutePinWindowProxy::session_handle ()
 Gtk::Window*
 RoutePinWindowProxy::get (bool create)
 {
-	boost::shared_ptr<Route> r = _route.lock ();
+	std::shared_ptr<Route> r = _route.lock ();
 	if (!r) {
 		return 0;
 	}
@@ -2386,7 +2386,7 @@ RouteUI::mark_hidden (bool yn)
 	return false;
 }
 
-boost::shared_ptr<Stripable>
+std::shared_ptr<Stripable>
 RouteUI::stripable () const
 {
 	return _route;
@@ -2431,7 +2431,7 @@ RouteUI::playlist_tip () const
 }
 
 std::string
-RouteUI::resolve_new_group_playlist_name (std::string const& basename, vector<boost::shared_ptr<Playlist> > const& playlists)
+RouteUI::resolve_new_group_playlist_name (std::string const& basename, vector<std::shared_ptr<Playlist> > const& playlists)
 {
 	std::string ret (basename);
 
@@ -2439,7 +2439,7 @@ RouteUI::resolve_new_group_playlist_name (std::string const& basename, vector<bo
 
 	// iterate through all playlists
 	int maxnumber = 0;
-	for (vector<boost::shared_ptr<Playlist> >::const_iterator i = playlists.begin(); i != playlists.end(); ++i) {
+	for (vector<std::shared_ptr<Playlist> >::const_iterator i = playlists.begin(); i != playlists.end(); ++i) {
 		std::string tmp = (*i)->name();
 
 		std::string::size_type idx = tmp.find(group_string);
@@ -2466,14 +2466,14 @@ RouteUI::resolve_new_group_playlist_name (std::string const& basename, vector<bo
 }
 
 void
-RouteUI::use_new_playlist (std::string name, std::string gid, vector<boost::shared_ptr<Playlist> > const& playlists_before_op, bool copy)
+RouteUI::use_new_playlist (std::string name, std::string gid, vector<std::shared_ptr<Playlist> > const& playlists_before_op, bool copy)
 {
-	boost::shared_ptr<Track> tr = track ();
+	std::shared_ptr<Track> tr = track ();
 	if (!tr) {
 		return;
 	}
 
-	boost::shared_ptr<const Playlist> pl = tr->playlist();
+	std::shared_ptr<const Playlist> pl = tr->playlist();
 	if (!pl) {
 		return;
 	}
@@ -2490,12 +2490,12 @@ RouteUI::use_new_playlist (std::string name, std::string gid, vector<boost::shar
 void
 RouteUI::clear_playlist ()
 {
-	boost::shared_ptr<Track> tr = track ();
+	std::shared_ptr<Track> tr = track ();
 	if (!tr) {
 		return;
 	}
 
-	boost::shared_ptr<Playlist> pl = tr->playlist();
+	std::shared_ptr<Playlist> pl = tr->playlist();
 	if (!pl) {
 		return;
 	}
@@ -2523,23 +2523,23 @@ RouteUI::build_playlist_menu ()
 	playlist_items.clear();
 
 	RadioMenuItem::Group playlist_group;
-	boost::shared_ptr<Track> tr = track ();
+	std::shared_ptr<Track> tr = track ();
 
-	vector<boost::shared_ptr<Playlist> > playlists_tr = _session->playlists()->playlists_for_track (tr);
+	vector<std::shared_ptr<Playlist> > playlists_tr = _session->playlists()->playlists_for_track (tr);
 
 	/* sort the playlists */
 	PlaylistSorterByID cmp;
 	sort (playlists_tr.begin(), playlists_tr.end(), cmp);
 
 	/* add the playlists to the menu */
-	for (vector<boost::shared_ptr<Playlist> >::iterator i = playlists_tr.begin(); i != playlists_tr.end(); ++i) {
+	for (vector<std::shared_ptr<Playlist> >::iterator i = playlists_tr.begin(); i != playlists_tr.end(); ++i) {
 		string text = (*i)->name();
 		playlist_items.push_back (RadioMenuElem (playlist_group, text));
 		RadioMenuItem *item = static_cast<RadioMenuItem*>(&playlist_items.back());
 		if (tr->playlist()->id() == (*i)->id()) {
 			item->set_active();
 		}
-		item->signal_toggled().connect(sigc::bind (sigc::mem_fun (*this, &RouteUI::use_playlist), item, boost::weak_ptr<Playlist> (*i)));
+		item->signal_toggled().connect(sigc::bind (sigc::mem_fun (*this, &RouteUI::use_playlist), item, std::weak_ptr<Playlist> (*i)));
 	}
 
 	playlist_items.push_back (SeparatorElem());
@@ -2574,7 +2574,7 @@ RouteUI::build_playlist_menu ()
 }
 
 void
-RouteUI::use_playlist (RadioMenuItem *item, boost::weak_ptr<Playlist> wpl)
+RouteUI::use_playlist (RadioMenuItem *item, std::weak_ptr<Playlist> wpl)
 {
 	// exit if we were triggered by deactivating the old playlist
 	if (item && !item->get_active()) {
@@ -2586,13 +2586,13 @@ RouteUI::use_playlist (RadioMenuItem *item, boost::weak_ptr<Playlist> wpl)
 
 
 void
-RouteUI::select_playlist_matching (boost::weak_ptr<Playlist> wpl)
+RouteUI::select_playlist_matching (std::weak_ptr<Playlist> wpl)
 {
 	if (!is_track()) {
 		return;
 	}
 
-	boost::shared_ptr<Playlist> pl (wpl.lock());
+	std::shared_ptr<Playlist> pl (wpl.lock());
 
 	if (!pl) {
 		return;
@@ -2616,7 +2616,7 @@ RouteUI::select_playlist_matching (boost::weak_ptr<Playlist> wpl)
 
 	/* Search for a matching playlist .. either by pgroup_id or name */
 	std::string pgrp_id = pl->pgroup_id();
-	boost::shared_ptr<Playlist> ipl = session()->playlists()->for_pgroup(pgrp_id, track()->id());
+	std::shared_ptr<Playlist> ipl = session()->playlists()->for_pgroup(pgrp_id, track()->id());
 	if (ipl) {
 		//found a playlist that matches the pgroup_id, use it
 		track()->use_playlist (track()->data_type(), ipl);
@@ -2635,7 +2635,7 @@ RouteUI::select_playlist_matching (boost::weak_ptr<Playlist> wpl)
 			take_name = take_name.substr(idx + group_string.length()); // find the bit containing the take number / name
 			std::string playlist_name = track()->name()+group_string+take_name;
 
-			boost::shared_ptr<Playlist> ipl = session()->playlists()->by_name(playlist_name);
+			std::shared_ptr<Playlist> ipl = session()->playlists()->by_name(playlist_name);
 			if (ipl) {
 				track()->use_playlist(track()->data_type(), ipl);
 			}
@@ -2697,12 +2697,12 @@ RouteUI::rename_current_playlist ()
 	Prompter prompter (true);
 	string name;
 
-	boost::shared_ptr<Track> tr = track();
+	std::shared_ptr<Track> tr = track();
 	if (!tr) {
 		return;
 	}
 
-	boost::shared_ptr<Playlist> pl = tr->playlist();
+	std::shared_ptr<Playlist> pl = tr->playlist();
 	if (!pl) {
 		return;
 	}
@@ -2729,8 +2729,8 @@ RouteUI::rename_current_playlist ()
 	}
 
 	if (name.length()) {
-		vector<boost::shared_ptr<Playlist> > playlists_gr = _session->playlists()->playlists_for_pgroup (pl->pgroup_id());
-		for (vector<boost::shared_ptr<Playlist> >::iterator i = playlists_gr.begin(); i != playlists_gr.end(); ++i) {
+		vector<std::shared_ptr<Playlist> > playlists_gr = _session->playlists()->playlists_for_pgroup (pl->pgroup_id());
+		for (vector<std::shared_ptr<Playlist> >::iterator i = playlists_gr.begin(); i != playlists_gr.end(); ++i) {
 			(*i)->set_name (name);
 		}
 	}

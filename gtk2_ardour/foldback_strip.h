@@ -78,7 +78,7 @@ class ArdourWindow;
 class FoldbackSend : public Gtk::VBox
 {
 public:
-	FoldbackSend (boost::shared_ptr<ARDOUR::Send>, boost::shared_ptr<ARDOUR::Route> sr, boost::shared_ptr<ARDOUR::Route> fr, uint32_t wd);
+	FoldbackSend (std::shared_ptr<ARDOUR::Send>, std::shared_ptr<ARDOUR::Route> sr, std::shared_ptr<ARDOUR::Route> fr, uint32_t wd);
 	~FoldbackSend ();
 
 private:
@@ -98,11 +98,11 @@ private:
 	Gtk::Menu* build_send_menu ();
 
 	ArdourWidgets::ArdourButton          _button;
-	boost::shared_ptr<ARDOUR::Send>      _send;
-	boost::shared_ptr<ARDOUR::Route>     _send_route;
-	boost::shared_ptr<ARDOUR::Route>     _foldback_route;
-	boost::shared_ptr<ARDOUR::Processor> _send_proc;
-	boost::shared_ptr<ARDOUR::Delivery>  _send_del;
+	std::shared_ptr<ARDOUR::Send>      _send;
+	std::shared_ptr<ARDOUR::Route>     _send_route;
+	std::shared_ptr<ARDOUR::Route>     _foldback_route;
+	std::shared_ptr<ARDOUR::Processor> _send_proc;
+	std::shared_ptr<ARDOUR::Delivery>  _send_del;
 	uint32_t                             _width;
 	ArdourWidgets::ArdourKnob            _pan_control;
 	Gtk::Adjustment                      _adjustment;
@@ -115,7 +115,7 @@ private:
 class FoldbackStrip : public RouteUI, public Gtk::EventBox
 {
 public:
-	FoldbackStrip (Mixer_UI&, ARDOUR::Session*, boost::shared_ptr<ARDOUR::Route>);
+	FoldbackStrip (Mixer_UI&, ARDOUR::Session*, std::shared_ptr<ARDOUR::Route>);
 	~FoldbackStrip ();
 
 	std::string name () const;
@@ -123,7 +123,7 @@ public:
 	PluginSelector* plugin_selector ();
 
 	void fast_update ();
-	void set_route (boost::shared_ptr<ARDOUR::Route>);
+	void set_route (std::shared_ptr<ARDOUR::Route>);
 	void set_button_names ();
 
 	PannerUI& panner_ui ()
@@ -131,13 +131,13 @@ public:
 		return _panners;
 	}
 
-	boost::shared_ptr<ARDOUR::Stripable> stripable () const
+	std::shared_ptr<ARDOUR::Stripable> stripable () const
 	{
 		return RouteUI::stripable ();
 	}
 
 	/** The delivery that we are handling the level for with our fader has changed */
-	PBD::Signal1<void, boost::weak_ptr<ARDOUR::Delivery> > DeliveryChanged;
+	PBD::Signal1<void, std::weak_ptr<ARDOUR::Delivery> > DeliveryChanged;
 
 	static PBD::Signal1<void, FoldbackStrip*> CatchDeletion;
 
@@ -174,7 +174,7 @@ private:
 	void update_panner_choices ();
 	void update_output_display ();
 
-	void spill_change (boost::shared_ptr<ARDOUR::Stripable>);
+	void spill_change (std::shared_ptr<ARDOUR::Stripable>);
 	void route_property_changed (const PBD::PropertyChange&);
 	void presentation_info_changed (PBD::PropertyChange const&);
 

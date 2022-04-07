@@ -111,7 +111,7 @@ static Cairo::RefPtr<Cairo::Pattern> create_pending_peak_pattern() {
 	return p;
 }
 
-AudioRegionView::AudioRegionView (ArdourCanvas::Container *parent, RouteTimeAxisView &tv, boost::shared_ptr<AudioRegion> r, double spu,
+AudioRegionView::AudioRegionView (ArdourCanvas::Container *parent, RouteTimeAxisView &tv, std::shared_ptr<AudioRegion> r, double spu,
 				  uint32_t basic_color)
 	: RegionView (parent, tv, r, spu, basic_color)
 	, fade_in_handle(0)
@@ -131,7 +131,7 @@ AudioRegionView::AudioRegionView (ArdourCanvas::Container *parent, RouteTimeAxis
 {
 }
 
-AudioRegionView::AudioRegionView (ArdourCanvas::Container *parent, RouteTimeAxisView &tv, boost::shared_ptr<AudioRegion> r, double spu,
+AudioRegionView::AudioRegionView (ArdourCanvas::Container *parent, RouteTimeAxisView &tv, std::shared_ptr<AudioRegion> r, double spu,
 				  uint32_t basic_color, bool recording, TimeAxisViewItem::Visibility visibility)
 	: RegionView (parent, tv, r, spu, basic_color, recording, visibility)
 	, fade_in_handle(0)
@@ -151,8 +151,8 @@ AudioRegionView::AudioRegionView (ArdourCanvas::Container *parent, RouteTimeAxis
 {
 }
 
-AudioRegionView::AudioRegionView (const AudioRegionView& other, boost::shared_ptr<AudioRegion> other_region)
-	: RegionView (other, boost::shared_ptr<Region> (other_region))
+AudioRegionView::AudioRegionView (const AudioRegionView& other, std::shared_ptr<AudioRegion> other_region)
+	: RegionView (other, std::shared_ptr<Region> (other_region))
 	, fade_in_handle(0)
 	, fade_out_handle(0)
 	, fade_in_trim_handle(0)
@@ -297,11 +297,11 @@ AudioRegionView::~AudioRegionView ()
 	/* all waveviews etc will be destroyed when the group is destroyed */
 }
 
-boost::shared_ptr<ARDOUR::AudioRegion>
+std::shared_ptr<ARDOUR::AudioRegion>
 AudioRegionView::audio_region() const
 {
 	// "Guaranteed" to succeed...
-	return boost::dynamic_pointer_cast<AudioRegion>(_region);
+	return std::dynamic_pointer_cast<AudioRegion>(_region);
 }
 
 void
@@ -396,7 +396,7 @@ AudioRegionView::region_renamed ()
 	}
 
 
-	boost::shared_ptr<AudioRegion> ar (audio_region());
+	std::shared_ptr<AudioRegion> ar (audio_region());
 	if (ar->scale_amplitude() != 1.0) {
 		char tmp[32];
 		snprintf (tmp, 32, " (%.1fdB)", accurate_coefficient_to_dB (ar->scale_amplitude()));
@@ -631,7 +631,7 @@ AudioRegionView::reset_fade_in_shape ()
 }
 
 void
-AudioRegionView::reset_fade_in_shape_width (boost::shared_ptr<AudioRegion> ar, samplecnt_t width, bool drag_active)
+AudioRegionView::reset_fade_in_shape_width (std::shared_ptr<AudioRegion> ar, samplecnt_t width, bool drag_active)
 {
 	trim_fade_in_drag_active = drag_active;
 	if (fade_in_handle == 0) {
@@ -682,7 +682,7 @@ AudioRegionView::reset_fade_in_shape_width (boost::shared_ptr<AudioRegion> ar, s
 
 	Points points;
 	Points::size_type pi;
-	boost::shared_ptr<const Evoral::ControlList> list (audio_region()->fade_in());
+	std::shared_ptr<const Evoral::ControlList> list (audio_region()->fade_in());
 	Evoral::ControlList::const_iterator x;
 	samplecnt_t length = list->length().samples();
 
@@ -711,7 +711,7 @@ AudioRegionView::reset_fade_out_shape ()
 }
 
 void
-AudioRegionView::reset_fade_out_shape_width (boost::shared_ptr<AudioRegion> ar, samplecnt_t width, bool drag_active)
+AudioRegionView::reset_fade_out_shape_width (std::shared_ptr<AudioRegion> ar, samplecnt_t width, bool drag_active)
 {
 	trim_fade_out_drag_active = drag_active;
 	if (fade_out_handle == 0) {
@@ -769,7 +769,7 @@ AudioRegionView::reset_fade_out_shape_width (boost::shared_ptr<AudioRegion> ar, 
 
 	Points points;
 	Points::size_type pi;
-	boost::shared_ptr<const Evoral::ControlList> list (audio_region()->fade_out());
+	std::shared_ptr<const Evoral::ControlList> list (audio_region()->fade_out());
 	Evoral::ControlList::const_iterator x;
 	double length = list->length().samples();
 
@@ -807,7 +807,7 @@ AudioRegionView::get_fade_out_shape_width ()
 void
 AudioRegionView::redraw_start_xfade ()
 {
-	boost::shared_ptr<AudioRegion> ar (audio_region());
+	std::shared_ptr<AudioRegion> ar (audio_region());
 
 	if (!ar->fade_in() || ar->fade_in()->empty()) {
 		return;
@@ -818,7 +818,7 @@ AudioRegionView::redraw_start_xfade ()
 }
 
 void
-AudioRegionView::redraw_start_xfade_to (boost::shared_ptr<AudioRegion> ar, samplecnt_t /*width*/, Points& points, double effective_height,
+AudioRegionView::redraw_start_xfade_to (std::shared_ptr<AudioRegion> ar, samplecnt_t /*width*/, Points& points, double effective_height,
 					double rect_width)
 {
 	if (points.size() < 2) {
@@ -846,7 +846,7 @@ AudioRegionView::redraw_start_xfade_to (boost::shared_ptr<AudioRegion> ar, sampl
 
 	/* fade out line */
 
-	boost::shared_ptr<AutomationList> inverse = ar->inverse_fade_in ();
+	std::shared_ptr<AutomationList> inverse = ar->inverse_fade_in ();
 	Points ipoints;
 	Points::size_type npoints;
 
@@ -896,7 +896,7 @@ AudioRegionView::redraw_start_xfade_to (boost::shared_ptr<AudioRegion> ar, sampl
 void
 AudioRegionView::redraw_end_xfade ()
 {
-	boost::shared_ptr<AudioRegion> ar (audio_region());
+	std::shared_ptr<AudioRegion> ar (audio_region());
 
 	if (!ar->fade_out() || ar->fade_out()->empty()) {
 		return;
@@ -908,7 +908,7 @@ AudioRegionView::redraw_end_xfade ()
 }
 
 void
-AudioRegionView::redraw_end_xfade_to (boost::shared_ptr<AudioRegion> ar, samplecnt_t width, Points& points, double effective_height,
+AudioRegionView::redraw_end_xfade_to (std::shared_ptr<AudioRegion> ar, samplecnt_t width, Points& points, double effective_height,
                                       double rect_edge, double rect_width)
 {
 	if (points.size() < 2) {
@@ -937,7 +937,7 @@ AudioRegionView::redraw_end_xfade_to (boost::shared_ptr<AudioRegion> ar, samplec
 
 	/* fade in line */
 
-	boost::shared_ptr<AutomationList> inverse = ar->inverse_fade_out ();
+	std::shared_ptr<AutomationList> inverse = ar->inverse_fade_out ();
 	Points ipoints;
 	Points::size_type npoints;
 
@@ -1500,7 +1500,7 @@ AudioRegionView::entered ()
 			fade_out_handle->raise_to_top ();
 		}
 		if (fade_in_trim_handle) {
-			boost::shared_ptr<AudioRegion> ar (audio_region());
+			std::shared_ptr<AudioRegion> ar (audio_region());
 			if (!ar->locked() && (ar->fade_in()->back()->when > 64 || (ar->can_trim() & Trimmable::FrontTrimEarlier))) {
 				fade_in_trim_handle->show ();
 				fade_in_trim_handle->raise_to_top ();
@@ -1509,7 +1509,7 @@ AudioRegionView::entered ()
 			}
 		}
 		if (fade_out_trim_handle) {
-			boost::shared_ptr<AudioRegion> ar (audio_region());
+			std::shared_ptr<AudioRegion> ar (audio_region());
 			if (!ar->locked() && (ar->fade_out()->back()->when > 64 || (ar->can_trim() & Trimmable::EndTrimLater))) {
 				fade_out_trim_handle->show ();
 				fade_out_trim_handle->raise_to_top ();
@@ -1530,8 +1530,8 @@ AudioRegionView::entered ()
 void
 AudioRegionView::exited ()
 {
-	trackview.editor().set_current_trimmable (boost::shared_ptr<Trimmable>());
-	trackview.editor().set_current_movable (boost::shared_ptr<Movable>());
+	trackview.editor().set_current_trimmable (std::shared_ptr<Trimmable>());
+	trackview.editor().set_current_movable (std::shared_ptr<Movable>());
 
 //	if (gain_line) {
 //		gain_line->remove_visibility (AutomationLine::ControlPoints);
