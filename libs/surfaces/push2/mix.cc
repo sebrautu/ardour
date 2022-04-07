@@ -177,7 +177,7 @@ MixLayout::show ()
 
 
 	for (size_t n = 0; n < sizeof (upper_buttons) / sizeof (upper_buttons[0]); ++n) {
-		boost::shared_ptr<Push2::Button> b = p2.button_by_id (upper_buttons[n]);
+		std::shared_ptr<Push2::Button> b = p2.button_by_id (upper_buttons[n]);
 
 		if (b != mode_button) {
 			b->set_color (Push2::LED::DarkGray);
@@ -202,7 +202,7 @@ MixLayout::render (Rect const& area, Cairo::RefPtr<Cairo::Context> context) cons
 void
 MixLayout::button_upper (uint32_t n)
 {
-	boost::shared_ptr<Push2::Button> b;
+	std::shared_ptr<Push2::Button> b;
 	switch (n) {
 	case 0:
 		vpot_mode = Volume;
@@ -263,20 +263,20 @@ MixLayout::show_vpot_mode ()
 
 	uint32_t n = 0;
 
-	boost::shared_ptr<AutomationControl> ac;
+	std::shared_ptr<AutomationControl> ac;
 	switch (vpot_mode) {
 	case Volume:
 		for (int s = 0; s < 8; ++s) {
 			if (stripable[s]) {
 				gain_meter[s]->knob->set_controllable (stripable[s]->gain_control());
-				boost::shared_ptr<PeakMeter> pm = stripable[s]->peak_meter();
+				std::shared_ptr<PeakMeter> pm = stripable[s]->peak_meter();
 				if (pm) {
 					gain_meter[s]->meter->set_meter (pm.get());
 				} else {
 					gain_meter[s]->meter->set_meter (0);
 				}
 			} else {
-				gain_meter[s]->knob->set_controllable (boost::shared_ptr<AutomationControl>());
+				gain_meter[s]->knob->set_controllable (std::shared_ptr<AutomationControl>());
 				gain_meter[s]->meter->set_meter (0);
 			}
 			gain_meter[s]->knob->remove_flag (Push2Knob::ArcToZero);
@@ -290,7 +290,7 @@ MixLayout::show_vpot_mode ()
 				gain_meter[s]->knob->set_controllable (stripable[s]->pan_azimuth_control());
 				gain_meter[s]->knob->add_flag (Push2Knob::ArcToZero);
 			} else {
-				gain_meter[s]->knob->set_controllable (boost::shared_ptr<AutomationControl>());
+				gain_meter[s]->knob->set_controllable (std::shared_ptr<AutomationControl>());
 
 			}
 			gain_meter[s]->meter->hide ();
@@ -302,7 +302,7 @@ MixLayout::show_vpot_mode ()
 			if (stripable[s]) {
 				gain_meter[s]->knob->set_controllable (stripable[s]->pan_width_control());
 			} else {
-				gain_meter[s]->knob->set_controllable (boost::shared_ptr<AutomationControl>());
+				gain_meter[s]->knob->set_controllable (std::shared_ptr<AutomationControl>());
 
 			}
 			gain_meter[s]->knob->remove_flag (Push2Knob::ArcToZero);
@@ -315,7 +315,7 @@ MixLayout::show_vpot_mode ()
 			if (stripable[s]) {
 				gain_meter[s]->knob->set_controllable (stripable[s]->send_level_controllable (0));
 			} else {
-				gain_meter[s]->knob->set_controllable (boost::shared_ptr<AutomationControl>());
+				gain_meter[s]->knob->set_controllable (std::shared_ptr<AutomationControl>());
 
 			}
 			gain_meter[s]->knob->remove_flag (Push2Knob::ArcToZero);
@@ -328,7 +328,7 @@ MixLayout::show_vpot_mode ()
 			if (stripable[s]) {
 				gain_meter[s]->knob->set_controllable (stripable[s]->send_level_controllable (1));
 			} else {
-				gain_meter[s]->knob->set_controllable (boost::shared_ptr<AutomationControl>());
+				gain_meter[s]->knob->set_controllable (std::shared_ptr<AutomationControl>());
 
 			}
 			gain_meter[s]->knob->remove_flag (Push2Knob::ArcToZero);
@@ -341,7 +341,7 @@ MixLayout::show_vpot_mode ()
 			if (stripable[s]) {
 				gain_meter[s]->knob->set_controllable (stripable[s]->send_level_controllable (2));
 			} else {
-				gain_meter[s]->knob->set_controllable (boost::shared_ptr<AutomationControl>());
+				gain_meter[s]->knob->set_controllable (std::shared_ptr<AutomationControl>());
 
 			}
 			gain_meter[s]->knob->remove_flag (Push2Knob::ArcToZero);
@@ -354,7 +354,7 @@ MixLayout::show_vpot_mode ()
 			if (stripable[s]) {
 				gain_meter[s]->knob->set_controllable (stripable[s]->send_level_controllable (3));
 			} else {
-				gain_meter[s]->knob->set_controllable (boost::shared_ptr<AutomationControl>());
+				gain_meter[s]->knob->set_controllable (std::shared_ptr<AutomationControl>());
 
 			}
 			gain_meter[s]->knob->remove_flag (Push2Knob::ArcToZero);
@@ -367,7 +367,7 @@ MixLayout::show_vpot_mode ()
 			if (stripable[s]) {
 				gain_meter[s]->knob->set_controllable (stripable[s]->send_level_controllable (4));
 			} else {
-				gain_meter[s]->knob->set_controllable (boost::shared_ptr<AutomationControl>());
+				gain_meter[s]->knob->set_controllable (std::shared_ptr<AutomationControl>());
 
 			}
 			gain_meter[s]->knob->remove_flag (Push2Knob::ArcToZero);
@@ -388,9 +388,9 @@ MixLayout::show_vpot_mode ()
 void
 MixLayout::button_mute ()
 {
-	boost::shared_ptr<Stripable> s = session.selection().first_selected_stripable();
+	std::shared_ptr<Stripable> s = session.selection().first_selected_stripable();
 	if (s) {
-		boost::shared_ptr<AutomationControl> ac = s->mute_control();
+		std::shared_ptr<AutomationControl> ac = s->mute_control();
 		if (ac) {
 			ac->set_value (!ac->get_value(), PBD::Controllable::UseGroup);
 		}
@@ -400,9 +400,9 @@ MixLayout::button_mute ()
 void
 MixLayout::button_solo ()
 {
-	boost::shared_ptr<Stripable> s = session.selection().first_selected_stripable();
+	std::shared_ptr<Stripable> s = session.selection().first_selected_stripable();
 	if (s) {
-		boost::shared_ptr<AutomationControl> ac = s->solo_control();
+		std::shared_ptr<AutomationControl> ac = s->solo_control();
 		if (ac) {
 			session.set_control (ac, !ac->get_value(), PBD::Controllable::UseGroup);
 		}
@@ -416,13 +416,13 @@ MixLayout::button_lower (uint32_t n)
 		return;
 	}
 
-	session.selection().set (stripable[n], boost::shared_ptr<AutomationControl>());
+	session.selection().set (stripable[n], std::shared_ptr<AutomationControl>());
 }
 
 void
 MixLayout::strip_vpot (int n, int delta)
 {
-	boost::shared_ptr<Controllable> ac = gain_meter[n]->knob->controllable();
+	std::shared_ptr<Controllable> ac = gain_meter[n]->knob->controllable();
 
 	if (ac) {
 		ac->set_value (ac->interface_to_internal (
@@ -435,7 +435,7 @@ void
 MixLayout::strip_vpot_touch (int n, bool touching)
 {
 	if (stripable[n]) {
-		boost::shared_ptr<AutomationControl> ac = stripable[n]->gain_control();
+		std::shared_ptr<AutomationControl> ac = stripable[n]->gain_control();
 		if (ac) {
 			const timepos_t now (session.audible_sample());
 			if (touching) {
@@ -515,12 +515,12 @@ MixLayout::solo_mute_changed (uint32_t n)
 {
 	string shortname = short_version (stripable[n]->name(), 10);
 	string text;
-	boost::shared_ptr<AutomationControl> ac;
+	std::shared_ptr<AutomationControl> ac;
 	ac = stripable[n]->solo_control();
 	if (ac && ac->get_value()) {
 		text += "* ";
 	}
-	boost::shared_ptr<MuteControl> mc;
+	std::shared_ptr<MuteControl> mc;
 	mc = stripable[n]->mute_control ();
 	if (mc) {
 		if (mc->muted_by_self_or_masters()) {
@@ -540,7 +540,7 @@ MixLayout::switch_bank (uint32_t base)
 
 	/* work backwards so we can tell if we should actually switch banks */
 
-	boost::shared_ptr<Stripable> s[8];
+	std::shared_ptr<Stripable> s[8];
 	uint32_t different = 0;
 
 	for (int n = 0; n < 8; ++n) {
@@ -554,7 +554,7 @@ MixLayout::switch_bank (uint32_t base)
 		/* not even the first stripable exists, do nothing */
 		for (int n = 0; n < 8; ++n) {
 			stripable[n].reset ();
-			gain_meter[n]->knob->set_controllable (boost::shared_ptr<AutomationControl>());
+			gain_meter[n]->knob->set_controllable (std::shared_ptr<AutomationControl>());
 			gain_meter[n]->meter->set_meter (0);
 		}
 		return;
@@ -573,7 +573,7 @@ MixLayout::switch_bank (uint32_t base)
 		if (!stripable[n]) {
 			lower_text[n]->hide ();
 			hide_selection (n);
-			gain_meter[n]->knob->set_controllable (boost::shared_ptr<AutomationControl>());
+			gain_meter[n]->knob->set_controllable (std::shared_ptr<AutomationControl>());
 			gain_meter[n]->meter->set_meter (0);
 		} else {
 
@@ -604,7 +604,7 @@ MixLayout::switch_bank (uint32_t base)
 		}
 
 
-		boost::shared_ptr<Push2::Button> b;
+		std::shared_ptr<Push2::Button> b;
 
 		switch (n) {
 		case 0:
@@ -688,7 +688,7 @@ MixLayout::button_select_release ()
 		/* no visible track selected, select first (if any) */
 
 		if (stripable[0]) {
-			session.selection().set (stripable[0], boost::shared_ptr<AutomationControl>());
+			session.selection().set (stripable[0], std::shared_ptr<AutomationControl>());
 		}
 
 	} else {
@@ -704,7 +704,7 @@ MixLayout::button_select_release ()
 					session.selection().clear_stripables ();
 					switch_bank (bank_start-1);
 					if (stripable[0]) {
-						session.selection().set (stripable[0], boost::shared_ptr<AutomationControl>());
+						session.selection().set (stripable[0], std::shared_ptr<AutomationControl>());
 					}
 				}
 			} else {
@@ -714,7 +714,7 @@ MixLayout::button_select_release ()
 					--n;
 				}
 				if (n >= 0) {
-					session.selection().set (stripable[n], boost::shared_ptr<AutomationControl>());
+					session.selection().set (stripable[n], std::shared_ptr<AutomationControl>());
 				}
 			}
 
@@ -726,10 +726,10 @@ MixLayout::button_select_release ()
 				/* current selected is rightmost ... cancel selection,
 				   switch banks by one, and select righmost
 				*/
-				session.selection().toggle (stripable[selected], boost::shared_ptr<AutomationControl>());
+				session.selection().toggle (stripable[selected], std::shared_ptr<AutomationControl>());
 				switch_bank (bank_start+1);
 				if (stripable[7]) {
-					session.selection().set (stripable[7], boost::shared_ptr<AutomationControl>());
+					session.selection().set (stripable[7], std::shared_ptr<AutomationControl>());
 				}
 			} else {
 				/* select next, if any */
@@ -739,7 +739,7 @@ MixLayout::button_select_release ()
 				}
 
 				if (n != 8) {
-					session.selection().set (stripable[n], boost::shared_ptr<AutomationControl>());
+					session.selection().set (stripable[n], std::shared_ptr<AutomationControl>());
 				}
 			}
 		}

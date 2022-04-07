@@ -25,7 +25,7 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "ardour/libardour_visibility.h"
 #include "ardour/types.h"
@@ -40,7 +40,7 @@ class ExportTempFile;
 class LIBARDOUR_API ExportTimespan
 {
 private:
-	typedef boost::shared_ptr<ExportStatus> ExportStatusPtr;
+	typedef std::shared_ptr<ExportStatus> ExportStatusPtr;
 
 private:
 	friend class ExportElementFactory;

@@ -75,7 +75,7 @@ using namespace PBD;
 
 const string PluginInsert::port_automation_node_name = "PortAutomation";
 
-PluginInsert::PluginInsert (Session& s, Temporal::TimeDomain td, boost::shared_ptr<Plugin> plug)
+PluginInsert::PluginInsert (Session& s, Temporal::TimeDomain td, std::shared_ptr<Plugin> plug)
 	: Processor (s, (plug ? plug->name() : string ("toBeRenamed")), td)
 	, _sc_playback_latency (0)
 	, _sc_capture_latency (0)
@@ -108,7 +108,7 @@ PluginInsert::PluginInsert (Session& s, Temporal::TimeDomain td, boost::shared_p
 PluginInsert::~PluginInsert ()
 {
 	for (CtrlOutMap::const_iterator i = _control_outputs.begin(); i != _control_outputs.end(); ++i) {
-		boost::dynamic_pointer_cast<ReadOnlyControl>(i->second)->drop_references ();
+		std::dynamic_pointer_cast<ReadOnlyControl>(i->second)->drop_references ();
 	}
 }
 
@@ -132,7 +132,7 @@ PluginInsert::drop_references ()
 	{
 		Glib::Threads::Mutex::Lock lm (_control_lock);
 		for (Controls::const_iterator li = _controls.begin(); li != _controls.end(); ++li) {
-			boost::dynamic_pointer_cast<AutomationControl>(li->second)->drop_references ();
+			std::dynamic_pointer_cast<AutomationControl>(li->second)->drop_references ();
 		}
 		_controls.clear ();
 	}
@@ -175,7 +175,7 @@ PluginInsert::set_count (uint32_t num)
 		uint32_t diff = num - _plugins.size();
 
 		for (uint32_t n = 0; n < diff; ++n) {
-			boost::shared_ptr<Plugin> p = plugin_factory (_plugins[0]);
+			std::shared_ptr<Plugin> p = plugin_factory (_plugins[0]);
 			add_plugin (p);
 
 			if (require_state) {
@@ -312,8 +312,8 @@ PluginInsert::control_list_automation_state_changed (Evoral::Parameter which, Au
 	if (which.type() != PluginAutomation)
 		return;
 
-	boost::shared_ptr<AutomationControl> c
-			= boost::dynamic_pointer_cast<AutomationControl>(control (which));
+	std::shared_ptr<AutomationControl> c
+			= std::dynamic_pointer_cast<AutomationControl>(control (which));
 
 	if (c && s != Off) {
 		_plugins[0]->set_parameter (which.id(), c->list()->eval (timepos_t (_session.transport_sample())), 0);
@@ -501,7 +501,7 @@ PluginInsert::create_automatable_parameters ()
 {
 	assert (!_plugins.empty());
 
-	boost::shared_ptr<Plugin> plugin = _plugins.front();
+	std::shared_ptr<Plugin> plugin = _plugins.front();
 	set<Evoral::Parameter> a = _plugins.front()->automatable ();
 
 	const uint32_t limit_automatables = Config->get_limit_n_automatables ();
@@ -515,15 +515,15 @@ PluginInsert::create_automatable_parameters ()
 		plugin->get_parameter_descriptor(i, desc);
 
 		if (!plugin->parameter_is_input (i)) {
-			_control_outputs[i] = boost::shared_ptr<ReadOnlyControl> (new ReadOnlyControl (plugin, desc, i));
+			_control_outputs[i] = std::shared_ptr<ReadOnlyControl> (new ReadOnlyControl (plugin, desc, i));
 			continue;
 		}
 		Evoral::Parameter param (PluginAutomation, 0, i);
 
 		const bool automatable = a.find(param) != a.end();
 
-		boost::shared_ptr<AutomationList> list(new AutomationList(param, desc, time_domain()));
-		boost::shared_ptr<AutomationControl> c (new PluginControl(this, param, desc, list));
+		std::shared_ptr<AutomationList> list(new AutomationList(param, desc, time_domain()));
+		std::shared_ptr<AutomationControl> c (new PluginControl(this, param, desc, list));
 		if (!automatable || (limit_automatables > 0 && what_can_be_automated ().size() > limit_automatables)) {
 			c->set_flag (Controllable::NotAutomatable);
 		}
@@ -540,11 +540,11 @@ PluginInsert::create_automatable_parameters ()
 		Evoral::Parameter param (PluginPropertyAutomation, 0, p->first);
 		const ParameterDescriptor& desc = plugin->get_property_descriptor(param.id());
 		if (desc.datatype != Variant::NOTHING) {
-			boost::shared_ptr<AutomationList> list;
+			std::shared_ptr<AutomationList> list;
 			if (Variant::type_is_numeric(desc.datatype)) {
-				list = boost::shared_ptr<AutomationList>(new AutomationList(param, desc, time_domain()));
+				list = std::shared_ptr<AutomationList>(new AutomationList(param, desc, time_domain()));
 			}
-			boost::shared_ptr<AutomationControl> c (new PluginPropertyControl(this, param, desc, list));
+			std::shared_ptr<AutomationControl> c (new PluginPropertyControl(this, param, desc, list));
 			if (!Variant::type_is_numeric(desc.datatype)) {
 				c->set_flag (Controllable::NotAutomatable);
 			}
@@ -565,15 +565,15 @@ PluginInsert::create_automatable_parameters ()
 		desc.lower  = 0;
 		desc.upper  = 1;
 
-		boost::shared_ptr<AutomationList> list(new AutomationList(param, desc, time_domain()));
-		boost::shared_ptr<AutomationControl> c (new PluginControl(this, param, desc, list));
+		std::shared_ptr<AutomationList> list(new AutomationList(param, desc, time_domain()));
+		std::shared_ptr<AutomationControl> c (new PluginControl(this, param, desc, list));
 
 		add_control (c);
 	}
 
 	if (_bypass_port != UINT32_MAX) {
 		_inverted_bypass_enable = type () == VST3;
-		boost::shared_ptr<AutomationControl> ac = automation_control (Evoral::Parameter (PluginAutomation, 0, _bypass_port));
+		std::shared_ptr<AutomationControl> ac = automation_control (Evoral::Parameter (PluginAutomation, 0, _bypass_port));
 		if (0 == (ac->flags () & Controllable::NotAutomatable)) {
 			ac->alist()->automation_state_changed.connect_same_thread (*this, boost::bind (&PluginInsert::bypassable_changed, this));
 			ac->Changed.connect_same_thread (*this, boost::bind (&PluginInsert::enable_changed, this));
@@ -597,7 +597,7 @@ PluginInsert::create_automatable_parameters ()
 void
 PluginInsert::parameter_changed_externally (uint32_t which, float val)
 {
-	boost::shared_ptr<AutomationControl> ac = automation_control (Evoral::Parameter (PluginAutomation, 0, which));
+	std::shared_ptr<AutomationControl> ac = automation_control (Evoral::Parameter (PluginAutomation, 0, which));
 
 	/* First propagation: alter the underlying value of the control,
 	 * without telling the plugin(s) that own/use it to set it.
@@ -607,7 +607,7 @@ PluginInsert::parameter_changed_externally (uint32_t which, float val)
 		return;
 	}
 
-	boost::shared_ptr<PluginControl> pc = boost::dynamic_pointer_cast<PluginControl> (ac);
+	std::shared_ptr<PluginControl> pc = std::dynamic_pointer_cast<PluginControl> (ac);
 
 	if (pc) {
 		pc->catch_up_with_external_value (val);
@@ -629,7 +629,7 @@ PluginInsert::parameter_changed_externally (uint32_t which, float val)
 			(*i)->set_parameter (which, val, 0);
 		}
 	}
-	boost::shared_ptr<Plugin> iasp = _impulseAnalysisPlugin.lock();
+	std::shared_ptr<Plugin> iasp = _impulseAnalysisPlugin.lock();
 	if (iasp) {
 		iasp->set_parameter (which, val, 0);
 	}
@@ -751,7 +751,7 @@ PluginInsert::enable (bool yn)
 		if (!_pending_active) {
 			activate ();
 		}
-		boost::shared_ptr<AutomationControl> ac = automation_control (Evoral::Parameter (PluginAutomation, 0, _bypass_port));
+		std::shared_ptr<AutomationControl> ac = automation_control (Evoral::Parameter (PluginAutomation, 0, _bypass_port));
 		const double val = yn ^ _inverted_bypass_enable ? 1.0 : 0.0;
 		ac->set_value (val, Controllable::NoGroup);
 
@@ -783,7 +783,7 @@ PluginInsert::enabled () const
 	if (_bypass_port == UINT32_MAX) {
 		return Processor::enabled ();
 	} else {
-		boost::shared_ptr<const AutomationControl> ac = boost::const_pointer_cast<AutomationControl> (automation_control (Evoral::Parameter (PluginAutomation, 0, _bypass_port)));
+		std::shared_ptr<const AutomationControl> ac = std::const_pointer_cast<AutomationControl> (automation_control (Evoral::Parameter (PluginAutomation, 0, _bypass_port)));
 		return ((ac->get_value () > 0) ^ _inverted_bypass_enable) && _pending_active;
 	}
 }
@@ -794,7 +794,7 @@ PluginInsert::bypassable () const
 	if (_bypass_port == UINT32_MAX) {
 		return true;
 	} else {
-		boost::shared_ptr<const AutomationControl> ac = boost::const_pointer_cast<AutomationControl> (automation_control (Evoral::Parameter (PluginAutomation, 0, _bypass_port)));
+		std::shared_ptr<const AutomationControl> ac = std::const_pointer_cast<AutomationControl> (automation_control (Evoral::Parameter (PluginAutomation, 0, _bypass_port)));
 
 		return !ac->automation_playback ();
 	}
@@ -827,7 +827,7 @@ PluginInsert::write_immediate_event (Evoral::EventType event_type, size_t size, 
 void
 PluginInsert::preset_load_set_value (uint32_t p, float v)
 {
-	boost::shared_ptr<AutomationControl> ac = automation_control (Evoral::Parameter(PluginAutomation, 0, p));
+	std::shared_ptr<AutomationControl> ac = automation_control (Evoral::Parameter(PluginAutomation, 0, p));
 	if (!ac) {
 		return;
 	}
@@ -929,10 +929,10 @@ PluginInsert::connect_and_run (BufferSet& bufs, samplepos_t start, samplepos_t e
 	bufs.set_count(ChanCount::max(bufs.count(), _configured_out));
 
 	if (with_auto) {
-		boost::shared_ptr<ControlList> cl = _automated_controls.reader ();
+		std::shared_ptr<ControlList> cl = _automated_controls.reader ();
 		for (ControlList::const_iterator ci = cl->begin(); ci != cl->end(); ++ci) {
 			AutomationControl& c = *(ci->get());
-			boost::shared_ptr<const Evoral::ControlList> clist (c.list());
+			std::shared_ptr<const Evoral::ControlList> clist (c.list());
 			/* we still need to check for Touch and Latch */
 			if (clist && (static_cast<AutomationList const&> (*clist)).automation_playback ()) {
 				/* 1. Set value at [sub]cycle start */
@@ -1419,7 +1419,7 @@ PluginInsert::can_reset_all_parameters ()
 			continue;
 		}
 
-		boost::shared_ptr<AutomationControl> ac = automation_control (Evoral::Parameter(PluginAutomation, 0, cid));
+		std::shared_ptr<AutomationControl> ac = automation_control (Evoral::Parameter(PluginAutomation, 0, cid));
 		if (!ac) {
 			continue;
 		}
@@ -1453,7 +1453,7 @@ PluginInsert::reset_parameters_to_default ()
 			continue;
 		}
 
-		boost::shared_ptr<AutomationControl> ac = automation_control (Evoral::Parameter(PluginAutomation, 0, cid));
+		std::shared_ptr<AutomationControl> ac = automation_control (Evoral::Parameter(PluginAutomation, 0, cid));
 		if (!ac) {
 			continue;
 		}
@@ -1468,53 +1468,53 @@ PluginInsert::reset_parameters_to_default ()
 	return all;
 }
 
-boost::shared_ptr<Plugin>
-PluginInsert::plugin_factory (boost::shared_ptr<Plugin> other)
+std::shared_ptr<Plugin>
+PluginInsert::plugin_factory (std::shared_ptr<Plugin> other)
 {
-	boost::shared_ptr<LadspaPlugin> lp;
-	boost::shared_ptr<LuaProc> lua;
-	boost::shared_ptr<LV2Plugin> lv2p;
+	std::shared_ptr<LadspaPlugin> lp;
+	std::shared_ptr<LuaProc> lua;
+	std::shared_ptr<LV2Plugin> lv2p;
 #ifdef WINDOWS_VST_SUPPORT
-	boost::shared_ptr<WindowsVSTPlugin> vp;
+	std::shared_ptr<WindowsVSTPlugin> vp;
 #endif
 #ifdef LXVST_SUPPORT
-	boost::shared_ptr<LXVSTPlugin> lxvp;
+	std::shared_ptr<LXVSTPlugin> lxvp;
 #endif
 #ifdef MACVST_SUPPORT
-	boost::shared_ptr<MacVSTPlugin> mvp;
+	std::shared_ptr<MacVSTPlugin> mvp;
 #endif
 #ifdef VST3_SUPPORT
-	boost::shared_ptr<VST3Plugin> vst3;
+	std::shared_ptr<VST3Plugin> vst3;
 #endif
 #ifdef AUDIOUNIT_SUPPORT
-	boost::shared_ptr<AUPlugin> ap;
+	std::shared_ptr<AUPlugin> ap;
 #endif
 
-	if ((lp = boost::dynamic_pointer_cast<LadspaPlugin> (other)) != 0) {
-		return boost::shared_ptr<Plugin> (new LadspaPlugin (*lp));
-	} else if ((lua = boost::dynamic_pointer_cast<LuaProc> (other)) != 0) {
-		return boost::shared_ptr<Plugin> (new LuaProc (*lua));
-	} else if ((lv2p = boost::dynamic_pointer_cast<LV2Plugin> (other)) != 0) {
-		return boost::shared_ptr<Plugin> (new LV2Plugin (*lv2p));
+	if ((lp = std::dynamic_pointer_cast<LadspaPlugin> (other)) != 0) {
+		return std::shared_ptr<Plugin> (new LadspaPlugin (*lp));
+	} else if ((lua = std::dynamic_pointer_cast<LuaProc> (other)) != 0) {
+		return std::shared_ptr<Plugin> (new LuaProc (*lua));
+	} else if ((lv2p = std::dynamic_pointer_cast<LV2Plugin> (other)) != 0) {
+		return std::shared_ptr<Plugin> (new LV2Plugin (*lv2p));
 #ifdef WINDOWS_VST_SUPPORT
-	} else if ((vp = boost::dynamic_pointer_cast<WindowsVSTPlugin> (other)) != 0) {
-		return boost::shared_ptr<Plugin> (new WindowsVSTPlugin (*vp));
+	} else if ((vp = std::dynamic_pointer_cast<WindowsVSTPlugin> (other)) != 0) {
+		return std::shared_ptr<Plugin> (new WindowsVSTPlugin (*vp));
 #endif
 #ifdef LXVST_SUPPORT
-	} else if ((lxvp = boost::dynamic_pointer_cast<LXVSTPlugin> (other)) != 0) {
-		return boost::shared_ptr<Plugin> (new LXVSTPlugin (*lxvp));
+	} else if ((lxvp = std::dynamic_pointer_cast<LXVSTPlugin> (other)) != 0) {
+		return std::shared_ptr<Plugin> (new LXVSTPlugin (*lxvp));
 #endif
 #ifdef MACVST_SUPPORT
-	} else if ((mvp = boost::dynamic_pointer_cast<MacVSTPlugin> (other)) != 0) {
-		return boost::shared_ptr<Plugin> (new MacVSTPlugin (*mvp));
+	} else if ((mvp = std::dynamic_pointer_cast<MacVSTPlugin> (other)) != 0) {
+		return std::shared_ptr<Plugin> (new MacVSTPlugin (*mvp));
 #endif
 #ifdef VST3_SUPPORT
-	} else if ((vst3 = boost::dynamic_pointer_cast<VST3Plugin> (other)) != 0) {
-		return boost::shared_ptr<Plugin> (new VST3Plugin (*vst3));
+	} else if ((vst3 = std::dynamic_pointer_cast<VST3Plugin> (other)) != 0) {
+		return std::shared_ptr<Plugin> (new VST3Plugin (*vst3));
 #endif
 #ifdef AUDIOUNIT_SUPPORT
-	} else if ((ap = boost::dynamic_pointer_cast<AUPlugin> (other)) != 0) {
-		return boost::shared_ptr<Plugin> (new AUPlugin (*ap));
+	} else if ((ap = std::dynamic_pointer_cast<AUPlugin> (other)) != 0) {
+		return std::shared_ptr<Plugin> (new AUPlugin (*ap));
 #endif
 	}
 
@@ -1522,7 +1522,7 @@ PluginInsert::plugin_factory (boost::shared_ptr<Plugin> other)
 			  X_("unknown plugin type in PluginInsert::plugin_factory"))
 	      << endmsg;
 	abort(); /*NOTREACHED*/
-	return boost::shared_ptr<Plugin> ((Plugin*) 0);
+	return std::shared_ptr<Plugin> ((Plugin*) 0);
 }
 
 void
@@ -2552,7 +2552,7 @@ PluginInsert::state () const
 	node.add_child_nocopy (_plugins[0]->get_state());
 
 	for (Controls::const_iterator c = controls().begin(); c != controls().end(); ++c) {
-		boost::shared_ptr<AutomationControl> ac = boost::dynamic_pointer_cast<AutomationControl> ((*c).second);
+		std::shared_ptr<AutomationControl> ac = std::dynamic_pointer_cast<AutomationControl> ((*c).second);
 		if (ac) {
 			node.add_child_nocopy (ac->get_state());
 		}
@@ -2573,7 +2573,7 @@ PluginInsert::set_control_ids (const XMLNode& node, int version)
 		uint32_t p = (uint32_t)-1;
 		std::string str;
 		if ((*iter)->get_property (X_("symbol"), str)) {
-			boost::shared_ptr<LV2Plugin> lv2plugin = boost::dynamic_pointer_cast<LV2Plugin> (_plugins[0]);
+			std::shared_ptr<LV2Plugin> lv2plugin = std::dynamic_pointer_cast<LV2Plugin> (_plugins[0]);
 			if (lv2plugin) {
 				p = lv2plugin->port_index(str.c_str());
 			}
@@ -2587,12 +2587,12 @@ PluginInsert::set_control_ids (const XMLNode& node, int version)
 		}
 
 		/* this may create the new controllable */
-		boost::shared_ptr<Evoral::Control> c = control (Evoral::Parameter (PluginAutomation, 0, p));
+		std::shared_ptr<Evoral::Control> c = control (Evoral::Parameter (PluginAutomation, 0, p));
 
 		if (!c) {
 			continue;
 		}
-		boost::shared_ptr<AutomationControl> ac = boost::dynamic_pointer_cast<AutomationControl> (c);
+		std::shared_ptr<AutomationControl> ac = std::dynamic_pointer_cast<AutomationControl> (c);
 		if (ac) {
 			ac->set_state (**iter, version);
 		}
@@ -2617,7 +2617,7 @@ PluginInsert::update_control_values (const XMLNode& node, int version)
 
 		std::string str;
 		if ((*iter)->get_property (X_("symbol"), str)) {
-			boost::shared_ptr<LV2Plugin> lv2plugin = boost::dynamic_pointer_cast<LV2Plugin> (_plugins[0]);
+			std::shared_ptr<LV2Plugin> lv2plugin = std::dynamic_pointer_cast<LV2Plugin> (_plugins[0]);
 			if (lv2plugin) {
 				p = lv2plugin->port_index(str.c_str());
 			}
@@ -2632,11 +2632,11 @@ PluginInsert::update_control_values (const XMLNode& node, int version)
 		}
 
 		/* lookup controllable */
-		boost::shared_ptr<Evoral::Control> c = control (Evoral::Parameter (PluginAutomation, 0, p), false);
+		std::shared_ptr<Evoral::Control> c = control (Evoral::Parameter (PluginAutomation, 0, p), false);
 		if (!c) {
 			continue;
 		}
-		boost::shared_ptr<AutomationControl> ac = boost::dynamic_pointer_cast<AutomationControl> (c);
+		std::shared_ptr<AutomationControl> ac = std::dynamic_pointer_cast<AutomationControl> (c);
 		if (ac) {
 			ac->set_value (val, Controllable::NoGroup);
 		}
@@ -2708,7 +2708,7 @@ PluginInsert::set_state(const XMLNode& node, int version)
 
 	if (_plugins.empty()) {
 		/* Find and load plugin module */
-		boost::shared_ptr<Plugin> plugin = find_plugin (_session, prop->value(), type);
+		std::shared_ptr<Plugin> plugin = find_plugin (_session, prop->value(), type);
 
 		/* treat VST plugins equivalent if they have the same uniqueID
 		 * allow to move sessions windows <> linux */
@@ -2741,7 +2741,7 @@ PluginInsert::set_state(const XMLNode& node, int version)
 			 * load the plugin from the serialized version in the
 			 * session-file instead.
 			 */
-			boost::shared_ptr<LuaProc> lp (new LuaProc (_session.engine(), _session, ""));
+			std::shared_ptr<LuaProc> lp (new LuaProc (_session.engine(), _session, ""));
 			XMLNode *ls = node.child (lp->state_node_name().c_str());
 			if (ls && lp) {
 				if (0 == lp->set_script_from_state (*ls)) {
@@ -2830,7 +2830,7 @@ PluginInsert::set_state(const XMLNode& node, int version)
 
 			/* when copying plugin state, notify UI */
 			for (Controls::const_iterator li = controls().begin(); li != controls().end(); ++li) {
-				boost::shared_ptr<PBD::Controllable> c = boost::dynamic_pointer_cast<PBD::Controllable> (li->second);
+				std::shared_ptr<PBD::Controllable> c = std::dynamic_pointer_cast<PBD::Controllable> (li->second);
 				if (c) {
 					c->Changed (false, Controllable::NoGroup); /* EMIT SIGNAL */
 				}
@@ -2987,7 +2987,7 @@ PluginInsert::set_parameter_state_2X (const XMLNode& node, int version)
 				continue;
 			}
 
-			boost::shared_ptr<AutomationControl> c = boost::dynamic_pointer_cast<AutomationControl>(
+			std::shared_ptr<AutomationControl> c = std::dynamic_pointer_cast<AutomationControl>(
 					control(Evoral::Parameter(PluginAutomation, 0, port_id), true));
 
 			if (c && c->alist()) {
@@ -3005,12 +3005,12 @@ PluginInsert::set_parameter_state_2X (const XMLNode& node, int version)
 	}
 }
 
-boost::shared_ptr<ReadOnlyControl>
+std::shared_ptr<ReadOnlyControl>
 PluginInsert::control_output (uint32_t num) const
 {
 	CtrlOutMap::const_iterator i = _control_outputs.find (num);
 	if (i == _control_outputs.end ()) {
-		return boost::shared_ptr<ReadOnlyControl> ();
+		return std::shared_ptr<ReadOnlyControl> ();
 	} else {
 		return (*i).second;
 	}
@@ -3022,7 +3022,7 @@ PluginInsert::describe_parameter (Evoral::Parameter param)
 	if (param.type() == PluginAutomation) {
 		return _plugins[0]->describe_parameter (param);
 	} else if (param.type() == PluginPropertyAutomation) {
-		boost::shared_ptr<AutomationControl> c(automation_control(param));
+		std::shared_ptr<AutomationControl> c(automation_control(param));
 		if (c && !c->desc().label.empty()) {
 			return c->desc().label;
 		}
@@ -3048,7 +3048,7 @@ PluginInsert::type () const
 PluginInsert::PluginControl::PluginControl (PluginInsert*                     p,
                                             const Evoral::Parameter&          param,
                                             const ParameterDescriptor&        desc,
-                                            boost::shared_ptr<AutomationList> list)
+                                            std::shared_ptr<AutomationList> list)
 	: AutomationControl (p->session(), param, desc, list, p->describe_parameter(param))
 	, _plugin (p)
 {
@@ -3070,7 +3070,7 @@ PluginInsert::PluginControl::actually_set_value (double user_val, PBD::Controlla
 		(*i)->set_parameter (_list->parameter().id(), user_val, 0);
 	}
 
-	boost::shared_ptr<Plugin> iasp = _plugin->_impulseAnalysisPlugin.lock();
+	std::shared_ptr<Plugin> iasp = _plugin->_impulseAnalysisPlugin.lock();
 	if (iasp) {
 		iasp->set_parameter (_list->parameter().id(), user_val, 0);
 	}
@@ -3090,7 +3090,7 @@ PluginInsert::PluginControl::get_state () const
 	XMLNode& node (AutomationControl::get_state());
 	node.set_property (X_("parameter"), parameter().id());
 
-	boost::shared_ptr<LV2Plugin> lv2plugin = boost::dynamic_pointer_cast<LV2Plugin> (_plugin->_plugins[0]);
+	std::shared_ptr<LV2Plugin> lv2plugin = std::dynamic_pointer_cast<LV2Plugin> (_plugin->_plugins[0]);
 	if (lv2plugin) {
 		node.set_property (X_("symbol"), lv2plugin->port_symbol (parameter().id()));
 	}
@@ -3102,7 +3102,7 @@ PluginInsert::PluginControl::get_state () const
 double
 PluginInsert::PluginControl::get_value () const
 {
-	boost::shared_ptr<Plugin> plugin = _plugin->plugin (0);
+	std::shared_ptr<Plugin> plugin = _plugin->plugin (0);
 
 	if (!plugin) {
 		return 0.0;
@@ -3114,7 +3114,7 @@ PluginInsert::PluginControl::get_value () const
 std::string
 PluginInsert::PluginControl::get_user_string () const
 {
-	boost::shared_ptr<Plugin> plugin = _plugin->plugin (0);
+	std::shared_ptr<Plugin> plugin = _plugin->plugin (0);
 	if (plugin) {
 		std::string pp;
 		if (plugin->print_parameter (parameter().id(), pp) && pp.size () > 0) {
@@ -3127,7 +3127,7 @@ PluginInsert::PluginControl::get_user_string () const
 PluginInsert::PluginPropertyControl::PluginPropertyControl (PluginInsert*                     p,
                                                             const Evoral::Parameter&          param,
                                                             const ParameterDescriptor&        desc,
-                                                            boost::shared_ptr<AutomationList> list)
+                                                            std::shared_ptr<AutomationList> list)
 	: AutomationControl (p->session(), param, desc, list)
 	, _plugin (p)
 {
@@ -3170,10 +3170,10 @@ PluginInsert::PluginPropertyControl::get_value () const
 	return _value.to_double();
 }
 
-boost::shared_ptr<Plugin>
+std::shared_ptr<Plugin>
 PluginInsert::get_impulse_analysis_plugin()
 {
-	boost::shared_ptr<Plugin> ret;
+	std::shared_ptr<Plugin> ret;
 	if (_impulseAnalysisPlugin.expired()) {
 		// LV2 in particular uses various _session params
 		// during init() -- most notably block_size..
@@ -3223,7 +3223,7 @@ PluginInsert::collect_signal_for_analysis (samplecnt_t nframes)
 
 /** Add a plugin to our list */
 void
-PluginInsert::add_plugin (boost::shared_ptr<Plugin> plugin)
+PluginInsert::add_plugin (std::shared_ptr<Plugin> plugin)
 {
 	plugin->set_insert_id (this->id());
 	plugin->set_owner (_owner);
@@ -3248,7 +3248,7 @@ PluginInsert::add_plugin (boost::shared_ptr<Plugin> plugin)
 		}
 	}
 #if (defined WINDOWS_VST_SUPPORT || defined LXVST_SUPPORT || defined MACVST_SUPPORT)
-	boost::shared_ptr<VSTPlugin> vst = boost::dynamic_pointer_cast<VSTPlugin> (plugin);
+	std::shared_ptr<VSTPlugin> vst = std::dynamic_pointer_cast<VSTPlugin> (plugin);
 	if (vst) {
 		vst->set_insert (this, _plugins.size ());
 	}
@@ -3258,14 +3258,14 @@ PluginInsert::add_plugin (boost::shared_ptr<Plugin> plugin)
 
 	if (_plugins.size() > 1) {
 		_plugins[0]->add_slave (plugin, true);
-		plugin->DropReferences.connect_same_thread (*this, boost::bind (&PluginInsert::plugin_removed, this, boost::weak_ptr<Plugin> (plugin)));
+		plugin->DropReferences.connect_same_thread (*this, boost::bind (&PluginInsert::plugin_removed, this, std::weak_ptr<Plugin> (plugin)));
 	}
 }
 
 void
-PluginInsert::plugin_removed (boost::weak_ptr<Plugin> wp)
+PluginInsert::plugin_removed (std::weak_ptr<Plugin> wp)
 {
-	boost::shared_ptr<Plugin> plugin = wp.lock();
+	std::shared_ptr<Plugin> plugin = wp.lock();
 	if (_plugins.size () == 0 || !plugin) {
 		return;
 	}
@@ -3314,7 +3314,7 @@ PluginInsert::load_preset (ARDOUR::Plugin::PresetRecord pr)
 		}
 	}
 
-	boost::shared_ptr<Plugin> iasp = _impulseAnalysisPlugin.lock();
+	std::shared_ptr<Plugin> iasp = _impulseAnalysisPlugin.lock();
 	if (iasp) {
 		iasp->load_preset (pr);
 	}
@@ -3362,7 +3362,7 @@ PluginInsert::latency_changed ()
 void
 PluginInsert::start_touch (uint32_t param_id)
 {
-	boost::shared_ptr<AutomationControl> ac = automation_control (Evoral::Parameter (PluginAutomation, 0, param_id));
+	std::shared_ptr<AutomationControl> ac = automation_control (Evoral::Parameter (PluginAutomation, 0, param_id));
 	if (ac) {
 		// ToDo subtract _plugin_signal_latency  from audible_sample() when rolling, assert > 0
 		ac->start_touch (timepos_t (session().audible_sample()));
@@ -3372,7 +3372,7 @@ PluginInsert::start_touch (uint32_t param_id)
 void
 PluginInsert::end_touch (uint32_t param_id)
 {
-	boost::shared_ptr<AutomationControl> ac = automation_control (Evoral::Parameter (PluginAutomation, 0, param_id));
+	std::shared_ptr<AutomationControl> ac = automation_control (Evoral::Parameter (PluginAutomation, 0, param_id));
 	if (ac) {
 		// ToDo subtract _plugin_signal_latency  from audible_sample() when rolling, assert > 0
 		ac->stop_touch (timepos_t (session().audible_sample()));

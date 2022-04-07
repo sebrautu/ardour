@@ -105,8 +105,8 @@ class FaderPort : public ARDOUR::ControlProtocol, public AbstractUI<FaderPortReq
 
 	PBD::Signal0<void> ConnectionChange;
 
-	boost::shared_ptr<ARDOUR::Port> input_port();
-	boost::shared_ptr<ARDOUR::Port> output_port();
+	std::shared_ptr<ARDOUR::Port> input_port();
+	std::shared_ptr<ARDOUR::Port> output_port();
 
 	/* In a feat of engineering brilliance, the Presonus Faderport sends
 	 * one button identifier when the button is pressed/released, but
@@ -160,29 +160,29 @@ class FaderPort : public ARDOUR::ControlProtocol, public AbstractUI<FaderPortReq
 	void set_action (ButtonID, std::string const& action_name, bool on_press, FaderPort::ButtonState = ButtonState (0));
 	std::string get_action (ButtonID, bool on_press, FaderPort::ButtonState = ButtonState (0));
 
-	std::list<boost::shared_ptr<ARDOUR::Bundle> > bundles ();
+	std::list<std::shared_ptr<ARDOUR::Bundle> > bundles ();
 
   private:
-	boost::shared_ptr<ARDOUR::Stripable> _current_stripable;
-	boost::weak_ptr<ARDOUR::Stripable> pre_master_stripable;
-	boost::weak_ptr<ARDOUR::Stripable> pre_monitor_stripable;
+	std::shared_ptr<ARDOUR::Stripable> _current_stripable;
+	std::weak_ptr<ARDOUR::Stripable> pre_master_stripable;
+	std::weak_ptr<ARDOUR::Stripable> pre_monitor_stripable;
 
-	boost::shared_ptr<ARDOUR::AsyncMIDIPort> _input_port;
-	boost::shared_ptr<ARDOUR::AsyncMIDIPort> _output_port;
+	std::shared_ptr<ARDOUR::AsyncMIDIPort> _input_port;
+	std::shared_ptr<ARDOUR::AsyncMIDIPort> _output_port;
 
 	// Bundle to represent our input ports
-	boost::shared_ptr<ARDOUR::Bundle> _input_bundle;
+	std::shared_ptr<ARDOUR::Bundle> _input_bundle;
 	// Bundle to represent our output ports
-	boost::shared_ptr<ARDOUR::Bundle> _output_bundle;
+	std::shared_ptr<ARDOUR::Bundle> _output_bundle;
 
 	PBD::ScopedConnectionList midi_connections;
 
-	bool midi_input_handler (Glib::IOCondition ioc, boost::weak_ptr<ARDOUR::AsyncMIDIPort> port);
+	bool midi_input_handler (Glib::IOCondition ioc, std::weak_ptr<ARDOUR::AsyncMIDIPort> port);
 
 	mutable void *gui;
 	void build_gui ();
 
-	bool connection_handler (boost::weak_ptr<ARDOUR::Port>, std::string name1, boost::weak_ptr<ARDOUR::Port>, std::string name2, bool yn);
+	bool connection_handler (std::weak_ptr<ARDOUR::Port>, std::string name1, std::weak_ptr<ARDOUR::Port>, std::string name2, bool yn);
 	PBD::ScopedConnection _port_connection;
 
 	enum ConnectionState {
@@ -230,7 +230,7 @@ class FaderPort : public ARDOUR::ControlProtocol, public AbstractUI<FaderPortReq
 		void set_action (boost::function<void()> function, bool on_press, FaderPort::ButtonState = ButtonState (0));
 		std::string get_action (bool press, FaderPort::ButtonState bs = ButtonState (0));
 
-		void set_led_state (boost::shared_ptr<MIDI::Port>, bool onoff);
+		void set_led_state (std::shared_ptr<MIDI::Port>, bool onoff);
 		bool invoke (ButtonState bs, bool press);
 		bool uses_flash () const { return flash; }
 		void set_flash (bool yn) { flash = yn; }
@@ -293,7 +293,7 @@ class FaderPort : public ARDOUR::ControlProtocol, public AbstractUI<FaderPortReq
 	void start_blinking (ButtonID);
 	void stop_blinking (ButtonID);
 
-	void set_current_stripable (boost::shared_ptr<ARDOUR::Stripable>);
+	void set_current_stripable (std::shared_ptr<ARDOUR::Stripable>);
 	void drop_current_stripable ();
 	void use_master ();
 	void use_monitor ();

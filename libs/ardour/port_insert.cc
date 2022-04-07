@@ -45,7 +45,7 @@ PortInsert::name_and_id_new_insert (Session& s, uint32_t& bitslot)
 	return string_compose (_("insert %1"), bitslot);
 }
 
-PortInsert::PortInsert (Session& s, boost::shared_ptr<Pannable> pannable, boost::shared_ptr<MuteMaster> mm)
+PortInsert::PortInsert (Session& s, std::shared_ptr<Pannable> pannable, std::shared_ptr<MuteMaster> mm)
 	: IOProcessor (s, true, true, name_and_id_new_insert (s, _bitslot), "", DataType::AUDIO, true)
 	, _out (new Delivery (s, _output, pannable, mm, _name, Delivery::Insert))
 {

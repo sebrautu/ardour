@@ -24,7 +24,7 @@
 
 using namespace ARDOUR;
 
-GraphNode::GraphNode (boost::shared_ptr<Graph> graph)
+GraphNode::GraphNode (std::shared_ptr<Graph> graph)
 	: _graph (graph)
 {
 	g_atomic_int_set (&_refcount, 0);

@@ -28,7 +28,7 @@
 #include <stdint.h>
 #include <pthread.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "ardour/audio_backend.h"
 #include "ardour/dsp_load_calculator.h"

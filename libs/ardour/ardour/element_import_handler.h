@@ -24,7 +24,7 @@
 #include <list>
 #include <set>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "ardour/libardour_visibility.h"
 #include "pbd/libpbd_visibility.h"
@@ -40,7 +40,7 @@ class ElementImporter;
 class LIBARDOUR_API ElementImportHandler
 {
   public:
-	typedef boost::shared_ptr<ElementImporter> ElementPtr;
+	typedef std::shared_ptr<ElementImporter> ElementPtr;
 	typedef std::list<ElementPtr> ElementList;
 
 	/** ElementImportHandler constructor

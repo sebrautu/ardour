@@ -25,7 +25,7 @@
 #include <string>
 #include <algorithm>
 
-#include <boost/enable_shared_from_this.hpp>
+#include <memory>
 
 #include "ardour/export_channel.h"
 #include "ardour/export_pointers.h"
@@ -37,7 +37,7 @@ namespace ARDOUR
 
 class Session;
 
-class LIBARDOUR_API ExportChannelConfiguration : public boost::enable_shared_from_this<ExportChannelConfiguration>
+class LIBARDOUR_API ExportChannelConfiguration : public std::enable_shared_from_this<ExportChannelConfiguration>
 {
 
   private:
@@ -74,7 +74,7 @@ class LIBARDOUR_API ExportChannelConfiguration : public boost::enable_shared_fro
 
 	/** Returns a list of channel configurations that match the files created.
 	  * I.e. many configurations if splitting is enabled, one if not. */
-	void configurations_for_files (std::list<boost::shared_ptr<ExportChannelConfiguration> > & configs);
+	void configurations_for_files (std::list<std::shared_ptr<ExportChannelConfiguration> > & configs);
 
   private:
 

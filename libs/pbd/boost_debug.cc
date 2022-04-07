@@ -29,7 +29,7 @@
 #include <set>
 #include <vector>
 #include <glibmm/threads.h>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "pbd/stacktrace.h"
 #include "pbd/boost_debug.h"

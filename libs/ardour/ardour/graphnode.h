@@ -25,7 +25,7 @@
 #include <set>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "pbd/g_atomic_compat.h"
 
@@ -34,7 +34,7 @@ namespace ARDOUR
 class Graph;
 class GraphNode;
 
-typedef boost::shared_ptr<GraphNode> node_ptr_t;
+typedef std::shared_ptr<GraphNode> node_ptr_t;
 typedef std::set<node_ptr_t>         node_set_t;
 typedef std::list<node_ptr_t>        node_list_t;
 
@@ -52,7 +52,7 @@ protected:
 class LIBARDOUR_API GraphNode : public GraphActivision
 {
 public:
-	GraphNode (boost::shared_ptr<Graph> Graph);
+	GraphNode (std::shared_ptr<Graph> Graph);
 	virtual ~GraphNode ();
 
 	void prep (int chain);
@@ -69,7 +69,7 @@ private:
 	void finish (int chain);
 	void process ();
 
-	boost::shared_ptr<Graph> _graph;
+	std::shared_ptr<Graph> _graph;
 	GATOMIC_QUAL gint        _refcount;
 };
 }

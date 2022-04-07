@@ -30,7 +30,7 @@
 #include "pbd/signals.h"
 #include <glibmm/threads.h>
 
-#include <boost/enable_shared_from_this.hpp>
+#include <memory>
 
 #include "pbd/statefuldestructible.h"
 
@@ -66,7 +66,7 @@ namespace PBD {
  * e.g. gain, which is presented to the user in log terms (dB)
  * but passed to the processor as a linear quantity.
  */
-class LIBPBD_API Controllable : public PBD::StatefulDestructible, public boost::enable_shared_from_this<Controllable>
+class LIBPBD_API Controllable : public PBD::StatefulDestructible, public std::enable_shared_from_this<Controllable>
 {
 public:
 	enum Flag {
@@ -137,11 +137,11 @@ public:
 
 	PBD::Signal0<void> LearningFinished;
 
-	static PBD::Signal1<bool, boost::weak_ptr<PBD::Controllable> > StartLearning;
-	static PBD::Signal1<void, boost::weak_ptr<PBD::Controllable> > StopLearning;
+	static PBD::Signal1<bool, std::weak_ptr<PBD::Controllable> > StartLearning;
+	static PBD::Signal1<void, std::weak_ptr<PBD::Controllable> > StopLearning;
 
-	static PBD::Signal1<void, boost::weak_ptr<PBD::Controllable> > GUIFocusChanged;
-	static PBD::Signal1<void, boost::weak_ptr<PBD::Controllable> > ControlTouched;
+	static PBD::Signal1<void, std::weak_ptr<PBD::Controllable> > GUIFocusChanged;
+	static PBD::Signal1<void, std::weak_ptr<PBD::Controllable> > ControlTouched;
 
 	PBD::Signal2<void,bool,PBD::Controllable::GroupControlDisposition> Changed;
 
@@ -166,7 +166,7 @@ public:
 	void set_flag (Flag f); ///< _flags |= f;
 	void clear_flag (Flag f); ///< _flags &= ~f;
 
-	static boost::shared_ptr<Controllable> by_id (const PBD::ID&);
+	static std::shared_ptr<Controllable> by_id (const PBD::ID&);
 	static void dump_registry ();
 
 	static const std::string xml_node_name;

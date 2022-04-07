@@ -60,9 +60,9 @@ class LIBARDOUR_API ExportGraphBuilder
   private:
 	typedef ExportHandler::FileSpec FileSpec;
 
-	typedef boost::shared_ptr<AudioGrapher::Sink<Sample> > FloatSinkPtr;
-	typedef boost::shared_ptr<AudioGrapher::IdentityVertex<Sample> > IdentityVertexPtr;
-	typedef boost::shared_ptr<AudioGrapher::Analyser> AnalysisPtr;
+	typedef std::shared_ptr<AudioGrapher::Sink<Sample> > FloatSinkPtr;
+	typedef std::shared_ptr<AudioGrapher::IdentityVertex<Sample> > IdentityVertexPtr;
+	typedef std::shared_ptr<AudioGrapher::Analyser> AnalysisPtr;
 	typedef std::map<ExportChannelPtr,  IdentityVertexPtr> ChannelMap;
 	typedef std::map<std::string, AnalysisPtr> AnalysisMap;
 
@@ -79,7 +79,7 @@ class LIBARDOUR_API ExportGraphBuilder
 
 	void reset ();
 	void cleanup (bool remove_out_files = false);
-	void set_current_timespan (boost::shared_ptr<ExportTimespan> span);
+	void set_current_timespan (std::shared_ptr<ExportTimespan> span);
 	void add_config (FileSpec const & config, bool rt);
 	void get_analysis_results (AnalysisResults& results);
 
@@ -103,7 +103,7 @@ class LIBARDOUR_API ExportGraphBuilder
 
 	class Encoder {
             public:
-		template <typename T> boost::shared_ptr<AudioGrapher::Sink<T> > init (FileSpec const & new_config);
+		template <typename T> std::shared_ptr<AudioGrapher::Sink<T> > init (FileSpec const & new_config);
 		void add_child (FileSpec const & new_config);
 		void remove_children ();
 		void destroy_writer (bool delete_out_file);
@@ -112,14 +112,14 @@ class LIBARDOUR_API ExportGraphBuilder
 		static int get_real_format (FileSpec const & config);
 
 	                                        private:
-		typedef boost::shared_ptr<AudioGrapher::SndfileWriter<Sample> > FloatWriterPtr;
-		typedef boost::shared_ptr<AudioGrapher::SndfileWriter<int> >    IntWriterPtr;
-		typedef boost::shared_ptr<AudioGrapher::SndfileWriter<short> >  ShortWriterPtr;
+		typedef std::shared_ptr<AudioGrapher::SndfileWriter<Sample> > FloatWriterPtr;
+		typedef std::shared_ptr<AudioGrapher::SndfileWriter<int> >    IntWriterPtr;
+		typedef std::shared_ptr<AudioGrapher::SndfileWriter<short> >  ShortWriterPtr;
 
-		typedef boost::shared_ptr<AudioGrapher::CmdPipeWriter<Sample> > FloatPipePtr;
+		typedef std::shared_ptr<AudioGrapher::CmdPipeWriter<Sample> > FloatPipePtr;
 
-		template<typename T> void init_writer (boost::shared_ptr<AudioGrapher::SndfileWriter<T> > & writer);
-		template<typename T> void init_writer (boost::shared_ptr<AudioGrapher::CmdPipeWriter<T> > & writer);
+		template<typename T> void init_writer (std::shared_ptr<AudioGrapher::SndfileWriter<T> > & writer);
+		template<typename T> void init_writer (std::shared_ptr<AudioGrapher::CmdPipeWriter<T> > & writer);
 
 		void copy_files (std::string orig_path);
 
@@ -151,13 +151,13 @@ class LIBARDOUR_API ExportGraphBuilder
 		void set_peak_lufs (AudioGrapher::LoudnessReader const&);
 
 	private:
-		typedef boost::shared_ptr<AudioGrapher::Chunker<float> > ChunkerPtr;
-		typedef boost::shared_ptr<AudioGrapher::DemoNoiseAdder> DemoNoisePtr;
-		typedef boost::shared_ptr<AudioGrapher::Normalizer> NormalizerPtr;
-		typedef boost::shared_ptr<AudioGrapher::Limiter> LimiterPtr;
-		typedef boost::shared_ptr<AudioGrapher::SampleFormatConverter<Sample> > FloatConverterPtr;
-		typedef boost::shared_ptr<AudioGrapher::SampleFormatConverter<int> >   IntConverterPtr;
-		typedef boost::shared_ptr<AudioGrapher::SampleFormatConverter<short> > ShortConverterPtr;
+		typedef std::shared_ptr<AudioGrapher::Chunker<float> > ChunkerPtr;
+		typedef std::shared_ptr<AudioGrapher::DemoNoiseAdder> DemoNoisePtr;
+		typedef std::shared_ptr<AudioGrapher::Normalizer> NormalizerPtr;
+		typedef std::shared_ptr<AudioGrapher::Limiter> LimiterPtr;
+		typedef std::shared_ptr<AudioGrapher::SampleFormatConverter<Sample> > FloatConverterPtr;
+		typedef std::shared_ptr<AudioGrapher::SampleFormatConverter<int> >   IntConverterPtr;
+		typedef std::shared_ptr<AudioGrapher::SampleFormatConverter<short> > ShortConverterPtr;
 
 		FileSpec           config;
 		int                data_width;
@@ -189,11 +189,11 @@ class LIBARDOUR_API ExportGraphBuilder
 		bool process ();
 
 	private:
-		typedef boost::shared_ptr<AudioGrapher::PeakReader> PeakReaderPtr;
-		typedef boost::shared_ptr<AudioGrapher::LoudnessReader> LoudnessReaderPtr;
-		typedef boost::shared_ptr<AudioGrapher::TmpFile<Sample> > TmpFilePtr;
-		typedef boost::shared_ptr<AudioGrapher::Threader<Sample> > ThreaderPtr;
-		typedef boost::shared_ptr<AudioGrapher::AllocatingProcessContext<Sample> > BufferPtr;
+		typedef std::shared_ptr<AudioGrapher::PeakReader> PeakReaderPtr;
+		typedef std::shared_ptr<AudioGrapher::LoudnessReader> LoudnessReaderPtr;
+		typedef std::shared_ptr<AudioGrapher::TmpFile<Sample> > TmpFilePtr;
+		typedef std::shared_ptr<AudioGrapher::Threader<Sample> > ThreaderPtr;
+		typedef std::shared_ptr<AudioGrapher::AllocatingProcessContext<Sample> > BufferPtr;
 
 		void prepare_post_processing ();
 		void start_post_processing ();
@@ -226,7 +226,7 @@ class LIBARDOUR_API ExportGraphBuilder
 		bool operator== (FileSpec const & other_config) const;
 
 	                                        private:
-		typedef boost::shared_ptr<AudioGrapher::SampleRateConverter> SRConverterPtr;
+		typedef std::shared_ptr<AudioGrapher::SampleRateConverter> SRConverterPtr;
 
 		template<typename T>
 		void add_child_to_list (FileSpec const & new_config, boost::ptr_list<T> & list);
@@ -249,7 +249,7 @@ class LIBARDOUR_API ExportGraphBuilder
 		bool operator== (FileSpec const & other_config) const;
 
 	                                        private:
-		typedef boost::shared_ptr<AudioGrapher::SilenceTrimmer<Sample> > SilenceTrimmerPtr;
+		typedef std::shared_ptr<AudioGrapher::SilenceTrimmer<Sample> > SilenceTrimmerPtr;
 
 		ExportGraphBuilder & parent;
 		FileSpec             config;
@@ -267,8 +267,8 @@ class LIBARDOUR_API ExportGraphBuilder
 		bool operator== (FileSpec const & other_config) const;
 
 	                                        private:
-		typedef boost::shared_ptr<AudioGrapher::Interleaver<Sample> > InterleaverPtr;
-		typedef boost::shared_ptr<AudioGrapher::Chunker<Sample> > ChunkerPtr;
+		typedef std::shared_ptr<AudioGrapher::Interleaver<Sample> > InterleaverPtr;
+		typedef std::shared_ptr<AudioGrapher::Chunker<Sample> > ChunkerPtr;
 
 		ExportGraphBuilder &      parent;
 		FileSpec                  config;
@@ -279,7 +279,7 @@ class LIBARDOUR_API ExportGraphBuilder
 	};
 
 	Session const & session;
-	boost::shared_ptr<ExportTimespan> timespan;
+	std::shared_ptr<ExportTimespan> timespan;
 
 	// Roots for export processor trees
 	typedef boost::ptr_list<ChannelConfig> ChannelConfigList;

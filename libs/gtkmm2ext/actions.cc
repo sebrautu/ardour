@@ -25,7 +25,7 @@
 #include <stack>
 #include <stdint.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <gtk/gtkaccelmap.h>
 #include <gtk/gtkuimanager.h>

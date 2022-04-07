@@ -67,15 +67,15 @@ protected:
 class LIBARDOUR_API Send : public Delivery, public LatentSend
 {
 public:
-	Send (Session&, boost::shared_ptr<Pannable> pannable, boost::shared_ptr<MuteMaster>, Delivery::Role r = Delivery::Send, bool ignore_bitslot = false);
+	Send (Session&, std::shared_ptr<Pannable> pannable, std::shared_ptr<MuteMaster>, Delivery::Role r = Delivery::Send, bool ignore_bitslot = false);
 	virtual ~Send ();
 
 	bool display_to_user() const;
 	bool is_foldback () const { return _role == Foldback; }
 
-	boost::shared_ptr<Amp> amp() const { return _amp; }
-	boost::shared_ptr<PeakMeter> meter() const { return _meter; }
-	boost::shared_ptr<GainControl> gain_control() const { return _gain_control; }
+	std::shared_ptr<Amp> amp() const { return _amp; }
+	std::shared_ptr<PeakMeter> meter() const { return _meter; }
+	std::shared_ptr<GainControl> gain_control() const { return _gain_control; }
 
 	bool metering() const { return _metering; }
 	void set_metering (bool yn) { _metering = yn; }
@@ -117,11 +117,11 @@ protected:
 	XMLNode& state () const;
 
 	bool _metering;
-	boost::shared_ptr<GainControl> _gain_control;
-	boost::shared_ptr<Amp> _amp;
-	boost::shared_ptr<PeakMeter> _meter;
-	boost::shared_ptr<DelayLine> _send_delay;
-	boost::shared_ptr<DelayLine> _thru_delay;
+	std::shared_ptr<GainControl> _gain_control;
+	std::shared_ptr<Amp> _amp;
+	std::shared_ptr<PeakMeter> _meter;
+	std::shared_ptr<DelayLine> _send_delay;
+	std::shared_ptr<DelayLine> _thru_delay;
 
 private:
 	/* disallow copy construction */

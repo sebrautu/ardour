@@ -21,7 +21,7 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/dynamic_bitset.hpp>
 
 #include "ardour/slavable_automation_control.h"

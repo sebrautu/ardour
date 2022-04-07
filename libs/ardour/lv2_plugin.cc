@@ -2451,7 +2451,7 @@ LV2Plugin::automatable() const
 }
 
 void
-LV2Plugin::set_automation_control (uint32_t i, boost::shared_ptr<AutomationControl> c)
+LV2Plugin::set_automation_control (uint32_t i, std::shared_ptr<AutomationControl> c)
 {
 	if ((_port_flags[i] & (PORT_CTRLED | PORT_CTRLER))) {
 		DEBUG_TRACE(DEBUG::LV2Automate, string_compose ("Ctrl Port %1\n", i));
@@ -3184,18 +3184,18 @@ LV2Plugin::designated_bypass_port ()
 	return UINT32_MAX;
 }
 
-boost::shared_ptr<ScalePoints>
+std::shared_ptr<ScalePoints>
 LV2Plugin::get_scale_points(uint32_t port_index) const
 {
 	const LilvPort*  port   = lilv_plugin_get_port_by_index(_impl->plugin, port_index);
 	LilvScalePoints* points = lilv_port_get_scale_points(_impl->plugin, port);
 
-	boost::shared_ptr<ScalePoints> ret;
+	std::shared_ptr<ScalePoints> ret;
 	if (!points) {
 		return ret;
 	}
 
-	ret = boost::shared_ptr<ScalePoints>(new ScalePoints());
+	ret = std::shared_ptr<ScalePoints>(new ScalePoints());
 
 	LILV_FOREACH(scale_points, i, points) {
 		const LilvScalePoint* p     = lilv_scale_points_get(points, i);

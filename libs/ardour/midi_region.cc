@@ -71,7 +71,7 @@ MidiRegion::MidiRegion (const SourceList& srcs)
 	assert(_type == DataType::MIDI);
 }
 
-MidiRegion::MidiRegion (boost::shared_ptr<const MidiRegion> other)
+MidiRegion::MidiRegion (std::shared_ptr<const MidiRegion> other)
 	: Region (other)
 	, _ignore_shift (false)
 {
@@ -81,7 +81,7 @@ MidiRegion::MidiRegion (boost::shared_ptr<const MidiRegion> other)
 }
 
 /** Create a new MidiRegion that is part of an existing one */
-MidiRegion::MidiRegion (boost::shared_ptr<const MidiRegion> other, timecnt_t const & offset)
+MidiRegion::MidiRegion (std::shared_ptr<const MidiRegion> other, timecnt_t const & offset)
 	: Region (other, offset)
 	, _ignore_shift (false)
 {
@@ -100,12 +100,12 @@ MidiRegion::~MidiRegion ()
 bool
 MidiRegion::do_export (string const& path) const
 {
-	boost::shared_ptr<MidiSource> newsrc;
+	std::shared_ptr<MidiSource> newsrc;
 
 	/* caller must check for pre-existing file */
 	assert (!path.empty());
 	assert (!Glib::file_test (path, Glib::FILE_TEST_EXISTS));
-	newsrc = boost::dynamic_pointer_cast<MidiSource> (SourceFactory::createWritable (DataType::MIDI, _session, path, _session.sample_rate (), false, true));
+	newsrc = std::dynamic_pointer_cast<MidiSource> (SourceFactory::createWritable (DataType::MIDI, _session, path, _session.sample_rate (), false, true));
 
 	{
 		/* Lock our source since we'll be reading from it.  write_to() will
@@ -123,27 +123,27 @@ MidiRegion::do_export (string const& path) const
 
 /** Create a new MidiRegion that has its own version of some/all of the Source used by another.
  */
-boost::shared_ptr<MidiRegion>
+std::shared_ptr<MidiRegion>
 MidiRegion::clone (string path) const
 {
-	boost::shared_ptr<MidiSource> newsrc;
+	std::shared_ptr<MidiSource> newsrc;
 
 	/* caller must check for pre-existing file */
 	assert (!path.empty());
 	assert (!Glib::file_test (path, Glib::FILE_TEST_EXISTS));
-	newsrc = boost::dynamic_pointer_cast<MidiSource>(
+	newsrc = std::dynamic_pointer_cast<MidiSource>(
 		SourceFactory::createWritable(DataType::MIDI, _session, path, _session.sample_rate()));
 	return clone (newsrc);
 }
 
-boost::shared_ptr<MidiRegion>
-MidiRegion::clone (boost::shared_ptr<MidiSource> newsrc, ThawList* tl) const
+std::shared_ptr<MidiRegion>
+MidiRegion::clone (std::shared_ptr<MidiSource> newsrc, ThawList* tl) const
 {
 	Temporal::Beats const bbegin = _start.val().beats ();
 	Temporal::Beats const bend = _start.val().beats() + _length.val().beats();
 
 	{
-		boost::shared_ptr<MidiSource> ms = midi_source(0);
+		std::shared_ptr<MidiSource> ms = midi_source(0);
 
 		/* Lock our source since we'll be reading from it.  write_to() will
 		   take a lock on newsrc.
@@ -151,7 +151,7 @@ MidiRegion::clone (boost::shared_ptr<MidiSource> newsrc, ThawList* tl) const
 
 		Source::ReaderLock lm (ms->mutex());
 		if (ms->write_to (lm, newsrc, bbegin, bend)) {
-			return boost::shared_ptr<MidiRegion> ();
+			return std::shared_ptr<MidiRegion> ();
 		}
 	}
 
@@ -163,7 +163,7 @@ MidiRegion::clone (boost::shared_ptr<MidiSource> newsrc, ThawList* tl) const
 	plist.add (Properties::length, _length);
 	plist.add (Properties::layer, 0);
 
-	boost::shared_ptr<MidiRegion> ret (boost::dynamic_pointer_cast<MidiRegion> (RegionFactory::create (newsrc, plist, true, tl)));
+	std::shared_ptr<MidiRegion> ret (std::dynamic_pointer_cast<MidiRegion> (RegionFactory::create (newsrc, plist, true, tl)));
 
 	return ret;
 }
@@ -235,7 +235,7 @@ MidiRegion::_read_at (const SourceList&              /*srcs*/,
 		return timecnt_t(); /* read nothing */
 	}
 
-	boost::shared_ptr<MidiSource> src = midi_source(chan_n);
+	std::shared_ptr<MidiSource> src = midi_source(chan_n);
 
 	Source::ReaderLock lm (src->mutex());
 
@@ -297,7 +297,7 @@ MidiRegion::render_range (Evoral::EventSink<samplepos_t>& dst,
 		return 0; /* read nothing */
 	}
 
-	boost::shared_ptr<MidiSource> src = midi_source(chan_n);
+	std::shared_ptr<MidiSource> src = midi_source(chan_n);
 
 
 #if 0
@@ -376,48 +376,48 @@ MidiRegion::recompute_at_start ()
 }
 
 int
-MidiRegion::separate_by_channel (vector< boost::shared_ptr<Region> >&) const
+MidiRegion::separate_by_channel (vector< std::shared_ptr<Region> >&) const
 {
 	// TODO
 	return -1;
 }
 
-boost::shared_ptr<Evoral::Control>
+std::shared_ptr<Evoral::Control>
 MidiRegion::control (const Evoral::Parameter& id, bool create)
 {
 	return model()->control(id, create);
 }
 
-boost::shared_ptr<const Evoral::Control>
+std::shared_ptr<const Evoral::Control>
 MidiRegion::control (const Evoral::Parameter& id) const
 {
 	return model()->control(id);
 }
 
-boost::shared_ptr<MidiModel>
+std::shared_ptr<MidiModel>
 MidiRegion::model()
 {
 	return midi_source()->model();
 }
 
-boost::shared_ptr<const MidiModel>
+std::shared_ptr<const MidiModel>
 MidiRegion::model() const
 {
 	return midi_source()->model();
 }
 
-boost::shared_ptr<MidiSource>
+std::shared_ptr<MidiSource>
 MidiRegion::midi_source (uint32_t n) const
 {
 	// Guaranteed to succeed (use a static cast?)
-	return boost::dynamic_pointer_cast<MidiSource>(source(n));
+	return std::dynamic_pointer_cast<MidiSource>(source(n));
 }
 
 /* don't use this. hopefully it will go away.
    currently used by headless-chicken session utility.
 */
 void
-MidiRegion::clobber_sources (boost::shared_ptr<MidiSource> s)
+MidiRegion::clobber_sources (std::shared_ptr<MidiSource> s)
 {
        drop_sources();
 
@@ -426,7 +426,7 @@ MidiRegion::clobber_sources (boost::shared_ptr<MidiSource> s)
        _master_sources.push_back (s);
        s->inc_use_count ();
 
-       s->DropReferences.connect_same_thread (*this, boost::bind (&Region::source_deleted, this, boost::weak_ptr<Source>(s)));
+       s->DropReferences.connect_same_thread (*this, boost::bind (&Region::source_deleted, this, std::weak_ptr<Source>(s)));
 
 }
 
@@ -444,7 +444,7 @@ MidiRegion::model_changed ()
 	Automatable::Controls const & c = model()->controls();
 
 	for (Automatable::Controls::const_iterator i = c.begin(); i != c.end(); ++i) {
-		boost::shared_ptr<AutomationControl> ac = boost::dynamic_pointer_cast<AutomationControl> (i->second);
+		std::shared_ptr<AutomationControl> ac = std::dynamic_pointer_cast<AutomationControl> (i->second);
 		assert (ac);
 		if (ac->alist()->automation_state() != Play) {
 			_filtered_parameters.insert (ac->parameter ());
@@ -493,7 +493,7 @@ MidiRegion::model_automation_state_changed (Evoral::Parameter const & p)
 {
 	/* Update our filtered parameters list after a change to a parameter's AutoState */
 
-	boost::shared_ptr<AutomationControl> ac = model()->automation_control (p);
+	std::shared_ptr<AutomationControl> ac = model()->automation_control (p);
 	if (!ac || ac->alist()->automation_state() == Play) {
 		/* It should be "impossible" for ac to be NULL, but if it is, don't
 		   filter the parameter so events aren't lost. */

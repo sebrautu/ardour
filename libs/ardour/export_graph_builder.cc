@@ -157,7 +157,7 @@ ExportGraphBuilder::cleanup (bool remove_out_files/*=false*/)
 }
 
 void
-ExportGraphBuilder::set_current_timespan (boost::shared_ptr<ExportTimespan> span)
+ExportGraphBuilder::set_current_timespan (std::shared_ptr<ExportTimespan> span)
 {
 	timespan = span;
 }
@@ -199,7 +199,7 @@ ExportGraphBuilder::add_config (FileSpec const & config, bool rt)
 	/* Split channel configurations are split into several channel configurations,
 	 * each corresponding to a file, at this stage
 	 */
-	typedef std::list<boost::shared_ptr<ExportChannelConfiguration> > ConfigList;
+	typedef std::list<std::shared_ptr<ExportChannelConfiguration> > ConfigList;
 	ConfigList file_configs;
 	new_config.channel_config->configurations_for_files (file_configs);
 
@@ -243,7 +243,7 @@ ExportGraphBuilder::add_split_config (FileSpec const & config)
 /* Encoder */
 
 template <>
-boost::shared_ptr<AudioGrapher::Sink<Sample> >
+std::shared_ptr<AudioGrapher::Sink<Sample> >
 ExportGraphBuilder::Encoder::init (FileSpec const & new_config)
 {
 	config = new_config;
@@ -257,7 +257,7 @@ ExportGraphBuilder::Encoder::init (FileSpec const & new_config)
 }
 
 template <>
-boost::shared_ptr<AudioGrapher::Sink<int> >
+std::shared_ptr<AudioGrapher::Sink<int> >
 ExportGraphBuilder::Encoder::init (FileSpec const & new_config)
 {
 	config = new_config;
@@ -266,7 +266,7 @@ ExportGraphBuilder::Encoder::init (FileSpec const & new_config)
 }
 
 template <>
-boost::shared_ptr<AudioGrapher::Sink<short> >
+std::shared_ptr<AudioGrapher::Sink<short> >
 ExportGraphBuilder::Encoder::init (FileSpec const & new_config)
 {
 	config = new_config;
@@ -327,7 +327,7 @@ ExportGraphBuilder::Encoder::get_real_format (FileSpec const & config)
 
 template<typename T>
 void
-ExportGraphBuilder::Encoder::init_writer (boost::shared_ptr<AudioGrapher::SndfileWriter<T> > & writer)
+ExportGraphBuilder::Encoder::init_writer (std::shared_ptr<AudioGrapher::SndfileWriter<T> > & writer)
 {
 	unsigned channels = config.channel_config->get_n_chans();
 	int format = get_real_format (config);
@@ -350,7 +350,7 @@ ExportGraphBuilder::Encoder::init_writer (boost::shared_ptr<AudioGrapher::Sndfil
 
 template<typename T>
 void
-ExportGraphBuilder::Encoder::init_writer (boost::shared_ptr<AudioGrapher::CmdPipeWriter<T> > & writer)
+ExportGraphBuilder::Encoder::init_writer (std::shared_ptr<AudioGrapher::CmdPipeWriter<T> > & writer)
 {
 	unsigned channels = config.channel_config->get_n_chans();
 	config.filename->set_channel_config(config.channel_config);
@@ -446,7 +446,7 @@ ExportGraphBuilder::SFC::SFC (ExportGraphBuilder &parent, FileSpec const & new_c
 
 	normalizer->add_output (limiter);
 
-	boost::shared_ptr<AudioGrapher::ListedSource<float> > intermediate = limiter;
+	std::shared_ptr<AudioGrapher::ListedSource<float> > intermediate = limiter;
 
 	config.filename->set_channel_config (config.channel_config);
 	parent.add_export_fn (config.filename->get_path (config.format));

@@ -64,11 +64,11 @@ public:
 
 	/* Delivery to an existing output */
 
-	Delivery (Session& s, boost::shared_ptr<IO> io, boost::shared_ptr<Pannable>, boost::shared_ptr<MuteMaster> mm, const std::string& name, Role);
+	Delivery (Session& s, std::shared_ptr<IO> io, std::shared_ptr<Pannable>, std::shared_ptr<MuteMaster> mm, const std::string& name, Role);
 
 	/* Delivery to a new output owned by this object */
 
-	Delivery (Session& s, boost::shared_ptr<Pannable>, boost::shared_ptr<MuteMaster> mm, const std::string& name, Role);
+	Delivery (Session& s, std::shared_ptr<Pannable>, std::shared_ptr<MuteMaster> mm, const std::string& name, Role);
 	~Delivery ();
 
 	bool set_name (const std::string& name);
@@ -98,10 +98,10 @@ public:
 	static int  disable_panners (void);
 	static void reset_panners ();
 
-	boost::shared_ptr<PannerShell> panner_shell() const { return _panshell; }
-	boost::shared_ptr<Panner> panner() const;
+	std::shared_ptr<PannerShell> panner_shell() const { return _panshell; }
+	std::shared_ptr<Panner> panner() const;
 
-	void add_gain (boost::shared_ptr<GainControl> gc) {
+	void add_gain (std::shared_ptr<GainControl> gc) {
 		_gain_control = gc;
 	}
 
@@ -119,15 +119,15 @@ protected:
 	Role        _role;
 	BufferSet*  _output_buffers;
 	gain_t      _current_gain;
-	boost::shared_ptr<PannerShell> _panshell;
+	std::shared_ptr<PannerShell> _panshell;
 
 	gain_t target_gain ();
 
 private:
 	bool _no_outs_cuz_we_no_monitor;
 
-	boost::shared_ptr<MuteMaster>  _mute_master;
-	boost::shared_ptr<GainControl> _gain_control;
+	std::shared_ptr<MuteMaster>  _mute_master;
+	std::shared_ptr<GainControl> _gain_control;
 
 	static bool panners_legal;
 	static PBD::Signal0<void> PannersLegal;

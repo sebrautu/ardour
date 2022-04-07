@@ -22,7 +22,7 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "pbd/controllable.h"
 
@@ -38,12 +38,12 @@ class Session;
 class LIBARDOUR_API GainControl : public SlavableAutomationControl {
   public:
 	GainControl (Session& session, const Evoral::Parameter &param,
-	             boost::shared_ptr<AutomationList> al = boost::shared_ptr<AutomationList>());
+	             std::shared_ptr<AutomationList> al = std::shared_ptr<AutomationList>());
 
 	void inc_gain (gain_t);
 
 protected:
-	void post_add_master (boost::shared_ptr<AutomationControl>);
+	void post_add_master (std::shared_ptr<AutomationControl>);
 	bool get_masters_curve_locked (samplepos_t, samplepos_t, float*, samplecnt_t) const;
 };
 

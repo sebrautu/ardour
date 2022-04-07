@@ -19,6 +19,7 @@
 #ifndef __libpbd_position_types_h__
 #define __libpbd_position_types_h__
 
+#include <cassert>
 #include <cstdlib>
 #include <stdint.h>
 

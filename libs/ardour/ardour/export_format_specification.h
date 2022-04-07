@@ -78,7 +78,7 @@ class LIBARDOUR_API ExportFormatSpecification : public ExportFormatBase {
 
 	/* Modifying functions */
 
-	void set_format (boost::shared_ptr<ExportFormat> format);
+	void set_format (std::shared_ptr<ExportFormat> format);
 
 	void set_name (std::string const & name) { _name = name; }
 

@@ -387,7 +387,7 @@ MidiSource::mark_streaming_write_completed (const WriterLock& lock)
 }
 
 int
-MidiSource::export_write_to (const ReaderLock& lock, boost::shared_ptr<MidiSource> newsrc, Temporal::Beats begin, Temporal::Beats end)
+MidiSource::export_write_to (const ReaderLock& lock, std::shared_ptr<MidiSource> newsrc, Temporal::Beats begin, Temporal::Beats end)
 {
 	WriterLock newsrc_lock (newsrc->mutex ());
 
@@ -404,7 +404,7 @@ MidiSource::export_write_to (const ReaderLock& lock, boost::shared_ptr<MidiSourc
 }
 
 int
-MidiSource::write_to (const ReaderLock& lock, boost::shared_ptr<MidiSource> newsrc, Temporal::Beats begin, Temporal::Beats end)
+MidiSource::write_to (const ReaderLock& lock, std::shared_ptr<MidiSource> newsrc, Temporal::Beats begin, Temporal::Beats end)
 {
 	WriterLock newsrc_lock (newsrc->mutex ());
 
@@ -437,7 +437,7 @@ MidiSource::write_to (const ReaderLock& lock, boost::shared_ptr<MidiSource> news
 
 	/* this file is not removable (but since it is MIDI, it is mutable) */
 
-	boost::dynamic_pointer_cast<FileSource> (newsrc)->prevent_deletion ();
+	std::dynamic_pointer_cast<FileSource> (newsrc)->prevent_deletion ();
 
 	return 0;
 }
@@ -457,7 +457,7 @@ MidiSource::session_saved()
 
 		/* Temporarily drop our reference to the model so that as the model
 		   pushes its current state to us, we don't try to update it. */
-		boost::shared_ptr<MidiModel> mm = _model;
+		std::shared_ptr<MidiModel> mm = _model;
 		_model.reset ();
 
 		/* Flush model contents to disk. */
@@ -480,7 +480,7 @@ MidiSource::drop_model (const WriterLock& lock)
 }
 
 void
-MidiSource::set_model (const WriterLock& lock, boost::shared_ptr<MidiModel> m)
+MidiSource::set_model (const WriterLock& lock, std::shared_ptr<MidiModel> m)
 {
 	_model = m;
 	invalidate(lock);
@@ -551,13 +551,13 @@ MidiSource::set_automation_state_of (Evoral::Parameter p, AutoState s)
 }
 
 void
-MidiSource::copy_interpolation_from (boost::shared_ptr<MidiSource> s)
+MidiSource::copy_interpolation_from (std::shared_ptr<MidiSource> s)
 {
 	copy_interpolation_from (s.get ());
 }
 
 void
-MidiSource::copy_automation_state_from (boost::shared_ptr<MidiSource> s)
+MidiSource::copy_automation_state_from (std::shared_ptr<MidiSource> s)
 {
 	copy_automation_state_from (s.get ());
 }

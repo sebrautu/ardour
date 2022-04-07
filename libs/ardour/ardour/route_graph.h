@@ -24,7 +24,7 @@
 
 namespace ARDOUR {
 
-typedef boost::shared_ptr<Route> GraphVertex;
+typedef std::shared_ptr<Route> GraphVertex;
 
 /** A list of edges for a directed graph for routes.
  *
@@ -68,8 +68,8 @@ private:
 	EdgeMapWithSends _from_to_with_sends;
 };
 
-boost::shared_ptr<RouteList> topological_sort (
-	boost::shared_ptr<RouteList>,
+std::shared_ptr<RouteList> topological_sort (
+	std::shared_ptr<RouteList>,
 	GraphEdges
 	);
 

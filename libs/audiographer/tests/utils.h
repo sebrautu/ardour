@@ -4,7 +4,7 @@
 // Includes we want almost always
 
 #include <cppunit/extensions/HelperMacros.h>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 // includes used in this file
 

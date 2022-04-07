@@ -19,7 +19,7 @@
 #define _ardour_luascripting_h_
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <glibmm/threads.h>
 
 #include "pbd/signals.h"
@@ -99,10 +99,10 @@ struct LIBARDOUR_API LuaScriptParam {
 };
 
 
-typedef boost::shared_ptr<LuaScriptInfo> LuaScriptInfoPtr;
+typedef std::shared_ptr<LuaScriptInfo> LuaScriptInfoPtr;
 typedef std::vector<LuaScriptInfoPtr> LuaScriptList;
 
-typedef boost::shared_ptr<LuaScriptParam> LuaScriptParamPtr;
+typedef std::shared_ptr<LuaScriptParam> LuaScriptParamPtr;
 typedef std::vector<LuaScriptParamPtr> LuaScriptParamList;
 
 

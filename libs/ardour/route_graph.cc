@@ -195,8 +195,8 @@ struct RouteRecEnabledComparator
 {
 	bool operator () (GraphVertex r1, GraphVertex r2) const
 	{
-		boost::shared_ptr<Track> t1 (boost::dynamic_pointer_cast<Track>(r1));
-		boost::shared_ptr<Track> t2 (boost::dynamic_pointer_cast<Track>(r2));
+		std::shared_ptr<Track> t1 (std::dynamic_pointer_cast<Track>(r1));
+		std::shared_ptr<Track> t2 (std::dynamic_pointer_cast<Track>(r2));
 		PresentationInfo::order_t r1o = r1->presentation_info().order();
 		PresentationInfo::order_t r2o = r2->presentation_info().order();
 
@@ -238,13 +238,13 @@ struct RouteRecEnabledComparator
 /** Perform a topological sort of a list of routes using a directed graph representing connections.
  *  @return Sorted list of routes, or 0 if the graph contains cycles (feedback loops).
  */
-boost::shared_ptr<RouteList>
+std::shared_ptr<RouteList>
 ARDOUR::topological_sort (
-	boost::shared_ptr<RouteList> routes,
+	std::shared_ptr<RouteList> routes,
 	GraphEdges edges
 	)
 {
-	boost::shared_ptr<RouteList> sorted_routes (new RouteList);
+	std::shared_ptr<RouteList> sorted_routes (new RouteList);
 
 	/* queue of routes to process */
 	RouteList queue;
@@ -282,7 +282,7 @@ ARDOUR::topological_sort (
 	if (!edges.empty ()) {
 		edges.dump ();
 		/* There are cycles in the graph, so we can't do a topological sort */
-		return boost::shared_ptr<RouteList> ();
+		return std::shared_ptr<RouteList> ();
 	}
 
 	return sorted_routes;

@@ -353,7 +353,7 @@ Graph::reached_terminal_node ()
  *  acyclic.
  */
 void
-Graph::rechain (boost::shared_ptr<RouteList> routelist, GraphEdges const& edges)
+Graph::rechain (std::shared_ptr<RouteList> routelist, GraphEdges const& edges)
 {
 	Glib::Threads::Mutex::Lock ls (_swap_mutex);
 
@@ -382,7 +382,7 @@ Graph::rechain (boost::shared_ptr<RouteList> routelist, GraphEdges const& edges)
 	// now add refs for the connections.
 
 	for (node_list_t::iterator ni = _nodes_rt[chain].begin (); ni != _nodes_rt[chain].end (); ni++) {
-		boost::shared_ptr<Route> r = boost::dynamic_pointer_cast<Route> (*ni);
+		std::shared_ptr<Route> r = std::dynamic_pointer_cast<Route> (*ni);
 
 		/* The routes that are directly fed by r */
 		set<GraphVertex> fed_from_r = edges.from (r);
@@ -574,16 +574,16 @@ Graph::dump (int chain) const
 
 	DEBUG_TRACE (DEBUG::Graph, "--------------------------------------------Graph dump:\n");
 	for (ni = _nodes_rt[chain].begin (); ni != _nodes_rt[chain].end (); ni++) {
-		boost::shared_ptr<Route> rp = boost::dynamic_pointer_cast<Route> (*ni);
+		std::shared_ptr<Route> rp = std::dynamic_pointer_cast<Route> (*ni);
 		DEBUG_TRACE (DEBUG::Graph, string_compose ("GraphNode: %1  refcount: %2\n", rp->name ().c_str (), (*ni)->_init_refcount[chain]));
 		for (ai = (*ni)->_activation_set[chain].begin (); ai != (*ni)->_activation_set[chain].end (); ai++) {
-			DEBUG_TRACE (DEBUG::Graph, string_compose ("  triggers: %1\n", boost::dynamic_pointer_cast<Route> (*ai)->name ().c_str ()));
+			DEBUG_TRACE (DEBUG::Graph, string_compose ("  triggers: %1\n", std::dynamic_pointer_cast<Route> (*ai)->name ().c_str ()));
 		}
 	}
 
 	DEBUG_TRACE (DEBUG::Graph, "------------- trigger list:\n");
 	for (ni = _init_trigger_list[chain].begin (); ni != _init_trigger_list[chain].end (); ni++) {
-		DEBUG_TRACE (DEBUG::Graph, string_compose ("GraphNode: %1  refcount: %2\n", boost::dynamic_pointer_cast<Route> (*ni)->name ().c_str (), (*ni)->_init_refcount[chain]));
+		DEBUG_TRACE (DEBUG::Graph, string_compose ("GraphNode: %1  refcount: %2\n", std::dynamic_pointer_cast<Route> (*ni)->name ().c_str (), (*ni)->_init_refcount[chain]));
 	}
 
 	DEBUG_TRACE (DEBUG::Graph, string_compose ("final activation refcount: %1\n", _n_terminal_nodes[chain]));
@@ -604,7 +604,7 @@ Graph::plot (std::string const& file_name) const
 	ss << "  node [shape = ellipse];\n";
 
 	for (ni = _nodes_rt[chain].begin (); ni != _nodes_rt[chain].end (); ni++) {
-		boost::shared_ptr<Route> sr = boost::dynamic_pointer_cast<Route> (*ni);
+		std::shared_ptr<Route> sr = std::dynamic_pointer_cast<Route> (*ni);
 		std::string sn = string_compose ("%1 (%2)", sr->name (), (*ni)->_init_refcount[chain]);
 		if ((*ni)->_init_refcount[chain] == 0 && (*ni)->_activation_set[chain].size() == 0) {
 				ss << "  \"" << sn << "\"[style=filled,fillcolor=gold1];\n";
@@ -614,7 +614,7 @@ Graph::plot (std::string const& file_name) const
 				ss << "  \"" << sn << "\"[style=filled,fillcolor=aquamarine2];\n";
 		}
 		for (ai = (*ni)->_activation_set[chain].begin (); ai != (*ni)->_activation_set[chain].end (); ai++) {
-			boost::shared_ptr<Route> dr = boost::dynamic_pointer_cast<Route> (*ai);
+			std::shared_ptr<Route> dr = std::dynamic_pointer_cast<Route> (*ai);
 			std::string dn = string_compose ("%1 (%2)", dr->name (), (*ai)->_init_refcount[chain]);
 			bool sends_only = false;
 			sr->direct_feeds_according_to_reality (dr, &sends_only);

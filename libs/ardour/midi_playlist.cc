@@ -70,13 +70,13 @@ MidiPlaylist::MidiPlaylist (Session& session, string name, bool hidden)
 {
 }
 
-MidiPlaylist::MidiPlaylist (boost::shared_ptr<const MidiPlaylist> other, string name, bool hidden)
+MidiPlaylist::MidiPlaylist (std::shared_ptr<const MidiPlaylist> other, string name, bool hidden)
 	: Playlist (other, name, hidden)
 	, _note_mode(other->_note_mode)
 {
 }
 
-MidiPlaylist::MidiPlaylist (boost::shared_ptr<const MidiPlaylist> other,
+MidiPlaylist::MidiPlaylist (std::shared_ptr<const MidiPlaylist> other,
                             timepos_t  const &                    start,
                             timepos_t  const &                    dur,
                             string                                name,
@@ -107,14 +107,14 @@ struct EventsSortByTimeAndType {
 };
 
 void
-MidiPlaylist::remove_dependents (boost::shared_ptr<Region> region)
+MidiPlaylist::remove_dependents (std::shared_ptr<Region> region)
 {
 }
 
 void
-MidiPlaylist::region_going_away (boost::weak_ptr<Region> region)
+MidiPlaylist::region_going_away (std::weak_ptr<Region> region)
 {
-	boost::shared_ptr<Region> r = region.lock();
+	std::shared_ptr<Region> r = region.lock();
 	if (r) {
 		remove_dependents(r);
 	}
@@ -139,7 +139,7 @@ MidiPlaylist::set_state (const XMLNode& node, int version)
 void
 MidiPlaylist::dump () const
 {
-	boost::shared_ptr<Region> r;
+	std::shared_ptr<Region> r;
 
 	cerr << "Playlist \"" << _name << "\" " << endl
 	<< regions.size() << " regions "
@@ -158,9 +158,9 @@ MidiPlaylist::dump () const
 }
 
 bool
-MidiPlaylist::destroy_region (boost::shared_ptr<Region> region)
+MidiPlaylist::destroy_region (std::shared_ptr<Region> region)
 {
-	boost::shared_ptr<MidiRegion> r = boost::dynamic_pointer_cast<MidiRegion> (region);
+	std::shared_ptr<MidiRegion> r = std::dynamic_pointer_cast<MidiRegion> (region);
 
 	if (!r) {
 		return false;
@@ -195,7 +195,7 @@ MidiPlaylist::destroy_region (boost::shared_ptr<Region> region)
 	return changed;
 }
 void
-MidiPlaylist::_split_region (boost::shared_ptr<Region> region, timepos_t const & playlist_position, ThawList& thawlist)
+MidiPlaylist::_split_region (std::shared_ptr<Region> region, timepos_t const & playlist_position, ThawList& thawlist)
 {
 	if (!region->covers (playlist_position)) {
 		return;
@@ -206,14 +206,14 @@ MidiPlaylist::_split_region (boost::shared_ptr<Region> region, timepos_t const &
 		return;
 	}
 
-	boost::shared_ptr<const MidiRegion> mr = boost::dynamic_pointer_cast<MidiRegion>(region);
+	std::shared_ptr<const MidiRegion> mr = std::dynamic_pointer_cast<MidiRegion>(region);
 
 	if (mr == 0) {
 		return;
 	}
 
-	boost::shared_ptr<Region> left;
-	boost::shared_ptr<Region> right;
+	std::shared_ptr<Region> left;
+	std::shared_ptr<Region> right;
 
 	string before_name;
 	string after_name;
@@ -271,7 +271,7 @@ MidiPlaylist::contained_automation()
 	set<Evoral::Parameter> ret;
 
 	for (RegionList::const_iterator r = regions.begin(); r != regions.end(); ++r) {
-		boost::shared_ptr<MidiRegion> mr = boost::dynamic_pointer_cast<MidiRegion>(*r);
+		std::shared_ptr<MidiRegion> mr = std::dynamic_pointer_cast<MidiRegion>(*r);
 
 		for (Automatable::Controls::iterator c = mr->model()->controls().begin();
 				c != mr->model()->controls().end(); ++c) {
@@ -293,7 +293,7 @@ MidiPlaylist::render (MidiChannelFilter* filter)
 
 	DEBUG_TRACE (DEBUG::MidiPlaylistIO, string_compose ("---- MidiPlaylist::render (regions: %1)-----\n", regions.size()));
 
-	std::vector< boost::shared_ptr<Region> > regs;
+	std::vector< std::shared_ptr<Region> > regs;
 
 	for (RegionList::iterator i = regions.begin(); i != regions.end(); ++i) {
 
@@ -334,9 +334,9 @@ MidiPlaylist::render (MidiChannelFilter* filter)
 
 		DEBUG_TRACE (DEBUG::MidiPlaylistIO, string_compose ("\t%1 regions to read, direct: %2\n", regs.size(), (regs.size() == 1)));
 
-		for (vector<boost::shared_ptr<Region> >::iterator i = regs.begin(); i != regs.end(); ++i) {
+		for (vector<std::shared_ptr<Region> >::iterator i = regs.begin(); i != regs.end(); ++i) {
 
-			boost::shared_ptr<MidiRegion> mr = boost::dynamic_pointer_cast<MidiRegion>(*i);
+			std::shared_ptr<MidiRegion> mr = std::dynamic_pointer_cast<MidiRegion>(*i);
 
 			if (!mr) {
 				continue;

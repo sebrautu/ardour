@@ -702,7 +702,7 @@ Location::unlock ()
 }
 
 void
-Location::set_scene_change (boost::shared_ptr<SceneChange>  sc)
+Location::set_scene_change (std::shared_ptr<SceneChange>  sc)
 {
         if (_scene_change != sc) {
                 _scene_change = sc;

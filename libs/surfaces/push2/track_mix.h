@@ -47,7 +47,7 @@ class TrackMixLayout : public Push2Layout
 	TrackMixLayout (Push2& p, ARDOUR::Session&, std::string const &);
 	~TrackMixLayout ();
 
-	void set_stripable (boost::shared_ptr<ARDOUR::Stripable>);
+	void set_stripable (std::shared_ptr<ARDOUR::Stripable>);
 
 	void render (ArdourCanvas::Rect const &, Cairo::RefPtr<Cairo::Context>) const;
 
@@ -64,10 +64,10 @@ class TrackMixLayout : public Push2Layout
 	void update_meters ();
 	void update_clocks ();
 
-	boost::shared_ptr<ARDOUR::Stripable> current_stripable() const { return stripable; }
+	std::shared_ptr<ARDOUR::Stripable> current_stripable() const { return stripable; }
 
    private:
-	boost::shared_ptr<ARDOUR::Stripable> stripable;
+	std::shared_ptr<ARDOUR::Stripable> stripable;
 	PBD::ScopedConnectionList stripable_connections;
 
 	ArdourCanvas::Rectangle* bg;
@@ -83,7 +83,7 @@ class TrackMixLayout : public Push2Layout
 	LevelMeter* meter;
 
 	void stripable_property_change (PBD::PropertyChange const& what_changed);
-	void simple_control_change (boost::shared_ptr<ARDOUR::AutomationControl> ac, Push2::ButtonID bid);
+	void simple_control_change (std::shared_ptr<ARDOUR::AutomationControl> ac, Push2::ButtonID bid);
 
 	void show_state ();
 

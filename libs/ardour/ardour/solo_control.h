@@ -21,7 +21,7 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "ardour/slavable_automation_control.h"
 #include "ardour/libardour_visibility.h"
@@ -98,9 +98,9 @@ class LIBARDOUR_API SoloControl : public SlavableAutomationControl
 
   protected:
 	void actually_set_value (double, PBD::Controllable::GroupControlDisposition group_override);
-	void master_changed (bool from_self, GroupControlDisposition, boost::weak_ptr<AutomationControl> m);
-	void pre_remove_master (boost::shared_ptr<AutomationControl>);
-	void post_add_master (boost::shared_ptr<AutomationControl>);
+	void master_changed (bool from_self, GroupControlDisposition, std::weak_ptr<AutomationControl> m);
+	void pre_remove_master (std::shared_ptr<AutomationControl>);
+	void post_add_master (std::shared_ptr<AutomationControl>);
 
   private:
 	Soloable& _soloable;

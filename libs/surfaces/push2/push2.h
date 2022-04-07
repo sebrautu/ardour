@@ -305,7 +305,7 @@ class Push2 : public ARDOUR::ControlProtocol
 	static bool probe ();
 	static void* request_factory (uint32_t);
 
-	std::list<boost::shared_ptr<ARDOUR::Bundle> > bundles ();
+	std::list<std::shared_ptr<ARDOUR::Bundle> > bundles ();
 
 	bool has_editor () const { return true; }
 	void* get_gui () const;
@@ -317,8 +317,8 @@ class Push2 : public ARDOUR::ControlProtocol
 
 	PBD::Signal0<void> ConnectionChange;
 
-	boost::shared_ptr<ARDOUR::Port> input_port();
-	boost::shared_ptr<ARDOUR::Port> output_port();
+	std::shared_ptr<ARDOUR::Port> input_port();
+	std::shared_ptr<ARDOUR::Port> output_port();
 
 	int pad_note (int row, int col) const;
 	PBD::Signal0<void> PadChange;
@@ -346,7 +346,7 @@ class Push2 : public ARDOUR::ControlProtocol
 
 	ModifierState modifier_state() const { return _modifier_state; }
 
-	boost::shared_ptr<Button> button_by_id (ButtonID);
+	std::shared_ptr<Button> button_by_id (ButtonID);
 	static std::string button_name_by_id (ButtonID);
 
 	void strip_buttons_off ();
@@ -381,16 +381,16 @@ class Push2 : public ARDOUR::ControlProtocol
 	void relax () {}
 
 	/* map of Buttons by CC */
-	typedef std::map<int,boost::shared_ptr<Button> > CCButtonMap;
+	typedef std::map<int,std::shared_ptr<Button> > CCButtonMap;
 	CCButtonMap cc_button_map;
 	/* map of Buttons by ButtonID */
-	typedef std::map<ButtonID,boost::shared_ptr<Button> > IDButtonMap;
+	typedef std::map<ButtonID,std::shared_ptr<Button> > IDButtonMap;
 	IDButtonMap id_button_map;
 	std::set<ButtonID> buttons_down;
 	std::set<ButtonID> consumed;
 
 	bool button_long_press_timeout (ButtonID id);
-	void start_press_timeout (boost::shared_ptr<Button>, ButtonID);
+	void start_press_timeout (std::shared_ptr<Button>, ButtonID);
 
 	void init_buttons (bool startup);
 	void init_touch_strip ();
@@ -398,12 +398,12 @@ class Push2 : public ARDOUR::ControlProtocol
 	/* map of Pads by note number (the "fixed" note number sent by the
 	 * hardware, not the note number generated if the pad is touched)
 	 */
-	typedef std::map<int,boost::shared_ptr<Pad> > NNPadMap;
+	typedef std::map<int,std::shared_ptr<Pad> > NNPadMap;
 	NNPadMap nn_pad_map;
 
 	/* map of Pads by note number they generate (their "filtered" value)
 	 */
-	typedef std::multimap<int,boost::shared_ptr<Pad> > FNPadMap;
+	typedef std::multimap<int,std::shared_ptr<Pad> > FNPadMap;
 	FNPadMap fn_pad_map;
 
 	void set_button_color (ButtonID, uint8_t color_index);
@@ -414,14 +414,14 @@ class Push2 : public ARDOUR::ControlProtocol
 	void build_maps ();
 
 	// Bundle to represent our input ports
-	boost::shared_ptr<ARDOUR::Bundle> _input_bundle;
+	std::shared_ptr<ARDOUR::Bundle> _input_bundle;
 	// Bundle to represent our output ports
-	boost::shared_ptr<ARDOUR::Bundle> _output_bundle;
+	std::shared_ptr<ARDOUR::Bundle> _output_bundle;
 
 	MIDI::Port* _input_port;
 	MIDI::Port* _output_port;
-	boost::shared_ptr<ARDOUR::Port> _async_in;
-	boost::shared_ptr<ARDOUR::Port> _async_out;
+	std::shared_ptr<ARDOUR::Port> _async_in;
+	std::shared_ptr<ARDOUR::Port> _async_out;
 
 	void connect_to_parser ();
 	void handle_midi_pitchbend_message (MIDI::Parser&, MIDI::pitchbend_t);
@@ -516,7 +516,7 @@ class Push2 : public ARDOUR::ControlProtocol
 
 	/* special Stripable */
 
-	boost::shared_ptr<ARDOUR::Stripable> master;
+	std::shared_ptr<ARDOUR::Stripable> master;
 
 	sigc::connection vblank_connection;
 	bool vblank ();
@@ -541,7 +541,7 @@ class Push2 : public ARDOUR::ControlProtocol
 
 	bool pad_filter (ARDOUR::MidiBuffer& in, ARDOUR::MidiBuffer& out) const;
 
-	boost::weak_ptr<ARDOUR::MidiTrack> current_pad_target;
+	std::weak_ptr<ARDOUR::MidiTrack> current_pad_target;
 
 	void port_registration_handler ();
 
@@ -551,7 +551,7 @@ class Push2 : public ARDOUR::ControlProtocol
 	};
 
 	int connection_state;
-	bool connection_handler (boost::weak_ptr<ARDOUR::Port>, std::string name1, boost::weak_ptr<ARDOUR::Port>, std::string name2, bool yn);
+	bool connection_handler (std::weak_ptr<ARDOUR::Port>, std::string name1, std::weak_ptr<ARDOUR::Port>, std::string name2, bool yn);
 	PBD::ScopedConnectionList port_connections;
 	void connected ();
 

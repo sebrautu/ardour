@@ -28,7 +28,7 @@
 #include <pthread.h>
 #include <stdint.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "pbd/natsort.h"
 #include "pbd/rcu.h"

@@ -25,7 +25,7 @@
 #include <set>
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <sndfile.h>
 #include <samplerate.h>
@@ -151,8 +151,8 @@ class LIBARDOUR_API ExportFormatBase {
 
 	virtual ~ExportFormatBase ();
 
-	boost::shared_ptr<ExportFormatBase> get_intersection (ExportFormatBase const & other) const;
-	boost::shared_ptr<ExportFormatBase> get_union (ExportFormatBase const & other) const;
+	std::shared_ptr<ExportFormatBase> get_intersection (ExportFormatBase const & other) const;
+	std::shared_ptr<ExportFormatBase> get_union (ExportFormatBase const & other) const;
 
 	bool endiannesses_empty () const { return endiannesses.empty (); }
 	bool sample_formats_empty () const { return sample_formats.empty (); }
@@ -197,7 +197,7 @@ class LIBARDOUR_API ExportFormatBase {
 		SetIntersection
 	};
 
-	boost::shared_ptr<ExportFormatBase> do_set_operation (ExportFormatBase const & other, SetOperation operation) const;
+	std::shared_ptr<ExportFormatBase> do_set_operation (ExportFormatBase const & other, SetOperation operation) const;
 };
 
 } // namespace ARDOUR

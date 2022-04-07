@@ -22,7 +22,7 @@
 
 #include <string>
 #include <vector>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <glibmm/main.h>
 
 #define ABSTRACT_UI_EXPORTS
@@ -103,7 +103,7 @@ public:
 	void jump_forward (JumpDistance dist);
 	void jump_backward (JumpDistance dist);
 
-	boost::shared_ptr<ButtonBase> make_button_action (std::string action_string);
+	std::shared_ptr<ButtonBase> make_button_action (std::string action_string);
 
 	int usb_errorcode () const { return _error; }
 
@@ -114,8 +114,8 @@ public:
 	void set_test_mode (bool tm) { _test_mode = tm; }
 
 	int get_button_count() const { return _button_actions.size(); }
-	const boost::shared_ptr<ButtonBase> get_button_action (unsigned int index) const;
-	void set_button_action (unsigned int index, const boost::shared_ptr<ButtonBase> btn_act);
+	const std::shared_ptr<ButtonBase> get_button_action (unsigned int index) const;
+	void set_button_action (unsigned int index, const std::shared_ptr<ButtonBase> btn_act);
 
 	JumpDistance jog_distance () const { return _jog_distance; }
 	void set_jog_distance (JumpDistance jd) { _jog_distance = jd; }
@@ -178,7 +178,7 @@ private:
 	std::vector<double> _shuttle_speeds;
 	JumpDistance _jog_distance;
 
-	std::vector<boost::shared_ptr<ButtonBase> > _button_actions;
+	std::vector<std::shared_ptr<ButtonBase> > _button_actions;
 
 	mutable ContourDesignGUI* _gui;
 	void build_gui ();

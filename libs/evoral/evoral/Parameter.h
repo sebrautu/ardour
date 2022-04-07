@@ -23,7 +23,7 @@
 #include <string>
 #include <map>
 #include <stdint.h>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "evoral/visibility.h"
 #include "evoral/types.h"

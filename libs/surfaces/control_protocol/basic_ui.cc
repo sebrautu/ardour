@@ -574,7 +574,7 @@ void
 BasicUI::toggle_monitor_mute ()
 {
 	if (session->monitor_out()) {
-		boost::shared_ptr<MonitorProcessor> mon = session->monitor_out()->monitor_control();
+		std::shared_ptr<MonitorProcessor> mon = session->monitor_out()->monitor_control();
 		if (mon->cut_all ()) {
 			mon->set_cut_all (false);
 		} else {
@@ -587,7 +587,7 @@ void
 BasicUI::toggle_monitor_dim ()
 {
 	if (session->monitor_out()) {
-		boost::shared_ptr<MonitorProcessor> mon = session->monitor_out()->monitor_control();
+		std::shared_ptr<MonitorProcessor> mon = session->monitor_out()->monitor_control();
 		if (mon->dim_all ()) {
 			mon->set_dim_all (false);
 		} else {
@@ -600,7 +600,7 @@ void
 BasicUI::toggle_monitor_mono ()
 {
 	if (session->monitor_out()) {
-		boost::shared_ptr<MonitorProcessor> mon = session->monitor_out()->monitor_control();
+		std::shared_ptr<MonitorProcessor> mon = session->monitor_out()->monitor_control();
 		if (mon->mono()) {
 			mon->set_mono (false);
 		} else {
@@ -805,12 +805,12 @@ BasicUI::goto_nth_marker (int n)
 this stuff is waiting to go in so that all UIs can offer complex solo/mute functionality
 
 void
-BasicUI::solo_release (boost::shared_ptr<Route> r)
+BasicUI::solo_release (std::shared_ptr<Route> r)
 {
 }
 
 void
-BasicUI::solo_press (boost::shared_ptr<Route> r, bool momentary, bool global, bool exclusive, bool isolate, bool solo_group)
+BasicUI::solo_press (std::shared_ptr<Route> r, bool momentary, bool global, bool exclusive, bool isolate, bool solo_group)
 {
 	if (momentary) {
 		_solo_release = new SoloMuteRelease (_route->soloed());
@@ -833,7 +833,7 @@ BasicUI::solo_press (boost::shared_ptr<Route> r, bool momentary, bool global, bo
 		if (_solo_release) {
 			_solo_release->exclusive = true;
 
-			boost::shared_ptr<RouteList> routes = _session->get_routes();
+			std::shared_ptr<RouteList> routes = _session->get_routes();
 
 			for (RouteList::iterator i = routes->begin(); i != routes->end(); ++i) {
 				if ((*i)->soloed ()) {
@@ -881,7 +881,7 @@ BasicUI::solo_press (boost::shared_ptr<Route> r, bool momentary, bool global, bo
 
 		/* click: solo this route */
 
-		boost::shared_ptr<RouteList> rl (new RouteList);
+		std::shared_ptr<RouteList> rl (new RouteList);
 		rl->push_back (route());
 
 		if (_solo_release) {

@@ -121,8 +121,8 @@ public:
 
 	Flags flags () const { return _flags; }
 
-	boost::shared_ptr<SceneChange> scene_change() const { return _scene_change; }
-	void set_scene_change (boost::shared_ptr<SceneChange>);
+	std::shared_ptr<SceneChange> scene_change() const { return _scene_change; }
+	void set_scene_change (std::shared_ptr<SceneChange>);
 
 	int32_t cue_id() const { assert (is_cue_marker()); return _cue; }
 	void set_cue_id (int32_t);
@@ -175,7 +175,7 @@ private:
 	timepos_t          _end;
 	Flags              _flags;
 	bool               _locked;
-	boost::shared_ptr<SceneChange> _scene_change;
+	std::shared_ptr<SceneChange> _scene_change;
 	int64_t            _timestamp;
 	int32_t            _cue;
 

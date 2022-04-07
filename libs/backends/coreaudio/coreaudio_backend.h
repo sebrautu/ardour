@@ -28,7 +28,7 @@
 #include <stdint.h>
 #include <pthread.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "pbd/natsort.h"
 #include "ardour/audio_backend.h"

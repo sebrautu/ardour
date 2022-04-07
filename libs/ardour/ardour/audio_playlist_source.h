@@ -22,7 +22,7 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "ardour/ardour.h"
 #include "ardour/audiosource.h"
@@ -56,7 +56,7 @@ public:
 protected:
 	friend class SourceFactory;
 
-	AudioPlaylistSource (Session&, const PBD::ID& orig, const std::string& name, boost::shared_ptr<AudioPlaylist>, uint32_t chn,
+	AudioPlaylistSource (Session&, const PBD::ID& orig, const std::string& name, std::shared_ptr<AudioPlaylist>, uint32_t chn,
 	                     timepos_t const & begin, timepos_t const & len, Source::Flag flags);
 	AudioPlaylistSource (Session&, const XMLNode&);
 

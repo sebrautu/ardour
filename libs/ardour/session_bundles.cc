@@ -43,11 +43,11 @@ using namespace ARDOUR;
 using std::string;
 
 void
-Session::add_bundle (boost::shared_ptr<Bundle> bundle, bool emit_signal)
+Session::add_bundle (std::shared_ptr<Bundle> bundle, bool emit_signal)
 {
 	{
 		RCUWriter<BundleList> writer (_bundles);
-		boost::shared_ptr<BundleList> b = writer.get_copy ();
+		std::shared_ptr<BundleList> b = writer.get_copy ();
 		b->push_back (bundle);
 	}
 
@@ -58,13 +58,13 @@ Session::add_bundle (boost::shared_ptr<Bundle> bundle, bool emit_signal)
 }
 
 void
-Session::remove_bundle (boost::shared_ptr<Bundle> bundle)
+Session::remove_bundle (std::shared_ptr<Bundle> bundle)
 {
 	bool removed = false;
 
 	{
 		RCUWriter<BundleList> writer (_bundles);
-		boost::shared_ptr<BundleList> b = writer.get_copy ();
+		std::shared_ptr<BundleList> b = writer.get_copy ();
 		BundleList::iterator i = find (b->begin(), b->end(), bundle);
 
 		if (i != b->end()) {
@@ -80,10 +80,10 @@ Session::remove_bundle (boost::shared_ptr<Bundle> bundle)
 	set_dirty();
 }
 
-boost::shared_ptr<Bundle>
+std::shared_ptr<Bundle>
 Session::bundle_by_name (string name) const
 {
-	boost::shared_ptr<BundleList> b = _bundles.reader ();
+	std::shared_ptr<BundleList> b = _bundles.reader ();
 
 	for (BundleList::const_iterator i = b->begin(); i != b->end(); ++i) {
 		if ((*i)->name() == name) {
@@ -91,7 +91,7 @@ Session::bundle_by_name (string name) const
 		}
 	}
 
-	return boost::shared_ptr<Bundle> ();
+	return std::shared_ptr<Bundle> ();
 }
 
 void
@@ -100,9 +100,9 @@ Session::setup_bundles ()
 
 	{
 		RCUWriter<BundleList> writer (_bundles);
-		boost::shared_ptr<BundleList> b = writer.get_copy ();
+		std::shared_ptr<BundleList> b = writer.get_copy ();
 		for (BundleList::iterator i = b->begin(); i != b->end();) {
-			if (boost::dynamic_pointer_cast<UserBundle>(*i)) {
+			if (std::dynamic_pointer_cast<UserBundle>(*i)) {
 				++i;
 				continue;
 			}
@@ -122,7 +122,7 @@ Session::setup_bundles ()
 
 	/* now add virtual Vkeybd, compare to PortGroupList::gather */
 	if (_midi_ports) {
-		boost::shared_ptr<Port> ap = boost::dynamic_pointer_cast<Port> (vkbd_output_port ());
+		std::shared_ptr<Port> ap = std::dynamic_pointer_cast<Port> (vkbd_output_port ());
 		inputs[DataType::MIDI].push_back (AudioEngine::instance()->make_port_name_non_relative (ap->name ()));
 
 		/* JACK semantics prevent us directly calling the
@@ -154,7 +154,7 @@ Session::setup_bundles ()
 			snprintf (buf, sizeof (buf), _("out %" PRIu32), np+1);
 		}
 
-		boost::shared_ptr<Bundle> c (new Bundle (buf, true));
+		std::shared_ptr<Bundle> c (new Bundle (buf, true));
 		c->add_channel (_("mono"), DataType::AUDIO);
 		c->set_port (0, outputs[DataType::AUDIO][np]);
 
@@ -167,7 +167,7 @@ Session::setup_bundles ()
 		if (np + 1 < outputs[DataType::AUDIO].size()) {
 			char buf[32];
 			snprintf (buf, sizeof(buf), _("out %" PRIu32 "+%" PRIu32), np + 1, np + 2);
-			boost::shared_ptr<Bundle> c (new Bundle (buf, true));
+			std::shared_ptr<Bundle> c (new Bundle (buf, true));
 			c->add_channel (_("L"), DataType::AUDIO);
 			c->set_port (0, outputs[DataType::AUDIO][np]);
 			c->add_channel (_("R"), DataType::AUDIO);
@@ -188,7 +188,7 @@ Session::setup_bundles ()
 			snprintf (buf, sizeof (buf), _("in %" PRIu32), np+1);
 		}
 
-		boost::shared_ptr<Bundle> c (new Bundle (buf, false));
+		std::shared_ptr<Bundle> c (new Bundle (buf, false));
 		c->add_channel (_("mono"), DataType::AUDIO);
 		c->set_port (0, inputs[DataType::AUDIO][np]);
 
@@ -202,7 +202,7 @@ Session::setup_bundles ()
 			char buf[32];
 			snprintf (buf, sizeof(buf), _("in %" PRIu32 "+%" PRIu32), np + 1, np + 2);
 
-			boost::shared_ptr<Bundle> c (new Bundle (buf, false));
+			std::shared_ptr<Bundle> c (new Bundle (buf, false));
 			c->add_channel (_("L"), DataType::AUDIO);
 			c->set_port (0, inputs[DataType::AUDIO][np]);
 			c->add_channel (_("R"), DataType::AUDIO);
@@ -223,7 +223,7 @@ Session::setup_bundles ()
 		} else {
 			boost::erase_first (n, X_("alsa_pcm:"));
 		}
-		boost::shared_ptr<Bundle> c (new Bundle (n, false));
+		std::shared_ptr<Bundle> c (new Bundle (n, false));
 		c->add_channel ("", DataType::MIDI);
 		c->set_port (0, inputs[DataType::MIDI][np]);
 		add_bundle (c, false);
@@ -239,7 +239,7 @@ Session::setup_bundles ()
 		} else {
 			boost::erase_first (n, X_("alsa_pcm:"));
 		}
-		boost::shared_ptr<Bundle> c (new Bundle (n, true));
+		std::shared_ptr<Bundle> c (new Bundle (n, true));
 		c->add_channel ("", DataType::MIDI);
 		c->set_port (0, outputs[DataType::MIDI][np]);
 		add_bundle (c, false);

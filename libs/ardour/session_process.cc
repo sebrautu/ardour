@@ -119,7 +119,7 @@ Session::process (pframes_t nframes)
 	bool one_or_more_routes_declicking = false;
 	{
 		ProcessorChangeBlocker pcb (this);
-		boost::shared_ptr<RouteList> r = routes.reader ();
+		std::shared_ptr<RouteList> r = routes.reader ();
 		for (RouteList::const_iterator i = r->begin(); i != r->end(); ++i) {
 			if ((*i)->apply_processor_changes_rt()) {
 				_rt_emit_pending = true;
@@ -131,7 +131,7 @@ Session::process (pframes_t nframes)
 	}
 
 	if (_update_send_delaylines) {
-		boost::shared_ptr<RouteList> r = routes.reader ();
+		std::shared_ptr<RouteList> r = routes.reader ();
 		for (RouteList::const_iterator i = r->begin(); i != r->end(); ++i) {
 			(*i)->update_send_delaylines ();
 		}
@@ -190,7 +190,7 @@ Session::no_roll (pframes_t nframes)
 
 	samplepos_t end_sample = _transport_sample + floor (nframes * _transport_fsm->transport_speed());
 	int ret = 0;
-	boost::shared_ptr<RouteList> r = routes.reader ();
+	std::shared_ptr<RouteList> r = routes.reader ();
 
 	if (_click_io) {
 		_click_io->silence (nframes);
@@ -234,7 +234,7 @@ int
 Session::process_routes (pframes_t nframes, bool& need_butler)
 {
 	TimerRAII tr (dsp_stats[Roll]);
-	boost::shared_ptr<RouteList> r = routes.reader ();
+	std::shared_ptr<RouteList> r = routes.reader ();
 
 	const samplepos_t start_sample = _transport_sample;
 	const samplepos_t end_sample = _transport_sample + floor (nframes * _transport_fsm->transport_speed());
@@ -290,10 +290,10 @@ Session::get_track_statistics ()
 	float pworst = 1.0f;
 	float cworst = 1.0f;
 
-	boost::shared_ptr<RouteList> rl = routes.reader();
+	std::shared_ptr<RouteList> rl = routes.reader();
 	for (RouteList::iterator i = rl->begin(); i != rl->end(); ++i) {
 
-		boost::shared_ptr<Track> tr = boost::dynamic_pointer_cast<Track> (*i);
+		std::shared_ptr<Track> tr = std::dynamic_pointer_cast<Track> (*i);
 
 		if (!tr || tr->is_private_route()) {
 			continue;
@@ -331,7 +331,7 @@ Session::compute_audible_delta (samplepos_t& pos_and_delta) const
 samplecnt_t
 Session::calc_preroll_subcycle (samplecnt_t ns) const
 {
-	boost::shared_ptr<RouteList> r = routes.reader ();
+	std::shared_ptr<RouteList> r = routes.reader ();
 	for (RouteList::const_iterator i = r->begin(); i != r->end(); ++i) {
 		samplecnt_t route_offset = (*i)->playback_latency ();
 		if (_remaining_latency_preroll > route_offset + ns) {
@@ -739,7 +739,7 @@ void
 Session::process_audition (pframes_t nframes)
 {
 	SessionEvent* ev;
-	boost::shared_ptr<RouteList> r = routes.reader ();
+	std::shared_ptr<RouteList> r = routes.reader ();
 
 	for (RouteList::iterator i = r->begin(); i != r->end(); ++i) {
 		if (!(*i)->is_auditioner()) {
@@ -1011,13 +1011,13 @@ Session::process_event (SessionEvent* ev)
 		break;
 
 	case SessionEvent::Overwrite:
-		if (boost::shared_ptr<Track> track = ev->track.lock()) {
+		if (std::shared_ptr<Track> track = ev->track.lock()) {
 			overwrite_some_buffers (track, ev->overwrite);
 		}
 		break;
 
 	case SessionEvent::OverwriteAll:
-			overwrite_some_buffers (boost::shared_ptr<Track>(), ev->overwrite);
+			overwrite_some_buffers (std::shared_ptr<Track>(), ev->overwrite);
 		break;
 
 	case SessionEvent::TransportStateChange:
@@ -1075,9 +1075,9 @@ Session::process_event (SessionEvent* ev)
 }
 
 void
-Session::handle_slots_empty_status (boost::weak_ptr<Route> const & wr)
+Session::handle_slots_empty_status (std::weak_ptr<Route> const & wr)
 {
-	boost::shared_ptr<Route> r = wr.lock();
+	std::shared_ptr<Route> r = wr.lock();
 
 	if (!r) {
 		return;
@@ -1154,7 +1154,7 @@ Session::emit_route_signals ()
 	// TODO use RAII to allow using these signals in other places
 	BatchUpdateStart(); /* EMIT SIGNAL */
 	ProcessorChangeBlocker pcb (this);
-	boost::shared_ptr<RouteList> r = routes.reader ();
+	std::shared_ptr<RouteList> r = routes.reader ();
 	for (RouteList::const_iterator ci = r->begin(); ci != r->end(); ++ci) {
 		(*ci)->emit_pending_signals ();
 	}

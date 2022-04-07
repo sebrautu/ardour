@@ -27,7 +27,7 @@
 #include <list>
 
 #include <boost/scoped_array.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "pbd/signals.h"
 #include "pbd/ringbuffer.h"
@@ -70,7 +70,7 @@ class LIBARDOUR_API ExportChannel : public boost::less_than_comparable<ExportCha
 class LIBARDOUR_API PortExportChannel : public ExportChannel
 {
   public:
-	typedef std::set<boost::weak_ptr<AudioPort> > PortSet;
+	typedef std::set<std::weak_ptr<AudioPort>, std::owner_less<std::weak_ptr<AudioPort> > > PortSet;
 
 	PortExportChannel ();
 	~PortExportChannel ();
@@ -86,14 +86,14 @@ class LIBARDOUR_API PortExportChannel : public ExportChannel
 
 	bool operator< (ExportChannel const & other) const;
 
-	void add_port (boost::weak_ptr<AudioPort> port) { ports.insert (port); }
+	void add_port (std::weak_ptr<AudioPort> port) { ports.insert (port); }
 	PortSet const & get_ports () { return ports; }
 
   private:
 	PortSet ports;
 	samplecnt_t                 _buffer_size;
 	boost::scoped_array<Sample> _buffer;
-	std::list <boost::shared_ptr<PBD::RingBuffer<Sample> > >  _delaylines;
+	std::list <std::shared_ptr<PBD::RingBuffer<Sample> > >  _delaylines;
 };
 
 
@@ -164,11 +164,11 @@ class LIBARDOUR_API RouteExportChannel : public ExportChannel
 	class ProcessorRemover; // fwd declaration
 
   public:
-	RouteExportChannel(boost::shared_ptr<CapturingProcessor> processor, size_t channel,
-	                   boost::shared_ptr<ProcessorRemover> remover);
+	RouteExportChannel(std::shared_ptr<CapturingProcessor> processor, size_t channel,
+	                   std::shared_ptr<ProcessorRemover> remover);
 	~RouteExportChannel();
 
-        static void create_from_route(std::list<ExportChannelPtr> & result, boost::shared_ptr<Route> route);
+        static void create_from_route(std::list<ExportChannelPtr> & result, std::shared_ptr<Route> route);
 
   public: // ExportChannel interface
 	void prepare_export (samplecnt_t max_samples, sampleoffset_t common_latency);
@@ -186,19 +186,19 @@ class LIBARDOUR_API RouteExportChannel : public ExportChannel
 	// Removes the processor from the track when deleted
 	class ProcessorRemover {
 		public:
-			ProcessorRemover (boost::shared_ptr<Route> route, boost::shared_ptr<CapturingProcessor> processor)
+			ProcessorRemover (std::shared_ptr<Route> route, std::shared_ptr<CapturingProcessor> processor)
 				: route (route), processor (processor) {}
 			~ProcessorRemover();
 		private:
-			boost::shared_ptr<Route> route;
-			boost::shared_ptr<CapturingProcessor> processor;
+			std::shared_ptr<Route> route;
+			std::shared_ptr<CapturingProcessor> processor;
 	};
 
-	boost::shared_ptr<CapturingProcessor> processor;
+	std::shared_ptr<CapturingProcessor> processor;
 	size_t channel;
 	// Each channel keeps a ref to the remover. Last one alive
 	// will cause the processor to be removed on deletion.
-	boost::shared_ptr<ProcessorRemover> remover;
+	std::shared_ptr<ProcessorRemover> remover;
 };
 
 } // namespace ARDOUR

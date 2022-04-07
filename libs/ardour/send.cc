@@ -90,15 +90,15 @@ Send::name_and_id_new_send (Session& s, Role r, uint32_t& bitslot, bool ignore_b
 
 }
 
-Send::Send (Session& s, boost::shared_ptr<Pannable> p, boost::shared_ptr<MuteMaster> mm, Role r, bool ignore_bitslot)
+Send::Send (Session& s, std::shared_ptr<Pannable> p, std::shared_ptr<MuteMaster> mm, Role r, bool ignore_bitslot)
 	: Delivery (s, p, mm, name_and_id_new_send (s, r, _bitslot, ignore_bitslot), r)
 	, _metering (false)
 	, _remove_on_disconnect (false)
 {
 	//boost_debug_shared_ptr_mark_interesting (this, "send");
 
-	boost::shared_ptr<AutomationList> gl (new AutomationList (Evoral::Parameter (BusSendLevel), time_domain()));
-	_gain_control = boost::shared_ptr<GainControl> (new GainControl (_session, Evoral::Parameter(BusSendLevel), gl));
+	std::shared_ptr<AutomationList> gl (new AutomationList (Evoral::Parameter (BusSendLevel), time_domain()));
+	_gain_control = std::shared_ptr<GainControl> (new GainControl (_session, Evoral::Parameter(BusSendLevel), gl));
 	_gain_control->set_flag (Controllable::InlineControl);
 	add_control (_gain_control);
 

@@ -24,7 +24,7 @@
 #include <set>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "ardour/types.h"
 
@@ -147,7 +147,7 @@ public:
 	std::set<samplecnt_t> truepeakpos[2]; // bins with >= -1dBTB
 };
 
-typedef boost::shared_ptr<ExportAnalysis>        ExportAnalysisPtr;
+typedef std::shared_ptr<ExportAnalysis>        ExportAnalysisPtr;
 typedef std::map<std::string, ExportAnalysisPtr> AnalysisResults;
 
 } // namespace ARDOUR

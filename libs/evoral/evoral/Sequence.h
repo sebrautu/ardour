@@ -28,7 +28,7 @@
 #include <set>
 #include <list>
 #include <utility>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <glibmm/threads.h>
 
 #include "evoral/visibility.h"
@@ -49,13 +49,13 @@ template<typename Time> class Event;
  */
 class /*LIBEVORAL_API*/ ControlIterator {
 public:
-	ControlIterator(boost::shared_ptr<const ControlList> al, Temporal::timepos_t const & ax, double ay)
+	ControlIterator(std::shared_ptr<const ControlList> al, Temporal::timepos_t const & ax, double ay)
 		: list(al)
 		, x(ax)
 		, y(ay)
 	{}
 
-	boost::shared_ptr<const ControlList> list;
+	std::shared_ptr<const ControlList> list;
 	Temporal::timepos_t x;
 	double y;
 };
@@ -85,12 +85,12 @@ protected:
 
 public:
 
-	typedef typename boost::shared_ptr<Evoral::Note<Time> >       NotePtr;
-	typedef typename boost::weak_ptr<Evoral::Note<Time> >         WeakNotePtr;
-	typedef typename boost::shared_ptr<const Evoral::Note<Time> > constNotePtr;
+	typedef typename std::shared_ptr<Evoral::Note<Time> >       NotePtr;
+	typedef typename std::weak_ptr<Evoral::Note<Time> >         WeakNotePtr;
+	typedef typename std::shared_ptr<const Evoral::Note<Time> > constNotePtr;
 
-	typedef boost::shared_ptr<Glib::Threads::RWLock::ReaderLock> ReadLock;
-	typedef boost::shared_ptr<WriteLockImpl>                     WriteLock;
+	typedef std::shared_ptr<Glib::Threads::RWLock::ReaderLock> ReadLock;
+	typedef std::shared_ptr<WriteLockImpl>                     WriteLock;
 
 	virtual ReadLock  read_lock() const { return ReadLock(new Glib::Threads::RWLock::ReaderLock(_lock)); }
 	virtual WriteLock write_lock()      { return WriteLock(new WriteLockImpl(_lock, _control_lock)); }
@@ -115,21 +115,21 @@ public:
 	inline size_t n_notes() const { return _notes.size(); }
 	inline bool   empty()   const { return _notes.empty() && _sysexes.empty() && _patch_changes.empty() && ControlSet::controls_empty(); }
 
-	inline static bool note_time_comparator(const boost::shared_ptr< const Note<Time> >& a,
-	                                        const boost::shared_ptr< const Note<Time> >& b) {
+	inline static bool note_time_comparator(const std::shared_ptr< const Note<Time> >& a,
+	                                        const std::shared_ptr< const Note<Time> >& b) {
 		return a->time() < b->time();
 	}
 
 	struct NoteNumberComparator {
-		inline bool operator()(const boost::shared_ptr< const Note<Time> > a,
-		                       const boost::shared_ptr< const Note<Time> > b) const {
+		inline bool operator()(const std::shared_ptr< const Note<Time> > a,
+		                       const std::shared_ptr< const Note<Time> > b) const {
 			return a->note() < b->note();
 		}
 	};
 
 	struct EarlierNoteComparator {
-		inline bool operator()(const boost::shared_ptr< const Note<Time> > a,
-		                       const boost::shared_ptr< const Note<Time> > b) const {
+		inline bool operator()(const std::shared_ptr< const Note<Time> > a,
+		                       const std::shared_ptr< const Note<Time> > b) const {
 			return a->time() < b->time();
 		}
 	};
@@ -137,8 +137,8 @@ public:
 #if 0 // NOT USED
 	struct LaterNoteComparator {
 		typedef const Note<Time>* value_type;
-		inline bool operator()(const boost::shared_ptr< const Note<Time> > a,
-		                       const boost::shared_ptr< const Note<Time> > b) const {
+		inline bool operator()(const std::shared_ptr< const Note<Time> > a,
+		                       const std::shared_ptr< const Note<Time> > b) const {
 			return a->time() > b->time();
 		}
 	};
@@ -146,8 +146,8 @@ public:
 
 	struct LaterNoteEndComparator {
 		typedef const Note<Time>* value_type;
-		inline bool operator()(const boost::shared_ptr< const Note<Time> > a,
-		                       const boost::shared_ptr< const Note<Time> > b) const {
+		inline bool operator()(const std::shared_ptr< const Note<Time> > a,
+		                       const std::shared_ptr< const Note<Time> > b) const {
 			return a->end_time() > b->end_time();
 		}
 	};
@@ -187,8 +187,8 @@ public:
 
 	void set_notes (const typename Sequence<Time>::Notes& n);
 
-	typedef boost::shared_ptr< Event<Time> > SysExPtr;
-	typedef boost::shared_ptr<const Event<Time> > constSysExPtr;
+	typedef std::shared_ptr< Event<Time> > SysExPtr;
+	typedef std::shared_ptr<const Event<Time> > constSysExPtr;
 
 	struct EarlierSysExComparator {
 		inline bool operator() (constSysExPtr a, constSysExPtr b) const {
@@ -200,8 +200,8 @@ public:
 	inline       SysExes& sysexes()       { return _sysexes; }
 	inline const SysExes& sysexes() const { return _sysexes; }
 
-	typedef boost::shared_ptr<PatchChange<Time> > PatchChangePtr;
-	typedef boost::shared_ptr<const PatchChange<Time> > constPatchChangePtr;
+	typedef std::shared_ptr<PatchChange<Time> > PatchChangePtr;
+	typedef std::shared_ptr<const PatchChange<Time> > constPatchChangePtr;
 
 	struct EarlierPatchChangeComparator {
 		inline bool operator() (constPatchChangePtr a, constPatchChangePtr b) const {
@@ -232,7 +232,7 @@ public:
 		void invalidate (bool preserve_notes);
 
 		const Event<Time>& operator*() const { return *_event;  }
-		const boost::shared_ptr< const Event<Time> > operator->() const { return _event; }
+		const std::shared_ptr< const Event<Time> > operator->() const { return _event; }
 
 		const const_iterator& operator++(); // prefix only
 
@@ -240,8 +240,6 @@ public:
 		bool operator!=(const const_iterator& other) const { return ! operator==(other); }
 
 		const_iterator& operator=(const const_iterator& other);
-
-		void get_active_notes (std::set<WeakNotePtr>&) const;
 
 	private:
 		friend class Sequence<Time>;
@@ -253,7 +251,7 @@ public:
 		enum MIDIMessageType { NIL, NOTE_ON, NOTE_OFF, CONTROL, SYSEX, PATCH_CHANGE };
 
 		const Sequence<Time>*                 _seq;
-		boost::shared_ptr< Event<Time> >      _event;
+		std::shared_ptr< Event<Time> >      _event;
 		mutable ActiveNotes                   _active_notes;
 		/** If the iterator is pointing at a patch change, this is the index of the
 		 *  sub-message within that change.
@@ -292,7 +290,7 @@ public:
 	typename PatchChanges::iterator patch_change_lower_bound (Time t);
 	typename SysExes::iterator sysex_lower_bound (Time t);
 
-	bool control_to_midi_event(boost::shared_ptr< Event<Time> >& ev,
+	bool control_to_midi_event(std::shared_ptr< Event<Time> >& ev,
 	                           const ControlIterator&            iter) const;
 
 	bool edited() const      { return _edited; }

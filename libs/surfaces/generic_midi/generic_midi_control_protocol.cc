@@ -80,8 +80,8 @@ GenericMidiControlProtocol::GenericMidiControlProtocol (Session& s)
 	, _threshold (10)
 	, gui (0)
 {
-	boost::shared_ptr<ARDOUR::Port> inp;
-	boost::shared_ptr<ARDOUR::Port> outp;
+	std::shared_ptr<ARDOUR::Port> inp;
+	std::shared_ptr<ARDOUR::Port> outp;
 
 	inp  = AudioEngine::instance()->register_input_port (DataType::MIDI, _("MIDI Control In"), true);
 	outp = AudioEngine::instance()->register_output_port (DataType::MIDI, _("MIDI Control Out"), true);
@@ -90,8 +90,8 @@ GenericMidiControlProtocol::GenericMidiControlProtocol (Session& s)
 		throw failed_constructor();
 	}
 
-	_input_port = boost::dynamic_pointer_cast<AsyncMIDIPort>(inp);
-	_output_port = boost::dynamic_pointer_cast<AsyncMIDIPort>(outp);
+	_input_port = std::dynamic_pointer_cast<AsyncMIDIPort>(inp);
+	_output_port = std::dynamic_pointer_cast<AsyncMIDIPort>(outp);
 
 	_input_bundle.reset (new ARDOUR::Bundle (_("Generic MIDI Control In"), true));
 	_output_bundle.reset (new ARDOUR::Bundle (_("Generic MIDI Control Out"), false));
@@ -147,7 +147,7 @@ GenericMidiControlProtocol::GenericMidiControlProtocol (Session& s)
 GenericMidiControlProtocol::~GenericMidiControlProtocol ()
 {
 	if (_input_port) {
-		DEBUG_TRACE (DEBUG::GenericMidi, string_compose ("unregistering input port %1\n", boost::shared_ptr<ARDOUR::Port>(_input_port)->name()));
+		DEBUG_TRACE (DEBUG::GenericMidi, string_compose ("unregistering input port %1\n", std::shared_ptr<ARDOUR::Port>(_input_port)->name()));
 		Glib::Threads::Mutex::Lock em (AudioEngine::instance()->process_lock());
 		AudioEngine::instance()->unregister_port (_input_port);
 		_input_port.reset ();
@@ -155,7 +155,7 @@ GenericMidiControlProtocol::~GenericMidiControlProtocol ()
 
 	if (_output_port) {
 		_output_port->drain (10000,  250000); /* check every 10 msecs, wait up to 1/4 second for the port to drain */
-		DEBUG_TRACE (DEBUG::GenericMidi, string_compose ("unregistering output port %1\n", boost::shared_ptr<ARDOUR::Port>(_output_port)->name()));
+		DEBUG_TRACE (DEBUG::GenericMidi, string_compose ("unregistering output port %1\n", std::shared_ptr<ARDOUR::Port>(_output_port)->name()));
 		Glib::Threads::Mutex::Lock em (AudioEngine::instance()->process_lock());
 		AudioEngine::instance()->unregister_port (_output_port);
 		_output_port.reset ();
@@ -165,10 +165,10 @@ GenericMidiControlProtocol::~GenericMidiControlProtocol ()
 	tear_down_gui ();
 }
 
-list<boost::shared_ptr<ARDOUR::Bundle> >
+list<std::shared_ptr<ARDOUR::Bundle> >
 GenericMidiControlProtocol::bundles ()
 {
-	list<boost::shared_ptr<ARDOUR::Bundle> > b;
+	list<std::shared_ptr<ARDOUR::Bundle> > b;
 
 	if (_input_bundle) {
 		b.push_back (_input_bundle);
@@ -418,9 +418,9 @@ GenericMidiControlProtocol::_send_feedback ()
 }
 
 bool
-GenericMidiControlProtocol::start_learning (boost::weak_ptr <Controllable> wc)
+GenericMidiControlProtocol::start_learning (std::weak_ptr <Controllable> wc)
 {
-	boost::shared_ptr<Controllable> c = wc.lock ();
+	std::shared_ptr<Controllable> c = wc.lock ();
 	if (!c) {
 		return false;
 	}
@@ -517,9 +517,9 @@ GenericMidiControlProtocol::learning_stopped (MIDIControllable* mc)
 }
 
 void
-GenericMidiControlProtocol::stop_learning (boost::weak_ptr<PBD::Controllable> wc)
+GenericMidiControlProtocol::stop_learning (std::weak_ptr<PBD::Controllable> wc)
 {
-	boost::shared_ptr<Controllable> c = wc.lock ();
+	std::shared_ptr<Controllable> c = wc.lock ();
 	if (!c) {
 		return;
 	}
@@ -614,11 +614,11 @@ GenericMidiControlProtocol::get_state () const
 	XMLNode* child;
 
 	child = new XMLNode (X_("Input"));
-	child->add_child_nocopy (boost::shared_ptr<ARDOUR::Port>(_input_port)->get_state());
+	child->add_child_nocopy (std::shared_ptr<ARDOUR::Port>(_input_port)->get_state());
 	node.add_child_nocopy (*child);
 
 	child = new XMLNode (X_("Output"));
-	child->add_child_nocopy (boost::shared_ptr<ARDOUR::Port>(_output_port)->get_state());
+	child->add_child_nocopy (std::shared_ptr<ARDOUR::Port>(_output_port)->get_state());
 	node.add_child_nocopy (*child);
 
 	node.set_property (X_("feedback-interval"), _feedback_interval);
@@ -664,7 +664,7 @@ GenericMidiControlProtocol::set_state (const XMLNode& node, int version)
 		XMLNode* portnode = child->child (Port::state_node_name.c_str());
 		if (portnode) {
 			portnode->remove_property ("name");
-			boost::shared_ptr<ARDOUR::Port>(_input_port)->set_state (*portnode, version);
+			std::shared_ptr<ARDOUR::Port>(_input_port)->set_state (*portnode, version);
 		}
 	}
 
@@ -672,7 +672,7 @@ GenericMidiControlProtocol::set_state (const XMLNode& node, int version)
 		XMLNode* portnode = child->child (Port::state_node_name.c_str());
 		if (portnode) {
 			portnode->remove_property ("name");
-			boost::shared_ptr<ARDOUR::Port>(_output_port)->set_state (*portnode, version);
+			std::shared_ptr<ARDOUR::Port>(_output_port)->set_state (*portnode, version);
 		}
 	}
 
@@ -688,7 +688,7 @@ GenericMidiControlProtocol::set_state (const XMLNode& node, int version)
 		_motorised = false;
 	}
 
-	boost::shared_ptr<Controllable> c;
+	std::shared_ptr<Controllable> c;
 
 	{
 		Glib::Threads::Mutex::Lock lm (pending_lock);
@@ -737,7 +737,7 @@ GenericMidiControlProtocol::set_state (const XMLNode& node, int version)
 					if ((*niter)->get_property ("id", id)) {
 
 						DEBUG_TRACE (DEBUG::GenericMidi, string_compose ("Relearned binding for session: Control ID: %1\n", id.to_s()));
-						boost::shared_ptr<PBD::Controllable> c = Controllable::by_id (id);
+						std::shared_ptr<PBD::Controllable> c = Controllable::by_id (id);
 
 						if (c) {
 							MIDIControllable* mc = new MIDIControllable (this, *_input_port->parser(), c, false);
@@ -999,10 +999,10 @@ GenericMidiControlProtocol::reset_controllables ()
 	}
 }
 
-boost::shared_ptr<Controllable>
+std::shared_ptr<Controllable>
 GenericMidiControlProtocol::lookup_controllable (const string & str) const
 {
-	boost::shared_ptr<Controllable> c;
+	std::shared_ptr<Controllable> c;
 
 	DEBUG_TRACE (DEBUG::GenericMidi, string_compose ("lookup controllable from \"%1\"\n", str));
 
@@ -1101,7 +1101,7 @@ GenericMidiControlProtocol::lookup_controllable (const string & str) const
 
 	/* step 4: find the reference Stripable */
 
-	boost::shared_ptr<Stripable> s;
+	std::shared_ptr<Stripable> s;
 
 	if (path[0] == X_("route") || path[0] == X_("rid")) {
 
@@ -1168,7 +1168,7 @@ GenericMidiControlProtocol::lookup_controllable (const string & str) const
 	 * Some controls exist only for Route, so we need that too
 	 */
 
-	boost::shared_ptr<Route> r = boost::dynamic_pointer_cast<Route> (s);
+	std::shared_ptr<Route> r = std::dynamic_pointer_cast<Route> (s);
 
 	if (path[1] == X_("gain")) {
 		c = s->gain_control();
@@ -1203,16 +1203,16 @@ GenericMidiControlProtocol::lookup_controllable (const string & str) const
 				}
 
 				if (r) {
-					boost::shared_ptr<Processor> proc = r->nth_plugin (plugin);
+					std::shared_ptr<Processor> proc = r->nth_plugin (plugin);
 
 					if (proc) {
-						boost::shared_ptr<PluginInsert> p = boost::dynamic_pointer_cast<PluginInsert> (proc);
+						std::shared_ptr<PluginInsert> p = std::dynamic_pointer_cast<PluginInsert> (proc);
 						if (p) {
 							uint32_t param;
 							bool ok;
 							param = p->plugin()->nth_parameter (parameter_index, ok);
 							if (ok) {
-								c = boost::dynamic_pointer_cast<Controllable> (proc->control (Evoral::Parameter (PluginAutomation, 0, param)));
+								c = std::dynamic_pointer_cast<Controllable> (proc->control (Evoral::Parameter (PluginAutomation, 0, param)));
 							}
 						}
 					}
@@ -1549,7 +1549,7 @@ GenericMidiControlProtocol::set_threshold (int t)
 }
 
 bool
-GenericMidiControlProtocol::connection_handler (boost::weak_ptr<ARDOUR::Port>, std::string name1, boost::weak_ptr<ARDOUR::Port>, std::string name2, bool yn)
+GenericMidiControlProtocol::connection_handler (std::weak_ptr<ARDOUR::Port>, std::string name1, std::weak_ptr<ARDOUR::Port>, std::string name2, bool yn)
 {
 	bool input_was_connected = (connection_state & InputConnected);
 
@@ -1559,8 +1559,8 @@ GenericMidiControlProtocol::connection_handler (boost::weak_ptr<ARDOUR::Port>, s
 
 	DEBUG_TRACE (DEBUG::GenericMidi, string_compose ("connection change: %1 and %2 connected ? %3\n", name1, name2, yn));
 
-	string ni = ARDOUR::AudioEngine::instance()->make_port_name_non_relative (boost::shared_ptr<ARDOUR::Port>(_input_port)->name());
-	string no = ARDOUR::AudioEngine::instance()->make_port_name_non_relative (boost::shared_ptr<ARDOUR::Port>(_output_port)->name());
+	string ni = ARDOUR::AudioEngine::instance()->make_port_name_non_relative (std::shared_ptr<ARDOUR::Port>(_input_port)->name());
+	string no = ARDOUR::AudioEngine::instance()->make_port_name_non_relative (std::shared_ptr<ARDOUR::Port>(_output_port)->name());
 
 	if (ni == name1 || ni == name2) {
 		if (yn) {
@@ -1594,22 +1594,22 @@ GenericMidiControlProtocol::connection_handler (boost::weak_ptr<ARDOUR::Port>, s
 	return true; /* connection status changed */
 }
 
-boost::shared_ptr<Port>
+std::shared_ptr<Port>
 GenericMidiControlProtocol::output_port() const
 {
 	return _output_port;
 }
 
-boost::shared_ptr<Port>
+std::shared_ptr<Port>
 GenericMidiControlProtocol::input_port() const
 {
 	return _input_port;
 }
 
 void
-GenericMidiControlProtocol::maybe_start_touch (boost::shared_ptr<Controllable> controllable)
+GenericMidiControlProtocol::maybe_start_touch (std::shared_ptr<Controllable> controllable)
 {
-	boost::shared_ptr<AutomationControl> actl = boost::dynamic_pointer_cast<AutomationControl> (controllable);
+	std::shared_ptr<AutomationControl> actl = std::dynamic_pointer_cast<AutomationControl> (controllable);
 	if (actl) {
 		actl->start_touch (timepos_t (session->audible_sample ()));
 	}
@@ -1624,7 +1624,7 @@ GenericMidiControlProtocol::start_midi_handling ()
 	 * method, which will read the data, and invoke the parser.
 	 */
 
-	_input_port->xthread().set_receive_handler (sigc::bind (sigc::mem_fun (this, &GenericMidiControlProtocol::midi_input_handler), boost::weak_ptr<AsyncMIDIPort> (_input_port)));
+	_input_port->xthread().set_receive_handler (sigc::bind (sigc::mem_fun (this, &GenericMidiControlProtocol::midi_input_handler), std::weak_ptr<AsyncMIDIPort> (_input_port)));
 	_input_port->xthread().attach (main_loop()->get_context());
 }
 
@@ -1639,15 +1639,15 @@ GenericMidiControlProtocol::stop_midi_handling ()
 }
 
 bool
-GenericMidiControlProtocol::midi_input_handler (Glib::IOCondition ioc, boost::weak_ptr<ARDOUR::AsyncMIDIPort> wport)
+GenericMidiControlProtocol::midi_input_handler (Glib::IOCondition ioc, std::weak_ptr<ARDOUR::AsyncMIDIPort> wport)
 {
-	boost::shared_ptr<AsyncMIDIPort> port (wport.lock());
+	std::shared_ptr<AsyncMIDIPort> port (wport.lock());
 
 	if (!port) {
 		return false;
 	}
 
-	DEBUG_TRACE (DEBUG::GenericMidi, string_compose ("something happend on  %1\n", boost::shared_ptr<MIDI::Port>(port)->name()));
+	DEBUG_TRACE (DEBUG::GenericMidi, string_compose ("something happend on  %1\n", std::shared_ptr<MIDI::Port>(port)->name()));
 
 	if (ioc & ~IO_IN) {
 		return false;
@@ -1656,7 +1656,7 @@ GenericMidiControlProtocol::midi_input_handler (Glib::IOCondition ioc, boost::we
 	if (ioc & IO_IN) {
 
 		port->clear ();
-		DEBUG_TRACE (DEBUG::GenericMidi, string_compose ("data available on %1\n", boost::shared_ptr<MIDI::Port>(port)->name()));
+		DEBUG_TRACE (DEBUG::GenericMidi, string_compose ("data available on %1\n", std::shared_ptr<MIDI::Port>(port)->name()));
 		samplepos_t now = session->engine().sample_time();
 		port->parse (now);
 	}

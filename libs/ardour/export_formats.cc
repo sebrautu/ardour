@@ -224,7 +224,7 @@ ExportFormatLinear::set_compatibility_state (ExportFormatCompatibility const & c
 		compatible = false;
 	}
 
-	boost::shared_ptr<ExportFormatBase> intersection = get_intersection (compatibility);
+	std::shared_ptr<ExportFormatBase> intersection = get_intersection (compatibility);
 
 	if (intersection->endiannesses_empty()) {
 		compatible = false;

@@ -886,7 +886,7 @@ PulseAudioBackend::midi_event_put (
 {
 	assert (buffer && port_buffer);
 	PulseMidiBuffer& dst = *static_cast<PulseMidiBuffer*> (port_buffer);
-	dst.push_back (boost::shared_ptr<PulseMidiEvent> (new PulseMidiEvent (timestamp, buffer, size)));
+	dst.push_back (std::shared_ptr<PulseMidiEvent> (new PulseMidiEvent (timestamp, buffer, size)));
 	return 0;
 }
 
@@ -937,7 +937,7 @@ bool
 void
 PulseAudioBackend::set_latency_range (PortEngine::PortHandle port_handle, bool for_playback, LatencyRange latency_range)
 {
-	BackendPortPtr port = boost::dynamic_pointer_cast<BackendPort> (port_handle);
+	BackendPortPtr port = std::dynamic_pointer_cast<BackendPort> (port_handle);
 	if (!valid_port (port)) {
 		PBD::error << _("PulsePort::set_latency_range (): invalid port.") << endmsg;
 	}
@@ -947,7 +947,7 @@ PulseAudioBackend::set_latency_range (PortEngine::PortHandle port_handle, bool f
 LatencyRange
 PulseAudioBackend::get_latency_range (PortEngine::PortHandle port_handle, bool for_playback)
 {
-	BackendPortPtr port = boost::dynamic_pointer_cast<BackendPort> (port_handle);
+	BackendPortPtr port = std::dynamic_pointer_cast<BackendPort> (port_handle);
 	LatencyRange r;
 
 	if (!valid_port (port)) {
@@ -978,7 +978,7 @@ PulseAudioBackend::get_latency_range (PortEngine::PortHandle port_handle, bool f
 void*
 PulseAudioBackend::get_buffer (PortEngine::PortHandle port_handle, pframes_t nframes)
 {
-	BackendPortPtr port = boost::dynamic_pointer_cast<BackendPort> (port_handle);
+	BackendPortPtr port = std::dynamic_pointer_cast<BackendPort> (port_handle);
 
 	assert (port);
 	assert (valid_port (port));
@@ -1082,7 +1082,7 @@ PulseAudioBackend::main_process_thread ()
 
 			/* interleave */
 			for (std::vector<BackendPortPtr>::const_iterator it = _system_outputs.begin (); it != _system_outputs.end (); ++it, ++i) {
-				BackendPortPtr port = boost::dynamic_pointer_cast<BackendPort> (*it);
+				BackendPortPtr port = std::dynamic_pointer_cast<BackendPort> (*it);
 				const float* src = (const float*) port->get_buffer (_samples_per_period);
 				for (size_t n = 0; n < _samples_per_period; ++n) {
 					buf[N_CHANNELS * n + i] = src[n];
@@ -1152,9 +1152,9 @@ PulseAudioBackend::main_process_thread ()
 
 /******************************************************************************/
 
-static boost::shared_ptr<PulseAudioBackend> _instance;
+static std::shared_ptr<PulseAudioBackend> _instance;
 
-static boost::shared_ptr<AudioBackend> backend_factory (AudioEngine& e);
+static std::shared_ptr<AudioBackend> backend_factory (AudioEngine& e);
 static int instantiate (const std::string& arg1, const std::string& /* arg2 */);
 static int  deinstantiate ();
 static bool already_configured ();
@@ -1169,7 +1169,7 @@ static ARDOUR::AudioBackendInfo _descriptor = {
 	available
 };
 
-static boost::shared_ptr<AudioBackend>
+static std::shared_ptr<AudioBackend>
 backend_factory (AudioEngine& e)
 {
 	if (!_instance) {
@@ -1234,11 +1234,11 @@ PulseAudioPort::get_buffer (pframes_t n_samples)
 		if (it == connections.end ()) {
 			memset (_buffer, 0, n_samples * sizeof (Sample));
 		} else {
-			boost::shared_ptr<PulseAudioPort> source = boost::dynamic_pointer_cast<PulseAudioPort> (*it);
+			std::shared_ptr<PulseAudioPort> source = std::dynamic_pointer_cast<PulseAudioPort> (*it);
 			assert (source && source->is_output ());
 			memcpy (_buffer, source->const_buffer (), n_samples * sizeof (Sample));
 			while (++it != connections.end ()) {
-				source = boost::dynamic_pointer_cast<PulseAudioPort> (*it);
+				source = std::dynamic_pointer_cast<PulseAudioPort> (*it);
 				assert (source && source->is_output ());
 				Sample*       dst = buffer ();
 				const Sample* src = source->const_buffer ();
@@ -1264,7 +1264,7 @@ PulseMidiPort::~PulseMidiPort ()
 
 struct MidiEventSorter {
 	bool
-	operator() (const boost::shared_ptr<PulseMidiEvent>& a, const boost::shared_ptr<PulseMidiEvent>& b)
+	operator() (const std::shared_ptr<PulseMidiEvent>& a, const std::shared_ptr<PulseMidiEvent>& b)
 	{
 		return *a < *b;
 	}
@@ -1278,7 +1278,7 @@ void* PulseMidiPort::get_buffer (pframes_t /*n_samples*/)
 		for (std::set<BackendPortPtr>::const_iterator i = connections.begin ();
 		     i != connections.end ();
 		     ++i) {
-			const PulseMidiBuffer* src = boost::dynamic_pointer_cast<PulseMidiPort> (*i)->const_buffer ();
+			const PulseMidiBuffer* src = std::dynamic_pointer_cast<PulseMidiPort> (*i)->const_buffer ();
 			for (PulseMidiBuffer::const_iterator it = src->begin (); it != src->end (); ++it) {
 				_buffer.push_back (*it);
 			}

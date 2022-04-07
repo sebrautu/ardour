@@ -306,7 +306,7 @@ ArdourKnob::on_scroll_event (GdkEventScroll* ev)
 		}
 	}
 
-	boost::shared_ptr<PBD::Controllable> c = binding_proxy.get_controllable();
+	std::shared_ptr<PBD::Controllable> c = binding_proxy.get_controllable();
 	if (c) {
 		float val = c->get_interface (true);
 
@@ -328,7 +328,7 @@ ArdourKnob::on_motion_notify_event (GdkEventMotion *ev)
 		return true;
 	}
 
-	boost::shared_ptr<PBD::Controllable> c = binding_proxy.get_controllable();
+	std::shared_ptr<PBD::Controllable> c = binding_proxy.get_controllable();
 	if (!c) {
 		return true;
 	}
@@ -436,7 +436,7 @@ ArdourKnob::on_button_release_event (GdkEventButton *ev)
 	gdk_pointer_ungrab (GDK_CURRENT_TIME);
 
 	if ( (_grabbed_y == ev->y && _grabbed_x == ev->x) && Keyboard::modifier_state_equals (ev->state, Keyboard::TertiaryModifier)) {  //no move, shift-click sets to default
-		boost::shared_ptr<PBD::Controllable> c = binding_proxy.get_controllable();
+		std::shared_ptr<PBD::Controllable> c = binding_proxy.get_controllable();
 		if (!c) return false;
 		c->set_value (c->normal(), Controllable::NoGroup);
 		return true;
@@ -460,7 +460,7 @@ ArdourKnob::on_size_allocate (Allocation& alloc)
 }
 
 void
-ArdourKnob::set_controllable (boost::shared_ptr<Controllable> c)
+ArdourKnob::set_controllable (std::shared_ptr<Controllable> c)
 {
 	watch_connection.disconnect ();  //stop watching the old controllable
 
@@ -478,7 +478,7 @@ ArdourKnob::set_controllable (boost::shared_ptr<Controllable> c)
 void
 ArdourKnob::controllable_changed (bool force_update)
 {
-	boost::shared_ptr<PBD::Controllable> c = binding_proxy.get_controllable();
+	std::shared_ptr<PBD::Controllable> c = binding_proxy.get_controllable();
 	if (!c) return;
 
 	float val = c->get_interface (true);
@@ -544,9 +544,9 @@ ArdourKnob::on_enter_notify_event (GdkEventCrossing* ev)
 
 	set_dirty ();
 
-	boost::shared_ptr<PBD::Controllable> c (binding_proxy.get_controllable ());
+	std::shared_ptr<PBD::Controllable> c (binding_proxy.get_controllable ());
 	if (c) {
-		PBD::Controllable::GUIFocusChanged (boost::weak_ptr<PBD::Controllable> (c));
+		PBD::Controllable::GUIFocusChanged (std::weak_ptr<PBD::Controllable> (c));
 	}
 
 	return CairoWidget::on_enter_notify_event (ev);
@@ -560,7 +560,7 @@ ArdourKnob::on_leave_notify_event (GdkEventCrossing* ev)
 	set_dirty ();
 
 	if (binding_proxy.get_controllable()) {
-		PBD::Controllable::GUIFocusChanged (boost::weak_ptr<PBD::Controllable> ());
+		PBD::Controllable::GUIFocusChanged (std::weak_ptr<PBD::Controllable> ());
 	}
 
 	return CairoWidget::on_leave_notify_event (ev);

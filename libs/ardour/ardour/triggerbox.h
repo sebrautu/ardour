@@ -72,7 +72,7 @@ LIBARDOUR_API std::string cue_marker_name (int32_t);
 
 class Trigger;
 
-typedef boost::shared_ptr<Trigger> TriggerPtr;
+typedef std::shared_ptr<Trigger> TriggerPtr;
 
 class LIBARDOUR_API Trigger : public PBD::Stateful {
   public:
@@ -303,10 +303,10 @@ class LIBARDOUR_API Trigger : public PBD::Stateful {
 	bool active() const { return _state >= Running; }
 	State state() const { return _state; }
 
-	void set_region (boost::shared_ptr<Region>, bool use_thread = true);
+	void set_region (std::shared_ptr<Region>, bool use_thread = true);
 	void clear_region ();
-	virtual int set_region_in_worker_thread (boost::shared_ptr<Region>) = 0;
-	boost::shared_ptr<Region> region() const { return _region; }
+	virtual int set_region_in_worker_thread (std::shared_ptr<Region>) = 0;
+	std::shared_ptr<Region> region() const { return _region; }
 
 	uint32_t index() const { return _index; }
 
@@ -407,7 +407,7 @@ class LIBARDOUR_API Trigger : public PBD::Stateful {
 		UIRequests() : stop (false) {}
 	};
 
-	boost::shared_ptr<Region> _region;
+	std::shared_ptr<Region> _region;
 	samplecnt_t                process_index;
 	samplepos_t                final_processed_sample;  /* where we stop playing, in process time, compare with process_index */
 	UIState                    ui_state;
@@ -458,7 +458,7 @@ class LIBARDOUR_API Trigger : public PBD::Stateful {
 	std::atomic<unsigned int>  last_property_generation;
 
 	void when_stopped_during_run (BufferSet& bufs, pframes_t dest_offset);
-	void set_region_internal (boost::shared_ptr<Region>);
+	void set_region_internal (std::shared_ptr<Region>);
 	virtual void retrigger();
 	virtual void _startup (BufferSet&, pframes_t dest_offset, Temporal::BBT_Offset const &);
 
@@ -499,7 +499,7 @@ class LIBARDOUR_API AudioTrigger : public Trigger {
 	void io_change ();
 	bool probably_oneshot () const;
 
-	int set_region_in_worker_thread (boost::shared_ptr<Region>);
+	int set_region_in_worker_thread (std::shared_ptr<Region>);
 	void jump_start ();
 	void jump_stop (BufferSet& bufs, pframes_t dest_offset);
 
@@ -542,7 +542,7 @@ class LIBARDOUR_API AudioTrigger : public Trigger {
 	virtual void setup_stretcher ();
 
 	void drop_data ();
-	int load_data (boost::shared_ptr<AudioRegion>);
+	int load_data (std::shared_ptr<AudioRegion>);
 	void estimate_tempo ();
 	void reset_stretcher ();
 	void _startup (BufferSet&, pframes_t dest_offset, Temporal::BBT_Offset const &);
@@ -574,7 +574,7 @@ class LIBARDOUR_API MIDITrigger : public Trigger {
 
 	void estimate_midi_patches ();
 
-	int set_region_in_worker_thread (boost::shared_ptr<Region>);
+	int set_region_in_worker_thread (std::shared_ptr<Region>);
 	void jump_start ();
 	void shutdown (BufferSet& bufs, pframes_t dest_offset);
 	void jump_stop (BufferSet& bufs, pframes_t dest_offset);
@@ -622,10 +622,10 @@ class LIBARDOUR_API MIDITrigger : public Trigger {
 	Temporal::BBT_Offset _start_offset;
 	Temporal::BBT_Offset _legato_offset;
 
-	boost::shared_ptr<MidiModel> model;
+	std::shared_ptr<MidiModel> model;
 	MidiModel::const_iterator iter;
 
-	int load_data (boost::shared_ptr<MidiRegion>);
+	int load_data (std::shared_ptr<MidiRegion>);
 	void compute_and_set_length ();
 	void _startup (BufferSet&, pframes_t dest_offset, Temporal::BBT_Offset const &);
 };
@@ -638,7 +638,7 @@ class LIBARDOUR_API TriggerBoxThread
 
 	static void init_request_pool() { Request::init_pool(); }
 
-	void set_region (TriggerBox&, uint32_t slot, boost::shared_ptr<Region>);
+	void set_region (TriggerBox&, uint32_t slot, std::shared_ptr<Region>);
 	void request_delete_trigger (Trigger* t);
 
 	void summon();
@@ -663,7 +663,7 @@ class LIBARDOUR_API TriggerBoxThread
 		/* for set region */
 		TriggerBox* box;
 		uint32_t slot;
-		boost::shared_ptr<Region> region;
+		std::shared_ptr<Region> region;
 		/* for DeleteTrigger */
 		Trigger* trigger;
 
@@ -730,7 +730,7 @@ class LIBARDOUR_API TriggerBox : public Processor
 	int set_state (const XMLNode&, int version);
 
 	void set_from_path (uint32_t slot, std::string const & path);
-	void set_from_selection (uint32_t slot, boost::shared_ptr<Region>);
+	void set_from_selection (uint32_t slot, std::shared_ptr<Region>);
 
 	DataType data_type() const { return _data_type; }
 
@@ -761,13 +761,13 @@ class LIBARDOUR_API TriggerBox : public Processor
 	void update_sidechain_name ();
 
 	void request_reload (int32_t slot, void*);
-	void set_region (uint32_t slot, boost::shared_ptr<Region> region);
+	void set_region (uint32_t slot, std::shared_ptr<Region> region);
 
 	void non_realtime_transport_stop (samplepos_t now, bool flush);
 	void non_realtime_locate (samplepos_t now);
 	void realtime_handle_transport_stopped ();
 
-	void enqueue_trigger_state_for_region (boost::shared_ptr<Region>, boost::shared_ptr<Trigger::UIState>);
+	void enqueue_trigger_state_for_region (std::shared_ptr<Region>, std::shared_ptr<Trigger::UIState>);
 
 	/* valid only within the ::run() call tree */
 	int32_t active_scene() const { return _active_scene; }
@@ -829,7 +829,7 @@ class LIBARDOUR_API TriggerBox : public Processor
 	bool                     _cancel_locate_armed;
 	bool                     _fast_fowarding;
 
-	boost::shared_ptr<SideChain> _sidechain;
+	std::shared_ptr<SideChain> _sidechain;
 
 	PBD::PCGRand _pcg;
 
@@ -903,7 +903,7 @@ public:
 	TriggerReference () : box (0), slot (0) {}
 	TriggerReference (ARDOUR::TriggerBox& b, uint32_t s) : box (&b), slot (s) {}
 
-	boost::shared_ptr<ARDOUR::Trigger> trigger() const { assert (box); return box->trigger (slot); }
+	std::shared_ptr<ARDOUR::Trigger> trigger() const { assert (box); return box->trigger (slot); }
 
 	ARDOUR::TriggerBox* box;
 	uint32_t            slot;

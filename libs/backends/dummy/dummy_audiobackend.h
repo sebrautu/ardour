@@ -30,7 +30,7 @@
 
 #include <ltc.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "pbd/natsort.h"
 #include "pbd/ringbuffer.h"
@@ -66,7 +66,7 @@ class DummyMidiEvent : public BackendMIDIEvent {
 		uint8_t *_data;
 };
 
-typedef std::vector<boost::shared_ptr<DummyMidiEvent> > DummyMidiBuffer;
+typedef std::vector<std::shared_ptr<DummyMidiEvent> > DummyMidiBuffer;
 
 class DummyPort : public BackendPort {
 	protected:

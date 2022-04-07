@@ -23,7 +23,7 @@
 #include "ardour/element_importer.h"
 #include "ardour/element_import_handler.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "pbd/xml++.h"
 

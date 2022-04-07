@@ -26,7 +26,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "pbd/signals.h"
 #include "pbd/stateful.h"
@@ -82,13 +82,13 @@ public:
 	static PBD::Signal0<void> StepTracksDown;
 	static PBD::Signal0<void> StepTracksUp;
 
-	void add_stripable_to_selection (boost::shared_ptr<ARDOUR::Stripable>);
-	void set_stripable_selection (boost::shared_ptr<ARDOUR::Stripable>);
-	void toggle_stripable_selection (boost::shared_ptr<ARDOUR::Stripable>);
-	void remove_stripable_from_selection (boost::shared_ptr<ARDOUR::Stripable>);
+	void add_stripable_to_selection (std::shared_ptr<ARDOUR::Stripable>);
+	void set_stripable_selection (std::shared_ptr<ARDOUR::Stripable>);
+	void toggle_stripable_selection (std::shared_ptr<ARDOUR::Stripable>);
+	void remove_stripable_from_selection (std::shared_ptr<ARDOUR::Stripable>);
 	void clear_stripable_selection ();
 
-	boost::shared_ptr<ARDOUR::Stripable> first_selected_stripable () const;
+	std::shared_ptr<ARDOUR::Stripable> first_selected_stripable () const;
 
 	/* the model here is as follows:
 
@@ -107,7 +107,7 @@ public:
 	*/
 
 	void set_route_table_size (uint32_t size);
-	void set_route_table (uint32_t table_index, boost::shared_ptr<ARDOUR::Route>);
+	void set_route_table (uint32_t table_index, std::shared_ptr<ARDOUR::Route>);
 	bool set_route_table (uint32_t table_index, uint32_t remote_control_id);
 
 	void route_set_rec_enable (uint32_t table_index, bool yn);
@@ -127,7 +127,7 @@ public:
 
 	std::string route_get_name (uint32_t table_index);
 
-	virtual std::list<boost::shared_ptr<ARDOUR::Bundle> > bundles ();
+	virtual std::list<std::shared_ptr<ARDOUR::Bundle> > bundles ();
 
 	virtual bool has_editor () const { return false; }
 	virtual void* get_gui () const { return 0; }
@@ -145,7 +145,7 @@ protected:
 	void next_track (uint32_t initial_id);
 	void prev_track (uint32_t initial_id);
 
-	std::vector<boost::shared_ptr<ARDOUR::Route> > route_table;
+	std::vector<std::shared_ptr<ARDOUR::Route> > route_table;
 	std::string _name;
 
 private:

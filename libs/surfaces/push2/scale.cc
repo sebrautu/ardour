@@ -289,7 +289,7 @@ ScaleLayout::button_right ()
 void
 ScaleLayout::show ()
 {
-	boost::shared_ptr<Push2::Button> b;
+	std::shared_ptr<Push2::Button> b;
 
 	last_vpot = -1;
 
@@ -558,7 +558,7 @@ ScaleLayout::show_root_state ()
 
 	}
 
-	boost::shared_ptr<Push2::Button> b = p2.button_by_id (bid);
+	std::shared_ptr<Push2::Button> b = p2.button_by_id (bid);
 
 	if (b != root_button) {
 		if (root_button) {
@@ -609,7 +609,7 @@ ScaleLayout::menu_rearranged ()
 void
 ScaleLayout::update_cursor_buttons ()
 {
-	boost::shared_ptr<Push2::Button> b;
+	std::shared_ptr<Push2::Button> b;
 	bool change;
 
 	b = p2.button_by_id (Push2::Up);

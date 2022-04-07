@@ -48,7 +48,7 @@
 
 #include <inttypes.h>
 #include <boost/type_traits.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "lua/luastate.h"
 

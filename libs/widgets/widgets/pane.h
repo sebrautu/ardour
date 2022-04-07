@@ -22,7 +22,7 @@
 
 #include <vector>
 #include <algorithm>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <stdint.h>
 
@@ -55,7 +55,7 @@ public:
 		Child (Pane* p, Gtk::Widget* widget, uint32_t ms) : pane (p), w (widget), minsize (ms) {}
 	};
 
-	typedef std::vector<boost::shared_ptr<Child> > Children;
+	typedef std::vector<std::shared_ptr<Child> > Children;
 
 	Pane (bool horizontal);
 	~Pane();

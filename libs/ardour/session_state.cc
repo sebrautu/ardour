@@ -231,11 +231,11 @@ Session::post_engine_init ()
 	MIDISceneChanger* msc;
 
 	_scene_changer = msc = new MIDISceneChanger (*this);
-	msc->set_input_port (boost::dynamic_pointer_cast<MidiPort>(scene_input_port()));
-	msc->set_output_port (boost::dynamic_pointer_cast<MidiPort>(scene_output_port()));
+	msc->set_input_port (std::dynamic_pointer_cast<MidiPort>(scene_input_port()));
+	msc->set_output_port (std::dynamic_pointer_cast<MidiPort>(scene_output_port()));
 
 	boost::function<samplecnt_t(void)> timer_func (boost::bind (&Session::audible_sample, this, (bool*)(0)));
-	boost::dynamic_pointer_cast<AsyncMIDIPort>(scene_input_port())->set_timer (timer_func);
+	std::dynamic_pointer_cast<AsyncMIDIPort>(scene_input_port())->set_timer (timer_func);
 
 	setup_midi_machine_control ();
 
@@ -310,7 +310,7 @@ Session::post_engine_init ()
 		{
 			Glib::Threads::Mutex::Lock lx (AudioEngine::instance()->process_lock ());
 			ProcessorChangeBlocker pcb (this);
-			boost::shared_ptr<RouteList> r = routes.reader ();
+			std::shared_ptr<RouteList> r = routes.reader ();
 			for (RouteList::iterator i = r->begin(); i != r->end(); ++i) {
 				(*i)->configure_processors (0);
 			}
@@ -396,9 +396,9 @@ Session::post_engine_init ()
 
 	BootMessage (_("Filling playback buffers"));
 
-	boost::shared_ptr<RouteList> rl = routes.reader();
+	std::shared_ptr<RouteList> rl = routes.reader();
 	for (RouteList::iterator r = rl->begin(); r != rl->end(); ++r) {
-		boost::shared_ptr<Track> trk = boost::dynamic_pointer_cast<Track> (*r);
+		std::shared_ptr<Track> trk = std::dynamic_pointer_cast<Track> (*r);
 		if (trk && !trk->is_private_route()) {
 			trk->seek (_transport_sample, true);
 		}
@@ -1077,11 +1077,11 @@ Session::get_template ()
 	return state (true, NormalSave);
 }
 
-typedef std::set<boost::shared_ptr<Playlist> > PlaylistSet;
-typedef std::set<boost::shared_ptr<Source> > SourceSet;
+typedef std::set<std::shared_ptr<Playlist> > PlaylistSet;
+typedef std::set<std::shared_ptr<Source> > SourceSet;
 
 bool
-Session::export_track_state (boost::shared_ptr<RouteList> rl, const string& path)
+Session::export_track_state (std::shared_ptr<RouteList> rl, const string& path)
 {
 	if (Glib::file_test (path, Glib::FILE_TEST_EXISTS))  {
 		return false;
@@ -1110,7 +1110,7 @@ Session::export_track_state (boost::shared_ptr<RouteList> rl, const string& path
 			continue;
 		}
 		child->add_child_nocopy ((*i)->get_state());
-		boost::shared_ptr<Track> track = boost::dynamic_pointer_cast<Track> (*i);
+		std::shared_ptr<Track> track = std::dynamic_pointer_cast<Track> (*i);
 		if (track) {
 			playlists.insert (track->playlist ());
 		}
@@ -1122,7 +1122,7 @@ Session::export_track_state (boost::shared_ptr<RouteList> rl, const string& path
 	child = node->add_child ("Playlists"); // SessionPlaylists::add_state
 	for (PlaylistSet::const_iterator i = playlists.begin(); i != playlists.end(); ++i) {
 		child->add_child_nocopy ((*i)->get_state ());
-		boost::shared_ptr<RegionList> prl = (*i)->region_list ();
+		std::shared_ptr<RegionList> prl = (*i)->region_list ();
 		for (RegionList::const_iterator s = prl->begin(); s != prl->end(); ++s) {
 			const Region::SourceList& sl = (*s)->sources ();
 			for (Region::SourceList::const_iterator sli = sl.begin(); sli != sl.end(); ++sli) {
@@ -1134,7 +1134,7 @@ Session::export_track_state (boost::shared_ptr<RouteList> rl, const string& path
 	child = node->add_child ("Sources");
 	for (SourceSet::const_iterator i = sources.begin(); i != sources.end(); ++i) {
 		child->add_child_nocopy ((*i)->get_state ());
-		boost::shared_ptr<FileSource> fs = boost::dynamic_pointer_cast<FileSource> (*i);
+		std::shared_ptr<FileSource> fs = std::dynamic_pointer_cast<FileSource> (*i);
 		if (fs) {
 #ifdef PLATFORM_WINDOWS
 			fs->close ();
@@ -1152,7 +1152,7 @@ Session::export_track_state (boost::shared_ptr<RouteList> rl, const string& path
 }
 
 static void
-merge_all_sources (boost::shared_ptr<const Playlist> pl, std::set<boost::shared_ptr<Source> >* all_sources)
+merge_all_sources (std::shared_ptr<const Playlist> pl, std::set<std::shared_ptr<Source> >* all_sources)
 {
 	pl->deep_sources (*all_sources);
 }
@@ -1161,7 +1161,7 @@ namespace
 {
 struct route_id_compare {
 	bool
-	operator() (const boost::shared_ptr<Route>& r1, const boost::shared_ptr<Route>& r2)
+	operator() (const std::shared_ptr<Route>& r1, const std::shared_ptr<Route>& r2)
 	{
 		return r1->id () < r2->id ();
 	}
@@ -1193,7 +1193,7 @@ Session::state (bool save_template, snapshot_t snapshot_type, bool only_used_ass
 		node->set_property ("sample-rate", _base_sample_rate);
 
 		/* store the last engine device we we can avoid autostarting on a different device with wrong i/o count */
-		boost::shared_ptr<AudioBackend> backend = _engine.current_backend();
+		std::shared_ptr<AudioBackend> backend = _engine.current_backend();
 		if (_engine.running () && backend && _engine.setup_required ()) {
 			child = node->add_child ("EngineHints");
 			child->set_property ("backend", backend-> name ());
@@ -1279,7 +1279,7 @@ Session::state (bool save_template, snapshot_t snapshot_type, bool only_used_ass
 	if (!save_template) {
 		Glib::Threads::Mutex::Lock sl (source_lock);
 
-		set<boost::shared_ptr<Source> > sources_used_by_this_snapshot;
+		set<std::shared_ptr<Source> > sources_used_by_this_snapshot;
 
 		if (only_used_assets) {
 			_playlists->sync_all_regions_with_regions ();
@@ -1292,9 +1292,9 @@ Session::state (bool save_template, snapshot_t snapshot_type, bool only_used_ass
 			 * about file sources that are empty
 			 * and unused by any regions.
 			 */
-			boost::shared_ptr<FileSource> fs;
+			std::shared_ptr<FileSource> fs;
 
-			if ((fs = boost::dynamic_pointer_cast<FileSource> (siter->second)) == 0) {
+			if ((fs = std::dynamic_pointer_cast<FileSource> (siter->second)) == 0) {
 				continue;
 			}
 
@@ -1304,7 +1304,7 @@ Session::state (bool save_template, snapshot_t snapshot_type, bool only_used_ass
 
 			if (only_used_assets) {
 				/* skip only unused audio files */
-				boost::shared_ptr<AudioFileSource> afs = boost::dynamic_pointer_cast<AudioFileSource> (fs);
+				std::shared_ptr<AudioFileSource> afs = std::dynamic_pointer_cast<AudioFileSource> (fs);
 				if (afs && !afs->used()) {
 					continue;
 				}
@@ -1330,13 +1330,13 @@ Session::state (bool save_template, snapshot_t snapshot_type, bool only_used_ass
 		if (!only_used_assets) {
 			const RegionFactory::RegionMap& region_map (RegionFactory::all_regions());
 			for (RegionFactory::RegionMap::const_iterator i = region_map.begin(); i != region_map.end(); ++i) {
-				boost::shared_ptr<Region> r = i->second;
+				std::shared_ptr<Region> r = i->second;
 				/* regions must have sources */
 				assert (r->sources().size() > 0 && r->master_sources().size() > 0);
 				/* only store regions not attached to playlists */
 				if (r->playlist() == 0) {
-					if (boost::dynamic_pointer_cast<AudioRegion>(r)) {
-						child->add_child_nocopy ((boost::dynamic_pointer_cast<AudioRegion>(r))->get_basic_state ());
+					if (std::dynamic_pointer_cast<AudioRegion>(r)) {
+						child->add_child_nocopy ((std::dynamic_pointer_cast<AudioRegion>(r))->get_basic_state ());
 					} else {
 						child->add_child_nocopy (r->get_state ());
 					}
@@ -1359,7 +1359,7 @@ Session::state (bool save_template, snapshot_t snapshot_type, bool only_used_ass
 				ca->add_child_nocopy (*can);
 				/* see above, child is still "Regions" here  */
 				if (i->second->playlist() == 0 && only_used_assets) {
-					if (boost::shared_ptr<AudioRegion> ar = boost::dynamic_pointer_cast<AudioRegion> (i->second)) {
+					if (std::shared_ptr<AudioRegion> ar = std::dynamic_pointer_cast<AudioRegion> (i->second)) {
 						child->add_child_nocopy (ar->get_basic_state ());
 					} else {
 						child->add_child_nocopy (i->second->get_state ());
@@ -1401,9 +1401,9 @@ Session::state (bool save_template, snapshot_t snapshot_type, bool only_used_ass
 
 	child = node->add_child ("Bundles");
 	{
-		boost::shared_ptr<BundleList> bundles = _bundles.reader ();
+		std::shared_ptr<BundleList> bundles = _bundles.reader ();
 		for (BundleList::iterator i = bundles->begin(); i != bundles->end(); ++i) {
-			boost::shared_ptr<UserBundle> b = boost::dynamic_pointer_cast<UserBundle> (*i);
+			std::shared_ptr<UserBundle> b = std::dynamic_pointer_cast<UserBundle> (*i);
 			if (b) {
 				child->add_child_nocopy (b->get_state());
 			}
@@ -1414,7 +1414,7 @@ Session::state (bool save_template, snapshot_t snapshot_type, bool only_used_ass
 
 	child = node->add_child ("Routes");
 	{
-		boost::shared_ptr<RouteList> r = routes.reader ();
+		std::shared_ptr<RouteList> r = routes.reader ();
 
 		route_id_compare cmp;
 		RouteList xml_node_order (*r);
@@ -1476,7 +1476,7 @@ Session::state (bool save_template, snapshot_t snapshot_type, bool only_used_ass
 }
 
 void
-Session::maybe_copy_midifiles (snapshot_t snapshot_type, boost::shared_ptr<Source> src, XMLNode* child)
+Session::maybe_copy_midifiles (snapshot_t snapshot_type, std::shared_ptr<Source> src, XMLNode* child)
 {
 	/* copy MIDI sources to new file
 	 *
@@ -1492,9 +1492,9 @@ Session::maybe_copy_midifiles (snapshot_t snapshot_type, boost::shared_ptr<Sourc
 	 * all IDs, references and pointers intact.
 	 * */
 
-	boost::shared_ptr<SMFSource> ms;
+	std::shared_ptr<SMFSource> ms;
 
-	if ((ms = boost::dynamic_pointer_cast<SMFSource> (src)) == 0) {
+	if ((ms = std::dynamic_pointer_cast<SMFSource> (src)) == 0) {
 		return;
 	}
 
@@ -1507,7 +1507,7 @@ Session::maybe_copy_midifiles (snapshot_t snapshot_type, boost::shared_ptr<Sourc
 	 */
 
 	/* use SMF-API to clone data (use the midi_model, not data on disk) */
-	boost::shared_ptr<SMFSource> newsrc (new SMFSource (*this, path, ms->flags()));
+	std::shared_ptr<SMFSource> newsrc (new SMFSource (*this, path, ms->flags()));
 	{
 		Source::WriterLock lm (ms->mutex());
 
@@ -1746,7 +1746,7 @@ Session::set_state (const XMLNode& node, int version)
 		SourceMap src_map (sources);
 		const RegionFactory::RegionMap& region_map (RegionFactory::all_regions());
 		for (RegionFactory::RegionMap::const_iterator i = region_map.begin(); i != region_map.end(); ++i) {
-			boost::shared_ptr<Region> r = i->second;
+			std::shared_ptr<Region> r = i->second;
 			if (!r->whole_file ()) {
 				continue;
 			}
@@ -1761,7 +1761,7 @@ Session::set_state (const XMLNode& node, int version)
 		}
 		/* TODO try to be smart and combine %L/%R sources into stereo whole-file regions */
 		for (SourceMap::const_iterator i = src_map.begin(); i != src_map.end(); ++i) {
-			boost::shared_ptr<AudioFileSource> afs = boost::dynamic_pointer_cast<AudioFileSource> (i->second);
+			std::shared_ptr<AudioFileSource> afs = std::dynamic_pointer_cast<AudioFileSource> (i->second);
 			if (!afs) {
 				continue;
 			}
@@ -1895,7 +1895,7 @@ Session::load_routes (const XMLNode& node, int version)
 
 	for (niter = nlist.begin(); niter != nlist.end(); ++niter) {
 
-		boost::shared_ptr<Route> route;
+		std::shared_ptr<Route> route;
 
 		if (version < 3000) {
 			route = XMLRouteFactory_2X (**niter, version);
@@ -1921,10 +1921,10 @@ Session::load_routes (const XMLNode& node, int version)
 
 	/* re-subscribe to MIDI connection handler */
 	for (RouteList::iterator r = new_routes.begin(); r != new_routes.end(); ++r) {
-		boost::shared_ptr<MidiTrack> mt = boost::dynamic_pointer_cast<MidiTrack> (*r);
+		std::shared_ptr<MidiTrack> mt = std::dynamic_pointer_cast<MidiTrack> (*r);
 		bool is_midi_route = (*r)->n_inputs().n_midi() > 0 && (*r)->n_inputs().n_midi() > 0;
 		if (mt || is_midi_route) {
-			(*r)->output()->changed.connect_same_thread (*this, boost::bind (&Session::midi_output_change_handler, this, _1, _2, boost::weak_ptr<Route>(*r)));
+			(*r)->output()->changed.connect_same_thread (*this, boost::bind (&Session::midi_output_change_handler, this, _1, _2, std::weak_ptr<Route>(*r)));
 		}
 	}
 
@@ -1934,10 +1934,10 @@ Session::load_routes (const XMLNode& node, int version)
 	return 0;
 }
 
-boost::shared_ptr<Route>
+std::shared_ptr<Route>
 Session::XMLRouteFactory (const XMLNode& node, int version)
 {
-	boost::shared_ptr<Route> ret;
+	std::shared_ptr<Route> ret;
 
 	if (node.name() != "Route") {
 		return ret;
@@ -1958,7 +1958,7 @@ Session::XMLRouteFactory (const XMLNode& node, int version)
 
 		/* has at least 1 playlist, therefore a track ... */
 
-		boost::shared_ptr<Track> track;
+		std::shared_ptr<Track> track;
 
 		if (type == DataType::AUDIO) {
 			track.reset (new AudioTrack (*this));
@@ -1979,7 +1979,7 @@ Session::XMLRouteFactory (const XMLNode& node, int version)
 
 	} else {
 		PresentationInfo::Flag flags = PresentationInfo::get_flags (node);
-		boost::shared_ptr<Route> r (new Route (*this, X_("toBeResetFroXML"), flags));
+		std::shared_ptr<Route> r (new Route (*this, X_("toBeResetFroXML"), flags));
 
 		if (r->init () == 0 && r->set_state (node, version) == 0) {
 			BOOST_MARK_ROUTE (r);
@@ -1990,10 +1990,10 @@ Session::XMLRouteFactory (const XMLNode& node, int version)
 	return ret;
 }
 
-boost::shared_ptr<Route>
+std::shared_ptr<Route>
 Session::XMLRouteFactory_3X (const XMLNode& node, int version)
 {
-	boost::shared_ptr<Route> ret;
+	std::shared_ptr<Route> ret;
 
 	if (node.name() != "Route") {
 		return ret;
@@ -2008,7 +2008,7 @@ Session::XMLRouteFactory_3X (const XMLNode& node, int version)
 
 	if (ds_child) {
 
-		boost::shared_ptr<Track> track;
+		std::shared_ptr<Track> track;
 
 		if (type == DataType::AUDIO) {
 			track.reset (new AudioTrack (*this));
@@ -2029,7 +2029,7 @@ Session::XMLRouteFactory_3X (const XMLNode& node, int version)
 
 	} else {
 		PresentationInfo::Flag flags = PresentationInfo::get_flags2X3X (node);
-		boost::shared_ptr<Route> r (new Route (*this, X_("toBeResetFroXML"), flags));
+		std::shared_ptr<Route> r (new Route (*this, X_("toBeResetFroXML"), flags));
 
 		if (r->init () == 0 && r->set_state (node, version) == 0) {
 			BOOST_MARK_ROUTE (r);
@@ -2040,10 +2040,10 @@ Session::XMLRouteFactory_3X (const XMLNode& node, int version)
 	return ret;
 }
 
-boost::shared_ptr<Route>
+std::shared_ptr<Route>
 Session::XMLRouteFactory_2X (const XMLNode& node, int version)
 {
-	boost::shared_ptr<Route> ret;
+	std::shared_ptr<Route> ret;
 
 	if (node.name() != "Route") {
 		return ret;
@@ -2064,13 +2064,13 @@ Session::XMLRouteFactory_2X (const XMLNode& node, int version)
 		PBD::ID ds_id (ds_prop->value ());
 		std::string playlist_name = _diskstreams_2X[ds_id];
 
-		boost::shared_ptr<Playlist> pl = playlists()->by_name (playlist_name);
+		std::shared_ptr<Playlist> pl = playlists()->by_name (playlist_name);
 
 		if (playlist_name.empty () || !pl) {
 			warning << string_compose (_("Could not find diskstream for diskstream-id: '%1', playlist: '%2'"), ds_prop->value (), playlist_name) << endmsg;
 		}
 
-		boost::shared_ptr<Track> track;
+		std::shared_ptr<Track> track;
 
 		if (type == DataType::AUDIO) {
 			track.reset (new AudioTrack (*this));
@@ -2102,7 +2102,7 @@ Session::XMLRouteFactory_2X (const XMLNode& node, int version)
 
 	} else {
 		PresentationInfo::Flag flags = PresentationInfo::get_flags2X3X (node);
-		boost::shared_ptr<Route> r (new Route (*this, X_("toBeResetFroXML"), flags));
+		std::shared_ptr<Route> r (new Route (*this, X_("toBeResetFroXML"), flags));
 
 		if (r->init () == 0 && r->set_state (node, version) == 0) {
 			BOOST_MARK_ROUTE (r);
@@ -2118,7 +2118,7 @@ Session::load_regions (const XMLNode& node)
 {
 	XMLNodeList nlist;
 	XMLNodeConstIterator niter;
-	boost::shared_ptr<Region> region;
+	std::shared_ptr<Region> region;
 
 	nlist = node.children();
 
@@ -2162,8 +2162,8 @@ Session::load_compounds (const XMLNode& node)
 		}
 		copy_id = caprop->value();
 
-		boost::shared_ptr<Region> orig = RegionFactory::region_by_id (orig_id);
-		boost::shared_ptr<Region> copy = RegionFactory::region_by_id (copy_id);
+		std::shared_ptr<Region> orig = RegionFactory::region_by_id (orig_id);
+		std::shared_ptr<Region> copy = RegionFactory::region_by_id (copy_id);
 
 		if (!orig || !copy) {
 			warning << string_compose (_("Regions in compound description not found (ID's %1 and %2): ignored"),
@@ -2213,7 +2213,7 @@ Session::load_nested_sources (const XMLNode& node)
 	}
 }
 
-boost::shared_ptr<Region>
+std::shared_ptr<Region>
 Session::XMLRegionFactory (const XMLNode& node, bool full)
 {
 	XMLProperty const * type = node.property("type");
@@ -2230,31 +2230,31 @@ Session::XMLRegionFactory (const XMLNode& node, bool full)
 		}
 
 		if (!type || type->value() == "audio") {
-			return boost::shared_ptr<Region>(XMLAudioRegionFactory (node, full));
+			return std::shared_ptr<Region>(XMLAudioRegionFactory (node, full));
 		} else if (type->value() == "midi") {
-			return boost::shared_ptr<Region>(XMLMidiRegionFactory (node, full));
+			return std::shared_ptr<Region>(XMLMidiRegionFactory (node, full));
 		}
 
 	} catch (failed_constructor& err) {
-		return boost::shared_ptr<Region> ();
+		return std::shared_ptr<Region> ();
 	}
 
-	return boost::shared_ptr<Region> ();
+	return std::shared_ptr<Region> ();
 }
 
-boost::shared_ptr<AudioRegion>
+std::shared_ptr<AudioRegion>
 Session::XMLAudioRegionFactory (const XMLNode& node, bool /*full*/)
 {
 	XMLProperty const * prop;
-	boost::shared_ptr<Source> source;
-	boost::shared_ptr<AudioSource> as;
+	std::shared_ptr<Source> source;
+	std::shared_ptr<AudioSource> as;
 	SourceList sources;
 	SourceList master_sources;
 	uint32_t nchans = 1;
 	char buf[128];
 
 	if (node.name() != X_("Region")) {
-		return boost::shared_ptr<AudioRegion>();
+		return std::shared_ptr<AudioRegion>();
 	}
 
 	node.get_property (X_("channels"), nchans);
@@ -2267,7 +2267,7 @@ Session::XMLAudioRegionFactory (const XMLNode& node, bool /*full*/)
 	if ((prop = node.property (X_("source-0"))) == 0) {
 		if ((prop = node.property ("source")) == 0) {
 			error << _("Session: XMLNode describing a AudioRegion is incomplete (no source)") << endmsg;
-			return boost::shared_ptr<AudioRegion>();
+			return std::shared_ptr<AudioRegion>();
 		}
 	}
 
@@ -2275,13 +2275,13 @@ Session::XMLAudioRegionFactory (const XMLNode& node, bool /*full*/)
 
 	if ((source = source_by_id (s_id)) == 0) {
 		error << string_compose(_("Session: XMLNode describing a AudioRegion references an unknown source id =%1"), s_id) << endmsg;
-		return boost::shared_ptr<AudioRegion>();
+		return std::shared_ptr<AudioRegion>();
 	}
 
-	as = boost::dynamic_pointer_cast<AudioSource>(source);
+	as = std::dynamic_pointer_cast<AudioSource>(source);
 	if (!as) {
 		error << string_compose(_("Session: XMLNode describing a AudioRegion references a non-audio source id =%1"), s_id) << endmsg;
-		return boost::shared_ptr<AudioRegion>();
+		return std::shared_ptr<AudioRegion>();
 	}
 
 	sources.push_back (as);
@@ -2296,13 +2296,13 @@ Session::XMLAudioRegionFactory (const XMLNode& node, bool /*full*/)
 
 			if ((source = source_by_id (id2)) == 0) {
 				error << string_compose(_("Session: XMLNode describing a AudioRegion references an unknown source id =%1"), id2) << endmsg;
-				return boost::shared_ptr<AudioRegion>();
+				return std::shared_ptr<AudioRegion>();
 			}
 
-			as = boost::dynamic_pointer_cast<AudioSource>(source);
+			as = std::dynamic_pointer_cast<AudioSource>(source);
 			if (!as) {
 				error << string_compose(_("Session: XMLNode describing a AudioRegion references a non-audio source id =%1"), id2) << endmsg;
-				return boost::shared_ptr<AudioRegion>();
+				return std::shared_ptr<AudioRegion>();
 			}
 			sources.push_back (as);
 		}
@@ -2316,26 +2316,26 @@ Session::XMLAudioRegionFactory (const XMLNode& node, bool /*full*/)
 
 			if ((source = source_by_id (id2)) == 0) {
 				error << string_compose(_("Session: XMLNode describing a AudioRegion references an unknown source id =%1"), id2) << endmsg;
-				return boost::shared_ptr<AudioRegion>();
+				return std::shared_ptr<AudioRegion>();
 			}
 
-			as = boost::dynamic_pointer_cast<AudioSource>(source);
+			as = std::dynamic_pointer_cast<AudioSource>(source);
 			if (!as) {
 				error << string_compose(_("Session: XMLNode describing a AudioRegion references a non-audio source id =%1"), id2) << endmsg;
-				return boost::shared_ptr<AudioRegion>();
+				return std::shared_ptr<AudioRegion>();
 			}
 			master_sources.push_back (as);
 		}
 	}
 
 	try {
-		boost::shared_ptr<AudioRegion> region (boost::dynamic_pointer_cast<AudioRegion> (RegionFactory::create (sources, node)));
+		std::shared_ptr<AudioRegion> region (std::dynamic_pointer_cast<AudioRegion> (RegionFactory::create (sources, node)));
 
 		/* a final detail: this is the one and only place that we know how long missing files are */
 
 		if (region->whole_file()) {
 			for (SourceList::iterator sx = sources.begin(); sx != sources.end(); ++sx) {
-				boost::shared_ptr<SilentFileSource> sfp = boost::dynamic_pointer_cast<SilentFileSource> (*sx);
+				std::shared_ptr<SilentFileSource> sfp = std::dynamic_pointer_cast<SilentFileSource> (*sx);
 				if (sfp) {
 					sfp->set_length (region->length().samples());
 				}
@@ -2355,20 +2355,20 @@ Session::XMLAudioRegionFactory (const XMLNode& node, bool /*full*/)
 	}
 
 	catch (failed_constructor& err) {
-		return boost::shared_ptr<AudioRegion>();
+		return std::shared_ptr<AudioRegion>();
 	}
 }
 
-boost::shared_ptr<MidiRegion>
+std::shared_ptr<MidiRegion>
 Session::XMLMidiRegionFactory (const XMLNode& node, bool /*full*/)
 {
 	XMLProperty const * prop;
-	boost::shared_ptr<Source> source;
-	boost::shared_ptr<MidiSource> ms;
+	std::shared_ptr<Source> source;
+	std::shared_ptr<MidiSource> ms;
 	SourceList sources;
 
 	if (node.name() != X_("Region")) {
-		return boost::shared_ptr<MidiRegion>();
+		return std::shared_ptr<MidiRegion>();
 	}
 
 	if ((prop = node.property ("name")) == 0) {
@@ -2379,7 +2379,7 @@ Session::XMLMidiRegionFactory (const XMLNode& node, bool /*full*/)
 	if ((prop = node.property (X_("source-0"))) == 0) {
 		if ((prop = node.property ("source")) == 0) {
 			error << _("Session: XMLNode describing a MidiRegion is incomplete (no source)") << endmsg;
-			return boost::shared_ptr<MidiRegion>();
+			return std::shared_ptr<MidiRegion>();
 		}
 	}
 
@@ -2387,24 +2387,24 @@ Session::XMLMidiRegionFactory (const XMLNode& node, bool /*full*/)
 
 	if ((source = source_by_id (s_id)) == 0) {
 		error << string_compose(_("Session: XMLNode describing a MidiRegion references an unknown source id =%1"), s_id) << endmsg;
-		return boost::shared_ptr<MidiRegion>();
+		return std::shared_ptr<MidiRegion>();
 	}
 
-	ms = boost::dynamic_pointer_cast<MidiSource>(source);
+	ms = std::dynamic_pointer_cast<MidiSource>(source);
 	if (!ms) {
 		error << string_compose(_("Session: XMLNode describing a MidiRegion references a non-midi source id =%1"), s_id) << endmsg;
-		return boost::shared_ptr<MidiRegion>();
+		return std::shared_ptr<MidiRegion>();
 	}
 
 	sources.push_back (ms);
 
 	try {
-		boost::shared_ptr<MidiRegion> region (boost::dynamic_pointer_cast<MidiRegion> (RegionFactory::create (sources, node)));
+		std::shared_ptr<MidiRegion> region (std::dynamic_pointer_cast<MidiRegion> (RegionFactory::create (sources, node)));
 		/* a final detail: this is the one and only place that we know how long missing files are */
 
 		if (region->whole_file()) {
 			for (SourceList::iterator sx = sources.begin(); sx != sources.end(); ++sx) {
-				boost::shared_ptr<SilentFileSource> sfp = boost::dynamic_pointer_cast<SilentFileSource> (*sx);
+				std::shared_ptr<SilentFileSource> sfp = std::dynamic_pointer_cast<SilentFileSource> (*sx);
 				if (sfp) {
 					sfp->set_length (region->length().samples());
 				}
@@ -2415,7 +2415,7 @@ Session::XMLMidiRegionFactory (const XMLNode& node, bool /*full*/)
 	}
 
 	catch (failed_constructor& err) {
-		return boost::shared_ptr<MidiRegion>();
+		return std::shared_ptr<MidiRegion>();
 	}
 }
 
@@ -2436,9 +2436,9 @@ Session::get_sources_as_xml ()
 void
 Session::reset_write_sources (bool mark_write_complete, bool force)
 {
-	boost::shared_ptr<RouteList> rl = routes.reader();
+	std::shared_ptr<RouteList> rl = routes.reader();
 	for (RouteList::iterator i = rl->begin(); i != rl->end(); ++i) {
-		boost::shared_ptr<Track> tr = boost::dynamic_pointer_cast<Track> (*i);
+		std::shared_ptr<Track> tr = std::dynamic_pointer_cast<Track> (*i);
 		if (tr) {
 			_state_of_the_state = StateOfTheState (_state_of_the_state | InCleanup);
 			tr->reset_write_sources(mark_write_complete, force);
@@ -2456,7 +2456,7 @@ Session::load_sources (const XMLNode& node)
 	 * versions of gcc complaining about
 	 * discarded return values.
 	 */
-	boost::shared_ptr<Source> source;
+	std::shared_ptr<Source> source;
 
 	nlist = node.children();
 
@@ -2587,11 +2587,11 @@ retry:
 	return 0;
 }
 
-boost::shared_ptr<Source>
+std::shared_ptr<Source>
 Session::XMLSourceFactory (const XMLNode& node)
 {
 	if (node.name() != "Source") {
-		return boost::shared_ptr<Source>();
+		return std::shared_ptr<Source>();
 	}
 
 	try {
@@ -2602,7 +2602,7 @@ Session::XMLSourceFactory (const XMLNode& node)
 	catch (failed_constructor& err) {
 		error << string_compose (_("Found a sound file that cannot be used by %1. Talk to the programmers."), PROGRAM_NAME) << endmsg;
 		node.dump (std::cout, " Invalid Source: ");
-		return boost::shared_ptr<Source>();
+		return std::shared_ptr<Source>();
 	}
 }
 
@@ -2918,9 +2918,9 @@ Session::load_bundles (XMLNode const & node)
 
 	for (niter = nlist.begin(); niter != nlist.end(); ++niter) {
 		if ((*niter)->name() == "InputBundle") {
-			add_bundle (boost::shared_ptr<UserBundle> (new UserBundle (**niter, true)));
+			add_bundle (std::shared_ptr<UserBundle> (new UserBundle (**niter, true)));
 		} else if ((*niter)->name() == "OutputBundle") {
-			add_bundle (boost::shared_ptr<UserBundle> (new UserBundle (**niter, false)));
+			add_bundle (std::shared_ptr<UserBundle> (new UserBundle (**niter, false)));
 		} else {
 			error << string_compose(_("Unknown node \"%1\" found in Bundles list from session file"), (*niter)->name()) << endmsg;
 			return -1;
@@ -3102,7 +3102,7 @@ Session::add_command (Command* const cmd)
 }
 
 PBD::StatefulDiffCommand*
-Session::add_stateful_diff_command (boost::shared_ptr<PBD::StatefulDestructible> sfd)
+Session::add_stateful_diff_command (std::shared_ptr<PBD::StatefulDestructible> sfd)
 {
 	PBD::StatefulDiffCommand* cmd = new PBD::StatefulDiffCommand (sfd);
 	add_command (cmd);
@@ -3353,16 +3353,16 @@ Session::find_all_sources_across_snapshots (set<string>& result, bool exclude_th
 }
 
 struct RegionCounter {
-	typedef std::map<PBD::ID,boost::shared_ptr<AudioSource> > AudioSourceList;
+	typedef std::map<PBD::ID,std::shared_ptr<AudioSource> > AudioSourceList;
 	AudioSourceList::iterator iter;
-	boost::shared_ptr<Region> region;
+	std::shared_ptr<Region> region;
 	uint32_t count;
 
 	RegionCounter() : count (0) {}
 };
 
 int
-Session::ask_about_playlist_deletion (boost::shared_ptr<Playlist> p)
+Session::ask_about_playlist_deletion (std::shared_ptr<Playlist> p)
 {
 	boost::optional<int> r = AskAboutPlaylistDeletion (p);
 	return r.value_or (1);
@@ -3379,7 +3379,7 @@ Session::cleanup_regions ()
 		uint32_t used = _playlists->region_use_count (i->second);
 
 		if (used == 0 && !i->second->automatic ()) {
-			boost::weak_ptr<Region> w = i->second;
+			std::weak_ptr<Region> w = i->second;
 			++i;
 			removed = true;
 			RegionFactory::map_remove (w);
@@ -3395,9 +3395,9 @@ Session::cleanup_regions ()
 				++i;
 				continue;
 			}
-			assert(boost::dynamic_pointer_cast<PlaylistSource>(i->second->source (0)) != 0);
+			assert(std::dynamic_pointer_cast<PlaylistSource>(i->second->source (0)) != 0);
 			if (0 == _playlists->region_use_count (i->second)) {
-				boost::weak_ptr<Region> w = i->second;
+				std::weak_ptr<Region> w = i->second;
 				++i;
 				RegionFactory::map_remove (w);
 			} else {
@@ -3448,8 +3448,8 @@ Session::cleanup_peakfiles ()
 	}
 
 	for (SourceMap::iterator i = sources.begin(); i != sources.end(); ++i) {
-		boost::shared_ptr<AudioSource> as;
-		if ((as = boost::dynamic_pointer_cast<AudioSource> (i->second)) != 0) {
+		std::shared_ptr<AudioSource> as;
+		if ((as = std::dynamic_pointer_cast<AudioSource> (i->second)) != 0) {
 			as->close_peakfile();
 		}
 	}
@@ -3459,8 +3459,8 @@ Session::cleanup_peakfiles ()
 	_state_of_the_state = StateOfTheState (_state_of_the_state & (~PeakCleanup));
 
 	for (SourceMap::iterator i = sources.begin(); i != sources.end(); ++i) {
-		boost::shared_ptr<AudioSource> as;
-		if ((as = boost::dynamic_pointer_cast<AudioSource> (i->second)) != 0) {
+		std::shared_ptr<AudioSource> as;
+		if ((as = std::dynamic_pointer_cast<AudioSource> (i->second)) != 0) {
 			SourceFactory::setup_peakfile(as, true);
 		}
 	}
@@ -3484,7 +3484,7 @@ Session::cleanup_sources (CleanupReport& rep)
 	string tmppath2;
 	Searchpath asp;
 	Searchpath msp;
-	set<boost::shared_ptr<Source> > sources_used_by_this_snapshot;
+	set<std::shared_ptr<Source> > sources_used_by_this_snapshot;
 
 	_state_of_the_state = StateOfTheState (_state_of_the_state | InCleanup);
 
@@ -3578,11 +3578,11 @@ Session::cleanup_sources (CleanupReport& rep)
 
 	ls.acquire ();
 	for (SourceMap::iterator i = sources.begin(); i != sources.end(); ) {
-		boost::shared_ptr<FileSource> fs;
+		std::shared_ptr<FileSource> fs;
 		SourceMap::iterator tmp = i;
 		++tmp;
 
-		if ((fs = boost::dynamic_pointer_cast<FileSource> (i->second)) == 0) {
+		if ((fs = std::dynamic_pointer_cast<FileSource> (i->second)) == 0) {
 			/* not a file */
 			i = tmp;
 			continue;
@@ -3863,7 +3863,7 @@ Session::clear_deletion_in_progress ()
 }
 
 void
-Session::add_controllable (boost::shared_ptr<Controllable> c)
+Session::add_controllable (std::shared_ptr<Controllable> c)
 {
 	/* this adds a controllable to the list managed by the Session.
 	   this is a subset of those managed by the Controllable class
@@ -3875,7 +3875,7 @@ Session::add_controllable (boost::shared_ptr<Controllable> c)
 	controllables.insert (c);
 }
 
-boost::shared_ptr<Controllable>
+std::shared_ptr<Controllable>
 Session::controllable_by_id (const PBD::ID& id)
 {
 	Glib::Threads::Mutex::Lock lm (controllables_lock);
@@ -3886,13 +3886,13 @@ Session::controllable_by_id (const PBD::ID& id)
 		}
 	}
 
-	return boost::shared_ptr<Controllable>();
+	return std::shared_ptr<Controllable>();
 }
 
-boost::shared_ptr<AutomationControl>
+std::shared_ptr<AutomationControl>
 Session::automation_control_by_id (const PBD::ID& id)
 {
-	return boost::dynamic_pointer_cast<AutomationControl> (controllable_by_id (id));
+	return std::dynamic_pointer_cast<AutomationControl> (controllable_by_id (id));
 }
 
 void
@@ -4036,8 +4036,8 @@ Session::restore_history (string snapshot_name)
 
 				} else if (n->name() == "NoteDiffCommand") {
 					PBD::ID id (n->property("midi-source")->value());
-					boost::shared_ptr<MidiSource> midi_source =
-						boost::dynamic_pointer_cast<MidiSource, Source>(source_by_id(id));
+					std::shared_ptr<MidiSource> midi_source =
+						std::dynamic_pointer_cast<MidiSource, Source>(source_by_id(id));
 					if (midi_source) {
 						ut->add_command (new MidiModel::NoteDiffCommand(midi_source->model(), *n));
 					} else {
@@ -4047,8 +4047,8 @@ Session::restore_history (string snapshot_name)
 				} else if (n->name() == "SysExDiffCommand") {
 
 					PBD::ID id (n->property("midi-source")->value());
-					boost::shared_ptr<MidiSource> midi_source =
-						boost::dynamic_pointer_cast<MidiSource, Source>(source_by_id(id));
+					std::shared_ptr<MidiSource> midi_source =
+						std::dynamic_pointer_cast<MidiSource, Source>(source_by_id(id));
 					if (midi_source) {
 						ut->add_command (new MidiModel::SysExDiffCommand (midi_source->model(), *n));
 					} else {
@@ -4058,8 +4058,8 @@ Session::restore_history (string snapshot_name)
 				} else if (n->name() == "PatchChangeDiffCommand") {
 
 					PBD::ID id (n->property("midi-source")->value());
-					boost::shared_ptr<MidiSource> midi_source =
-						boost::dynamic_pointer_cast<MidiSource, Source>(source_by_id(id));
+					std::shared_ptr<MidiSource> midi_source =
+						std::dynamic_pointer_cast<MidiSource, Source>(source_by_id(id));
 					if (midi_source) {
 						ut->add_command (new MidiModel::PatchChangeDiffCommand (midi_source->model(), *n));
 					} else {
@@ -4338,8 +4338,8 @@ Session::setup_midi_machine_control ()
 {
 	_mmc = new MIDI::MachineControl;
 
-	boost::shared_ptr<AsyncMIDIPort> async_in = boost::dynamic_pointer_cast<AsyncMIDIPort> (_midi_ports->mmc_input_port());
-	boost::shared_ptr<AsyncMIDIPort> async_out = boost::dynamic_pointer_cast<AsyncMIDIPort> (_midi_ports->mmc_output_port());
+	std::shared_ptr<AsyncMIDIPort> async_in = std::dynamic_pointer_cast<AsyncMIDIPort> (_midi_ports->mmc_input_port());
+	std::shared_ptr<AsyncMIDIPort> async_out = std::dynamic_pointer_cast<AsyncMIDIPort> (_midi_ports->mmc_output_port());
 
 	if (!async_out || !async_out) {
 		return;
@@ -4373,7 +4373,7 @@ Session::setup_midi_machine_control ()
 	_mmc->SPPStop.connect_same_thread (*this, boost::bind (&Session::spp_stop, this));
 }
 
-boost::shared_ptr<Controllable>
+std::shared_ptr<Controllable>
 Session::solo_cut_control() const
 {
 	/* the solo cut control is a bit of an anomaly, at least as of Febrary 2011. There are no other
@@ -4448,7 +4448,7 @@ Session::rename (const std::string& new_name)
 	 */
 
 	for (SourceMap::const_iterator i = sources.begin(); i != sources.end(); ++i) {
-		boost::shared_ptr<FileSource> fs = boost::dynamic_pointer_cast<FileSource> (i->second);
+		std::shared_ptr<FileSource> fs = std::dynamic_pointer_cast<FileSource> (i->second);
 		if (fs) {
 			fs->close ();
 		}
@@ -4600,7 +4600,7 @@ Session::rename (const std::string& new_name)
 	/* update file source paths */
 
 	for (SourceMap::iterator i = sources.begin(); i != sources.end(); ++i) {
-		boost::shared_ptr<FileSource> fs = boost::dynamic_pointer_cast<FileSource> (i->second);
+		std::shared_ptr<FileSource> fs = std::dynamic_pointer_cast<FileSource> (i->second);
 		if (fs) {
 			string p = fs->path ();
 			boost::replace_all (p, old_sources_root, _session_dir->sources_root());
@@ -4791,7 +4791,7 @@ Session::get_snapshot_from_instant (const std::string& session_dir)
 	return "";
 }
 
-typedef std::vector<boost::shared_ptr<FileSource> > SeveralFileSources;
+typedef std::vector<std::shared_ptr<FileSource> > SeveralFileSources;
 typedef std::map<std::string,SeveralFileSources> SourcePathMap;
 
 int
@@ -4801,7 +4801,7 @@ Session::bring_all_sources_into_session (boost::function<void(uint32_t,uint32_t,
 	uint32_t n = 0;
 	SourcePathMap source_path_map;
 	string new_path;
-	boost::shared_ptr<AudioFileSource> afs;
+	std::shared_ptr<AudioFileSource> afs;
 	int ret = 0;
 
 	{
@@ -4811,7 +4811,7 @@ Session::bring_all_sources_into_session (boost::function<void(uint32_t,uint32_t,
 		cerr << " total sources = " << sources.size();
 
 		for (SourceMap::const_iterator i = sources.begin(); i != sources.end(); ++i) {
-			boost::shared_ptr<FileSource> fs = boost::dynamic_pointer_cast<FileSource> (i->second);
+			std::shared_ptr<FileSource> fs = std::dynamic_pointer_cast<FileSource> (i->second);
 
 			if (!fs) {
 				continue;
@@ -5312,7 +5312,7 @@ Session::save_as (SaveAs& saveas)
 			*/
 
 			for (SourceMap::const_iterator i = sources.begin(); i != sources.end(); ++i) {
-				boost::shared_ptr<FileSource> fs = boost::dynamic_pointer_cast<FileSource> (i->second);
+				std::shared_ptr<FileSource> fs = std::dynamic_pointer_cast<FileSource> (i->second);
 
 				if (!fs) {
 					continue;
@@ -5444,11 +5444,11 @@ Session::archive_session (const std::string& dest,
 	blacklist_dirs.push_back (string (externals_dir_name) + G_DIR_SEPARATOR);
 	blacklist_dirs.push_back (string (plugins_dir_name) + G_DIR_SEPARATOR);
 
-	std::map<boost::shared_ptr<AudioFileSource>, std::string> orig_sources;
-	std::map<boost::shared_ptr<AudioFileSource>, std::string> orig_origin;
-	std::map<boost::shared_ptr<AudioFileSource>, float> orig_gain;
+	std::map<std::shared_ptr<AudioFileSource>, std::string> orig_sources;
+	std::map<std::shared_ptr<AudioFileSource>, std::string> orig_origin;
+	std::map<std::shared_ptr<AudioFileSource>, float> orig_gain;
 
-	set<boost::shared_ptr<Source> > sources_used_by_this_snapshot;
+	set<std::shared_ptr<Source> > sources_used_by_this_snapshot;
 	if (only_used_sources) {
 		_playlists->sync_all_regions_with_regions ();
 		_playlists->foreach (boost::bind (merge_all_sources, _1, &sources_used_by_this_snapshot), false);
@@ -5464,10 +5464,10 @@ Session::archive_session (const std::string& dest,
 		/* build a list of used names */
 		std::set<std::string> audio_file_names;
 		for (SourceMap::const_iterator i = sources.begin(); i != sources.end(); ++i) {
-			if (boost::dynamic_pointer_cast<SilentFileSource> (i->second)) {
+			if (std::dynamic_pointer_cast<SilentFileSource> (i->second)) {
 				continue;
 			}
-			boost::shared_ptr<AudioFileSource> afs = boost::dynamic_pointer_cast<AudioFileSource> (i->second);
+			std::shared_ptr<AudioFileSource> afs = std::dynamic_pointer_cast<AudioFileSource> (i->second);
 			if (!afs || afs->length ().is_zero ()) {
 				continue;
 			}
@@ -5483,10 +5483,10 @@ Session::archive_session (const std::string& dest,
 		}
 
 		for (SourceMap::const_iterator i = sources.begin(); i != sources.end(); ++i) {
-			if (boost::dynamic_pointer_cast<SilentFileSource> (i->second)) {
+			if (std::dynamic_pointer_cast<SilentFileSource> (i->second)) {
 				continue;
 			}
-			boost::shared_ptr<AudioFileSource> afs = boost::dynamic_pointer_cast<AudioFileSource> (i->second);
+			std::shared_ptr<AudioFileSource> afs = std::dynamic_pointer_cast<AudioFileSource> (i->second);
 			if (!afs || afs->length ().is_zero ()) {
 				continue;
 			}
@@ -5547,10 +5547,10 @@ Session::archive_session (const std::string& dest,
 
 		Glib::Threads::Mutex::Lock lm (source_lock);
 		for (SourceMap::const_iterator i = sources.begin(); i != sources.end(); ++i) {
-			if (boost::dynamic_pointer_cast<SilentFileSource> (i->second)) {
+			if (std::dynamic_pointer_cast<SilentFileSource> (i->second)) {
 				continue;
 			}
-			boost::shared_ptr<AudioFileSource> afs = boost::dynamic_pointer_cast<AudioFileSource> (i->second);
+			std::shared_ptr<AudioFileSource> afs = std::dynamic_pointer_cast<AudioFileSource> (i->second);
 			if (!afs || afs->length ().is_zero ()) {
 				continue;
 			}
@@ -5713,13 +5713,13 @@ Session::archive_session (const std::string& dest,
 	config.set_audio_search_path (old_config_search_path[DataType::AUDIO]);
 	config.set_midi_search_path (old_config_search_path[DataType::MIDI]);
 
-	for (std::map<boost::shared_ptr<AudioFileSource>, std::string>::iterator i = orig_origin.begin (); i != orig_origin.end (); ++i) {
+	for (std::map<std::shared_ptr<AudioFileSource>, std::string>::iterator i = orig_origin.begin (); i != orig_origin.end (); ++i) {
 		i->first->set_origin (i->second);
 	}
-	for (std::map<boost::shared_ptr<AudioFileSource>, std::string>::iterator i = orig_sources.begin (); i != orig_sources.end (); ++i) {
+	for (std::map<std::shared_ptr<AudioFileSource>, std::string>::iterator i = orig_sources.begin (); i != orig_sources.end (); ++i) {
 		i->first->replace_file (i->second);
 	}
-	for (std::map<boost::shared_ptr<AudioFileSource>, float>::iterator i = orig_gain.begin (); i != orig_gain.end (); ++i) {
+	for (std::map<std::shared_ptr<AudioFileSource>, float>::iterator i = orig_gain.begin (); i != orig_gain.end (); ++i) {
 		i->first->set_gain (i->second, true);
 	}
 

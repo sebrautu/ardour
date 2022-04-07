@@ -25,7 +25,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "pbd/natsort.h"
 #include "pbd/rcu.h"
@@ -41,8 +41,8 @@ class PortManager;
 
 class BackendPort;
 
-typedef boost::shared_ptr<BackendPort> BackendPortPtr;
-typedef boost::shared_ptr<BackendPort> const & BackendPortHandle;
+typedef std::shared_ptr<BackendPort> BackendPortPtr;
+typedef std::shared_ptr<BackendPort> const & BackendPortHandle;
 
 class LIBARDOUR_API BackendPort : public ProtoPort
 {
@@ -225,12 +225,12 @@ protected:
 	SerializedRCUManager<PortIndex>                _ports;
 
 	bool valid_port (BackendPortHandle port) const {
-		boost::shared_ptr<PortIndex> p = _ports.reader ();
+		std::shared_ptr<PortIndex> p = _ports.reader ();
 		return std::find (p->begin (), p->end (), port) != p->end ();
 	}
 
 	BackendPortPtr find_port (const std::string& port_name) const {
-		boost::shared_ptr<PortMap> p  = _portmap.reader ();
+		std::shared_ptr<PortMap> p  = _portmap.reader ();
 		PortMap::const_iterator    it = p->find (port_name);
 		if (it == p->end ()) {
 			return BackendPortPtr();

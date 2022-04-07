@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "pbd/mpmc_queue.h"
 #include "pbd/semutils.h"
@@ -48,7 +48,7 @@ class Route;
 class Session;
 class GraphEdges;
 
-typedef boost::shared_ptr<GraphNode> node_ptr_t;
+typedef std::shared_ptr<GraphNode> node_ptr_t;
 
 typedef std::list<node_ptr_t> node_list_t;
 typedef std::set<node_ptr_t>  node_set_t;
@@ -59,7 +59,7 @@ public:
 	Graph (Session& session);
 
 	void trigger (GraphNode* n);
-	void rechain (boost::shared_ptr<RouteList>, GraphEdges const&);
+	void rechain (std::shared_ptr<RouteList>, GraphEdges const&);
 	bool plot (std::string const& file_name) const;
 
 	void plot (int chain);

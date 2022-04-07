@@ -524,7 +524,7 @@ ExportFormatSpecification::set_state (const XMLNode & root)
 bool
 ExportFormatSpecification::is_compatible_with (ExportFormatCompatibility const & compatibility) const
 {
-	boost::shared_ptr<ExportFormatBase> intersection = get_intersection (compatibility);
+	std::shared_ptr<ExportFormatBase> intersection = get_intersection (compatibility);
 
 	if (intersection->formats_empty() && format_id() != 0) {
 		return false;
@@ -574,7 +574,7 @@ ExportFormatSpecification::is_complete () const
 }
 
 void
-ExportFormatSpecification::set_format (boost::shared_ptr<ExportFormat> format)
+ExportFormatSpecification::set_format (std::shared_ptr<ExportFormat> format)
 {
 	if (format) {
 		FormatId new_fmt = format->get_format_id ();
@@ -600,7 +600,7 @@ ExportFormatSpecification::set_format (boost::shared_ptr<ExportFormat> format)
 		if (!_has_codec_quality) {
 			_codec_quality = 0;
 		} else if (fmt_changed) {
-			_codec_quality = boost::dynamic_pointer_cast<HasCodecQuality> (format)->default_codec_quality();
+			_codec_quality = std::dynamic_pointer_cast<HasCodecQuality> (format)->default_codec_quality();
 		}
 
 		_supports_tagging = format->supports_tagging ();

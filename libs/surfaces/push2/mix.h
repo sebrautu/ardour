@@ -83,7 +83,7 @@ class MixLayout : public Push2Layout
 
 	int32_t bank_start;
 	PBD::ScopedConnectionList stripable_connections;
-	boost::shared_ptr<ARDOUR::Stripable> stripable[8];
+	std::shared_ptr<ARDOUR::Stripable> stripable[8];
 
 	PBD::ScopedConnectionList session_connections;
 	void stripables_added ();
@@ -99,7 +99,7 @@ class MixLayout : public Push2Layout
 		Send1, Send2, Send3, Send4, Send5
 	};
 
-	boost::shared_ptr<Push2::Button> mode_button;
+	std::shared_ptr<Push2::Button> mode_button;
 	VPotMode vpot_mode;
 	void show_vpot_mode ();
 

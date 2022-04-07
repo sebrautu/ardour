@@ -48,7 +48,7 @@ class Pannable;
 class LIBARDOUR_API PortInsert : public IOProcessor
 {
 public:
-	PortInsert (Session&, boost::shared_ptr<Pannable>, boost::shared_ptr<MuteMaster> mm);
+	PortInsert (Session&, std::shared_ptr<Pannable>, std::shared_ptr<MuteMaster> mm);
 	~PortInsert ();
 
 	int set_state (const XMLNode&, int version);
@@ -86,7 +86,7 @@ private:
 	/* disallow copy construction */
 	PortInsert (const PortInsert&);
 
-	boost::shared_ptr<Delivery> _out;
+	std::shared_ptr<Delivery> _out;
 
 	MTDM*       _mtdm;
 	bool        _latency_detect;
