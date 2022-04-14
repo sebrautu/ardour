@@ -44,8 +44,10 @@
 #include "ardour/debug.h"
 #include "ardour/disk_reader.h"
 #include "ardour/graph.h"
+#include "ardour/io_plug.h"
 #include "ardour/port.h"
 #include "ardour/process_thread.h"
+#include "ardour/rt_tasklist.h"
 #include "ardour/scene_changer.h"
 #include "ardour/session.h"
 #include "ardour/transport_fsm.h"
@@ -108,7 +110,28 @@ Session::process (pframes_t nframes)
 
 	_engine.main_thread()->get_buffers ();
 
+	boost::shared_ptr<IOPlugList> io_plugins (_io_plugins.reader ());
+	{
+		RTTaskList::TaskList tl;
+		for (auto const& p : *io_plugins) {
+			if (p->is_pre ()) {
+				tl.push_back (boost::bind (&IOPlug::run, p, 0, nframes));
+			}
+		}
+		rt_tasklist ()->process (tl);
+	}
+
 	(this->*process_function) (nframes);
+
+	{
+		RTTaskList::TaskList tl;
+		for (auto const& p : *io_plugins) {
+			if (!p->is_pre ()) {
+				tl.push_back (boost::bind (&IOPlug::run, p, 0, nframes));
+			}
+		}
+		rt_tasklist ()->process (tl);
+	}
 
 	/* realtime-safe meter-position and processor-order changes
 	 *

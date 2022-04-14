@@ -22,7 +22,9 @@
 
 #include "ardour/audioengine.h"
 #include "ardour/debug.h"
+#include "ardour/process_thread.h"
 #include "ardour/rt_tasklist.h"
+#include "ardour/session_event.h"
 #include "ardour/utils.h"
 
 #include "pbd/i18n.h"
@@ -64,7 +66,13 @@ RTTaskList::drop_threads ()
 RTTaskList::_thread_run (void *arg)
 {
 	RTTaskList *d = static_cast<RTTaskList *>(arg);
-	pthread_set_name ("RTTaskList");
+
+	char name[64];
+	snprintf (name, 64, "RTTask-%p", (void*)DEBUG_THREAD_SELF);
+	pthread_set_name (name);
+	SessionEvent::create_per_thread_pool (name, 64);
+	PBD::notify_event_loops_about_thread_creation (pthread_self (), name, 64);
+
 	d->run ();
 	pthread_exit (0);
 	return 0;
@@ -107,6 +115,9 @@ RTTaskList::run ()
 	Glib::Threads::Mutex::Lock tm (_tasklist_mutex, Glib::Threads::NOT_LOCK);
 	bool wait = true;
 
+	ProcessThread* pt = new ProcessThread ();
+	pt->get_buffers ();
+
 	while (true) {
 		if (wait) {
 			_task_run_sem.wait ();
@@ -138,6 +149,9 @@ RTTaskList::run ()
 
 		wait = true;
 	}
+
+	pt->drop_buffers ();
+	delete pt;
 }
 
 void
